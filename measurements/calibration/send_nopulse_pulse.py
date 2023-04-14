@@ -78,7 +78,7 @@ if __name__ == "__main__":
 
     pg.show(decimation, True)
     
-    pg.send_waves_awg(awg, name, pattern_rep, zero_length, zero_multiple, readout_trigger_offset)
+    #pg.send_waves_awg(awg, name, pattern_rep, zero_length, zero_multiple, readout_trigger_offset, decimation)
     #run_funcs.initialize_awg(awg, num_patterns, pattern_rep, decimation)
     
     awg.close()

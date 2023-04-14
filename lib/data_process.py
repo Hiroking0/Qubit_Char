@@ -25,7 +25,7 @@ def get_population_ratio(arr, thresh):
         answer[i] = n_excited/len(arr[i])
     return answer
 
-def plot_population_v_pattern(arr, thresh, x):
+def get_population_v_pattern(arr, thresh):
     plt_arr = np.zeros(len(arr))
     for i in range(len(arr)):
         pe = 0
@@ -35,10 +35,11 @@ def plot_population_v_pattern(arr, thresh, x):
                 pe += 1
         pe /= len(arr[0])
         plt_arr[i] = pe
-    plt.plot(x, plt_arr)
-    plt.title("Pattern vs proportion of population in excited state")
-    plt.ylabel("PE")
-    plt.show()
+    #plt.plot(x, plt_arr)
+    #plt.title("Pattern vs proportion of population in excited state")
+    #plt.ylabel("PE")
+    #plt.show()
+    return plt_arr
 
 def frombin(tot_samples, numAcquisitions, channels = 2, name = 'data.bin'):
     #assume 1 record per buffer

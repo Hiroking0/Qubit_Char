@@ -84,7 +84,7 @@ if __name__ == "__main__":
     
     readout_trigger_offset = params['readout_trigger_offset']
     
-    pg.send_waves_awg(awg, name, pattern_repeat, zero_length, zero_multiple, readout_trigger_offset)
+    pg.send_waves_awg(awg, name, pattern_repeat, zero_length, zero_multiple, readout_trigger_offset, decimation)
     run_funcs.initialize_awg(awg, num_patterns, pattern_repeat, decimation)
     
     awg.close()

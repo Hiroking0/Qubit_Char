@@ -259,9 +259,9 @@ class PulseGroup:
         return (c1Waves, c2Waves)
 
     #this function will send waves and sequence them
-    def send_waves_awg(self, awg, name, pattern_repeat, zero_length, zero_multiple, readout_trigger_offset):
+    def send_waves_awg(self, awg, name, pattern_repeat, zero_length, zero_multiple, readout_trigger_offset, decimation):
         PulseGroup.READOUT_TRIGGER_OFFSET = readout_trigger_offset
-        
+        zero_multiple = int(zero_multiple/decimation)
         #First convert all arrays to waveforms, then send
         (c1Waves, c2Waves) = self.get_waveforms()
         

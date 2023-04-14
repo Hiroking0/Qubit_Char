@@ -11,8 +11,14 @@ import matplotlib.pyplot as plt
 from tkinter.filedialog import askopenfilename
 from scipy.optimize import curve_fit
 import yaml
+import sys
+sys.path.append("../../")
+from lib import data_process as dp
+import os
+import json
 
 def objective_T1(x, a, b, c):
+
 	return a + (b*np.exp(-x/c))
 
 def fit_T1(y, init_a, init_b, init_c, num_points, max_length):
@@ -49,34 +55,44 @@ def T1_loop(hrs = 1.0, t = 300 , avg = 800):
 '''
 if __name__ == "__main__":
     
-    f = open('../general_config.yaml','r')
-    params = yaml.safe_load(f)
-    f.close()
+    #f = open('../general_config.yaml','r')
+    #params = yaml.safe_load(f)
+    #f.close()
     
     fn = askopenfilename()
+    
+    nf = '\\'.join(fn.split('/')[0:-1]) + "/"
+
+    for (root, dirs, files) in os.walk(nf):
+        for f in files:
+            if ".json" in f:
+                with open(nf + f) as file:
+                    params = json.load(file)
+
     arr = np.load(fn)
-    print(np.shape(arr))
-    print(arr.dtype.metadata)
+    pop = dp.get_population_v_pattern(arr, params['v_threshold'])
+
     #first get pattern avgs
     avgs = np.zeros(len(arr))
     for i in range(len(arr)):
         avgs[i] = np.average(arr[i])
         
-    a = 228
+    a = 191
     b = -.3
     c = 10679
+
     longest_T1 = params['T1_final_gap']
     shortest_T1 = params['T1_init_gap']
     num_patterns = len(arr)
     
-    fit_data, new_a, new_b, new_c = fit_T1(avgs, a, b, c, num_patterns, longest_T1)
+    fit_data, new_a, new_b, new_c = fit_T1(pop, a, b, c, num_patterns, longest_T1)
     print("final data:")
     print("offset: ", new_a)
     print("amplitude: ", new_b)
     print("tau: ", new_c)
     
     x = np.linspace(shortest_T1,longest_T1, num_patterns)
-    plt.plot(x, avgs, 'ko')
+    plt.plot(x, pop, 'ko')
     plt.plot(x, fit_data, 'r')
     plt.xlabel("$t_{T1}$ (ns)")
     plt.ylabel("V")

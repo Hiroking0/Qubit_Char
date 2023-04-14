@@ -106,7 +106,7 @@ if __name__ == "__main__":
     pg.show(decimation, True)
     
     #these two lines are not needed for displaying the pulse
-    pg.send_waves_awg(awg, name, pattern_repeat, zero_length, zero_multiple, readout_trigger_offset)
+    pg.send_waves_awg(awg, name, pattern_repeat, zero_length, zero_multiple, readout_trigger_offset, decimation)
     run_funcs.initialize_awg(awg, num_patterns, pattern_repeat, wave_len, decimation)
     
     awg.close()
