@@ -19,7 +19,6 @@ def get_pulse_group(q_dur, #pulse start time
                 q_start_step,
                 readout_start, #readout
                 readout, #readout duration
-                wait_time,
                 decimation = 1):
     
     q_dur = int(q_dur/decimation)
@@ -28,11 +27,10 @@ def get_pulse_group(q_dur, #pulse start time
     q_start_step = int(q_start_step/decimation)
     readout_start = int(readout_start/decimation)
     readout = int(readout/decimation)
-    wait_time = int(wait_time/decimation)
     
     
     p1 = be.Sweep_Pulse(q_start_start, q_dur, amplitude = 1, channel = 1, sweep_param = 'start', sweep_stop = q_start_end, sweep_step = q_start_step)
-    ro = be.Readout_Pulse(readout_start, readout, amplitude = 1, wait_time = wait_time)
+    ro = be.Readout_Pulse(readout_start, readout, amplitude = 1)
     pg = be.PulseGroup([p1, ro])
     #pg.send_waves_awg(awg, "hi", 5)
     return pg
@@ -66,7 +64,6 @@ if __name__ == "__main__":
 
     zero_length = params['zero_length']
     zero_multiple = params['zero_multiple']
-    wait_time = zero_length * zero_multiple
     
     num_patterns = int((q_start_end - q_start_start)/q_start_step)
     print(num_patterns)
@@ -74,12 +71,11 @@ if __name__ == "__main__":
     
     pattern_repeat = params['pattern_repeat']
     
-    wave_len = readout_start + readout + wait_time
     awg = be.get_awg()
     
     
     
-    pg = get_pulse_group(q_duration, q_start_start, q_start_end, q_start_step, readout_start, readout, wait_time, decimation)
+    pg = get_pulse_group(q_duration, q_start_start, q_start_end, q_start_step, readout_start, readout, decimation)
     pg.show(decimation, True)
     
     readout_trigger_offset = params['readout_trigger_offset']

@@ -20,7 +20,7 @@ def get_pulse_group(q_duration, #pulse duration
                 first_pulse_step,
                 readout_start, #readout
                 readout, #readout duration
-                wait_time,
+                readout_trigger_offset,
                 decimation = 1):
     q_duration = int(q_duration/decimation)
     first_pulse_start = int(first_pulse_start/decimation)
@@ -29,8 +29,8 @@ def get_pulse_group(q_duration, #pulse duration
     first_pulse_step = int(first_pulse_step/decimation)
     readout_start = int(readout_start/decimation)
     readout = int(readout/decimation)
-    wait_time = int(wait_time/decimation)
-    
+    readout_trigger_offset =int(readout_trigger_offset/decimation)
+
     
     be.READOUT_TRIGGER_OFFSET = readout_trigger_offset
     
@@ -41,7 +41,7 @@ def get_pulse_group(q_duration, #pulse duration
     
     p2 = be.Pulse(second_pulse_start, q_duration, amplitude = 1, channel = 1)
     
-    ro = be.Readout_Pulse(readout_start, readout, amplitude = 1, wait_time = wait_time)
+    ro = be.Readout_Pulse(readout_start, readout, amplitude = 1)
     pg = be.PulseGroup([p1, p2, ro])
     return pg
 
@@ -75,24 +75,16 @@ if __name__ == "__main__":
     
     zero_length = params['zero_length']
     zero_multiple = params['zero_multiple']
-    wait_time = zero_length * zero_multiple
     
     num_patterns = int((first_pulse_final_start - first_pulse_start)/first_pulse_step)
     
     print("Number of patterns: " + str(num_patterns))
     
     pattern_repeat = params['pattern_repeat']
-    seq_repeat = params['seq_repeat']
     
-    acq_multiples = params['acq_multiples']
-    samples_per_ac = 256*acq_multiples #length of acquisition in nS must be n*256
-    
-    
-    wave_len = readout_start + readout + wait_time
     awg = be.get_awg()
     
     readout_trigger_offset = params['readout_trigger_offset']
-    #be.READOUT_TRIGGER_OFFSET = readout_trigger_offset
     
     pg = get_pulse_group(q_duration, #pulse duration
                     first_pulse_start,
@@ -101,13 +93,13 @@ if __name__ == "__main__":
                     first_pulse_step,
                     readout_start, #readout
                     readout, #readout duration
-                    wait_time,
+                    readout_trigger_offset,
                     decimation)
     pg.show(decimation, True)
     
     #these two lines are not needed for displaying the pulse
     pg.send_waves_awg(awg, name, pattern_repeat, zero_length, zero_multiple, readout_trigger_offset, decimation)
-    run_funcs.initialize_awg(awg, num_patterns, pattern_repeat, wave_len, decimation)
+    run_funcs.initialize_awg(awg, num_patterns, pattern_repeat decimation)
     
     awg.close()
 

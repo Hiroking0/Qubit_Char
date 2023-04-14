@@ -19,7 +19,6 @@ def get_pulse_group(pi_dur, #pulse start time
                 t_step,
                 readout_start, #readout
                 readout, #readout duration
-                wait_time,
                 decimation = 1):
     pi_dur = int(pi_dur/decimation)
     gap_2 = int(gap_2/decimation)
@@ -28,7 +27,6 @@ def get_pulse_group(pi_dur, #pulse start time
     t_step = int(t_step/decimation)
     readout_start = int(readout_start/decimation)
     readout = int(readout/decimation)
-    wait_time = int(wait_time/decimation)
     
     
     x_pulse_2 = be.Pulse(readout_start - gap_2 - int(pi_dur/2) , int(pi_dur/2), 1, 1)
@@ -49,7 +47,7 @@ def get_pulse_group(pi_dur, #pulse start time
     
     y_pulse = be.Sweep_Pulse(p2_start, pi_dur, amplitude = 1, channel = 2, sweep_param = 'start', sweep_stop = p2_end, sweep_step = int(t_step/2))
     
-    ro = be.Readout_Pulse(readout_start, readout, amplitude = 1, wait_time = wait_time)
+    ro = be.Readout_Pulse(readout_start, readout, amplitude = 1)
     
     pg = be.PulseGroup([x_pulse_1, y_pulse, x_pulse_2, ro])
     return pg
@@ -80,25 +78,23 @@ if __name__ == "__main__":
 
     zero_length = params['zero_length']
     zero_multiple = params['zero_multiple']
-    wait_time = zero_length * zero_multiple
     
     num_patterns = int((t_final - t_initial)/t2_step)
     print(num_patterns)
     
     pattern_repeat = params['pattern_repeat']
     
-    wave_len = readout_start + readout + wait_time
     awg = be.get_awg()
     
     
     
-    pg = get_pulse_group(pi_dur, gap_2, t_initial, t_final, t2_step, readout_start, readout, wait_time, decimation)
+    pg = get_pulse_group(pi_dur, gap_2, t_initial, t_final, t2_step, readout_start, readout, decimation)
     pg.show(decimation = decimation, subplots = False)
     
     readout_trigger_offset = int(params['readout_trigger_offset']/decimation)
     
     pg.send_waves_awg(awg, name, pattern_repeat, zero_length, zero_multiple, readout_trigger_offset, decimation)
-    run_funcs.initialize_awg(awg, num_patterns, pattern_repeat, wave_len, decimation)
+    run_funcs.initialize_awg(awg, num_patterns, pattern_repeat, decimation)
     
     awg.close()
 
