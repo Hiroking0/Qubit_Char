@@ -102,7 +102,7 @@ class Pulse:
 #readout trigger for alazar on c2m2
 class Readout_Pulse(Pulse):
 
-    def __init__(self, start, duration, amplitude, wait_time):
+    def __init__(self, start, duration, amplitude, wait_time = 777):
         super().__init__(start, duration, amplitude, channel = None)
         self.wait_time = wait_time
 
