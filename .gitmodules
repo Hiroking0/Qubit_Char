@@ -1,0 +1,3 @@
+[submodule "instruments/TekAwg"]
+	path = instruments/TekAwg
+	url = https://github.com/Novey-Eric/TekAwg.git
