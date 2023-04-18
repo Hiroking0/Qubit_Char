@@ -57,7 +57,8 @@ if __name__ == "__main__":
 
     if len(x) > 1:
         pop = dp.get_population_v_pattern(arr, params['v_threshold'])
-
+        plt.plot(pop)
+        plt.show()
 
 
 
