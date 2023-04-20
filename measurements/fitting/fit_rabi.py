@@ -12,6 +12,8 @@ from scipy.optimize import curve_fit
 from tkinter.filedialog import askopenfilename
 import yaml
 from pathlib import Path
+import json
+import os
 
 def objective_rabi(x, a, b, c, d):
 	return a + (b*np.sin(2*np.pi*c*x+d))
@@ -35,6 +37,15 @@ if __name__ == "__main__":
     f.close()
     
     fn = askopenfilename()
+    
+    nf = '\\'.join(fn.split('/')[0:-1]) + "/"
+
+    for (root, dirs, files) in os.walk(nf):
+        for f in files:
+            if ".json" in f:
+                with open(nf + f) as file:
+                    params = json.load(file)
+
     arr = np.load(fn)
     #first get pattern avgs
     avgs = np.zeros(len(arr))
@@ -62,7 +73,7 @@ if __name__ == "__main__":
     plt.plot(x, fit_data, 'r')
     plt.xlabel("$t_{rabi}$ (ns)")
     plt.ylabel("V")
-    plt.title(Path(fn).stem)
+    plt.title("rabi measurement")
     plt.show()
     
     

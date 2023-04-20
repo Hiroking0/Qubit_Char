@@ -16,6 +16,7 @@ sys.path.append("../../")
 from lib import data_process as dp
 import os
 import json
+from pathlib import Path
 
 def objective_T1(x, a, b, c):
 
@@ -50,14 +51,10 @@ def T1_loop(hrs = 1.0, t = 300 , avg = 800):
         
     plt.plot(np.linspace(0,hrs,runs),T1_list)
     return T1_list
-        
 
 '''
+
 if __name__ == "__main__":
-    
-    #f = open('../general_config.yaml','r')
-    #params = yaml.safe_load(f)
-    #f.close()
     
     fn = askopenfilename()
     
@@ -96,7 +93,11 @@ if __name__ == "__main__":
     plt.plot(x, fit_data, 'r')
     plt.xlabel("$t_{T1}$ (ns)")
     plt.ylabel("V")
-    plt.title("T1 Measurement")
+    stem = Path(fn).stem
+    if "echo" in stem:
+        plt.title("echo measurement")
+    else:
+        plt.title("T1 measurement")
     plt.show()
     
     

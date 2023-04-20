@@ -304,22 +304,22 @@ class PulseGroup:
             for i in range(len(arr1)):
                 plt.subplot(2,3,1)
                 plt.plot(x, arr1[i]+i)
-                plt.title('CH1(qubit pulse)', fontsize=14)
+                plt.title('CH1 (qubit pulse)', fontsize=14)
                 plt.xticks(rotation=45)
 
                 plt.subplot(2,3,2)
                 plt.plot(x, a1m1[i]+i)
-                plt.title('CH1M1(aux pulse)', fontsize=14)
+                plt.title('CH1M1 (aux pulse)', fontsize=14)
                 plt.xticks(rotation=45)
 
                 plt.subplot(2,3,3)
                 plt.plot(x, a1m2[i]+i)
-                plt.title('CH1M2(nothing)', fontsize=14)
+                plt.title('CH1M2 (nothing)', fontsize=14)
                 plt.xticks(rotation=45)
 
                 plt.subplot(2,3,4)
                 plt.plot(x, arr2[i]+i)
-                plt.title('CH2(qubit pulse)', fontsize=14)
+                plt.title('CH2 (qubit pulse)', fontsize=14)
                 plt.xticks(rotation=45)                
 
                 plt.subplot(2,3,5)
@@ -329,7 +329,7 @@ class PulseGroup:
                 
                 plt.subplot(2,3,6)
                 plt.plot(x, a2m2[i]+i)
-                plt.title('CH2 M2(Alazar trigger)', fontsize=14)
+                plt.title('CH2 M2 (Alazar trigger)', fontsize=14)
                 plt.xticks(rotation=45)
                 #plt.subplot(2,3,6)
                 #plt.plot(a2m2[i])
@@ -343,6 +343,7 @@ class PulseGroup:
                 plt.plot(x, a2m1[i]+i*1.1, 'r')
                 plt.plot(x, arr2[i]+i*1.1, 'g')
                 #plt.plot(a2m2[i])
+                plt.legend(["ch1", "ch2m1", "ch2"])
                 plt.xticks(rotation=45)
                 #plt.tight_layout()
                 

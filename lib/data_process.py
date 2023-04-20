@@ -8,22 +8,6 @@ Created on Thu Oct 13 14:37:25 2022
 import numpy as np
 import matplotlib.pyplot as plt
 import time
-import cmath
-
-
-def get_population_ratio(arr, thresh):
-    """
-    returns array of length num_patterns. The entry is the fraction of population that is in the excited state.
-    It will assume the excited state is the higher voltage value.
-    """
-    answer = np.zeros(len(arr))
-    for i in range(len(arr)):
-        n_excited = 0
-        for data_p in arr[i]:
-            if data_p > thresh:
-                n_excited += 1
-        answer[i] = n_excited/len(arr[i])
-    return answer
 
 def get_population_v_pattern(arr, thresh):
     plt_arr = np.zeros(len(arr))
@@ -35,10 +19,7 @@ def get_population_v_pattern(arr, thresh):
                 pe += 1
         pe /= len(arr[0])
         plt_arr[i] = pe
-    #plt.plot(x, plt_arr)
-    #plt.title("Pattern vs proportion of population in excited state")
-    #plt.ylabel("PE")
-    #plt.show()
+
     return plt_arr
 
 def frombin(tot_samples, numAcquisitions, channels = 2, name = 'data.bin'):
@@ -146,59 +127,6 @@ def plot_np_file(num_patterns, pattern_reps, seq_reps, time_step, path):
     #hB = parse_np_file(chB, num_patterns, pattern_reps, seq_reps)
     num_bins = 500
 
-
-    '''
-    plt.subplot(2,2,1)
-    for i in range(num_patterns):    
-        plt.scatter(chA_nosub[i], chB_nosub[i])
-    plt.title("I vs Q, no subtraction")
-    
-    
-    plt.subplot(2,2,2)
-    for i in range(num_patterns):
-        plt.hist(chA_nosub[i], bins = num_bins, histtype = 'step')
-    plt.title("chA no subtraction")
-    
-    plt.subplot(2,2,3)
-    for i in range(num_patterns):
-        plt.hist(chB_nosub[i], bins = num_bins, histtype = 'step')
-    plt.title("chB no subtraction")
-    
-    
-    plt.subplot(2,2,4)
-    for i in range(num_patterns):
-        plt.hist(np.sqrt(chB_nosub[i] ** 2 + chA_nosub[i] ** 2), bins = num_bins, histtype = 'step')
-    plt.title("Mags no subtraction")
-    
-    plt.figure()
-    
-    plt.subplot(2,2,1)
-    for i in range(num_patterns):    
-        plt.scatter(chA_sub[i], chB_sub[i])
-    plt.title("I vs Q, with subtraction")
-    
-    
-    plt.subplot(2,2,2)
-    for i in range(num_patterns):
-        plt.hist(chA_sub[i], bins = num_bins, histtype = 'step')
-    plt.title("chA, with subtraction")
-    
-    plt.subplot(2,2,3)
-    for i in range(num_patterns):
-        plt.hist(chB_sub[i], bins = num_bins, histtype = 'step')
-    plt.title("chB, with subtraction")
-    
-    
-    plt.subplot(2,2,4)
-    for i in range(num_patterns):
-        plt.hist(np.sqrt(chB_sub[i] ** 2 + chA_sub[i] ** 2), bins = num_bins, histtype = 'step')
-    plt.title("Mags, with subtraction")
-    
-    plt.figure()
-    
-    '''
-    
-    
     
     plt.subplot(2,2,1)
     plt.hist(chA_nosub.flatten(), bins = num_bins, histtype = 'step')
@@ -217,9 +145,7 @@ def plot_np_file(num_patterns, pattern_reps, seq_reps, time_step, path):
     plt.hist(chB_sub.flatten(), bins = num_bins, histtype = 'step')
     plt.title("chB with subtraction")
     
-    
     plt.figure()
-    
 
     pattern_avgs_cA = np.zeros(num_patterns)
     pattern_avgs_cB = np.zeros(num_patterns)
@@ -227,7 +153,7 @@ def plot_np_file(num_patterns, pattern_reps, seq_reps, time_step, path):
     pattern_avgs_cB_sub = np.zeros(num_patterns)
     mags = np.zeros(num_patterns)
     mags_sub = np.zeros(num_patterns)
-    print(np.shape(chA_nosub))
+    #print(np.shape(chA_nosub))
     for i in range(num_patterns):
         pattern_avgs_cA[i] = np.average(chA_nosub[i])
         pattern_avgs_cB[i] = np.average(chB_nosub[i])
@@ -269,7 +195,6 @@ def plot_np_file(num_patterns, pattern_reps, seq_reps, time_step, path):
     plt.subplot(2,3,5)
     plt.plot(x, pattern_avgs_cB_sub)
     
-    
     plt.title("chB sub")
     plt.xlabel('time (ns)', fontsize=10)
     plt.ylabel('Voltage (V)', fontsize=10)
@@ -280,16 +205,10 @@ def plot_np_file(num_patterns, pattern_reps, seq_reps, time_step, path):
     plt.xlabel('time (ns)', fontsize=10)
     plt.ylabel('Voltage (V)', fontsize=10)
     
-    
     plt.get_current_fig_manager().window.showMaximized()
     
     plt.show()
-    
-    #plot iq
-    
-    #Get the arrays in shape (num_pattern, )
-    #chA = get_p1_p2(chA, num_patterns, pattern_reps, seq_reps)
-    
+
 
 def plot_colors(cAp1, cBp1):
     ind = 0

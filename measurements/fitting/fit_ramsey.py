@@ -8,11 +8,12 @@ Created on Thu Mar 23 16:15:50 2023
 import numpy as np
 #import daq_programs
 import matplotlib.pyplot as plt
-import time
 from tkinter.filedialog import askopenfilename
 from scipy.optimize import curve_fit
 import yaml
-
+import json
+import os
+from pathlib import Path
 
 def objective_ramsey(x, a, b, t2, f, phi):
     
@@ -42,8 +43,19 @@ if __name__ == "__main__":
     params = yaml.safe_load(f)
     f.close()    
 
+
     fn = askopenfilename()
+    
+    nf = '\\'.join(fn.split('/')[0:-1]) + "/"
+
+    for (root, dirs, files) in os.walk(nf):
+        for f in files:
+            if ".json" in f:
+                with open(nf + f) as file:
+                    params = json.load(file)
+
     arr = np.load(fn)
+
     print(np.shape(arr))
     #first get pattern avgs
     avgs = np.zeros(len(arr))
