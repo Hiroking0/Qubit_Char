@@ -93,11 +93,7 @@ if __name__ == "__main__":
     plt.plot(x, fit_data, 'r')
     plt.xlabel("$t_{T1}$ (ns)")
     plt.ylabel("V")
-    stem = Path(fn).stem
-    if "echo" in stem:
-        plt.title("echo measurement")
-    else:
-        plt.title("T1 measurement")
+    plt.title("T1 measurement")
     plt.show()
     
     

@@ -21,7 +21,6 @@ def get_nopi_pi_group(
     q_duration = int(q_duration/decimation)
     readout_start = int(readout_start/decimation)
     readout = int(readout/decimation)
-    be.READOUT_TRIGGER_OFFSET = readout_trigger_offset
     
     #start, duration, amplitude, channel, sweep_type, sweep_end, sweep_step, readout
     p1 = be.Sweep_Pulse(start_time, q_duration, amplitude = 0, channel = 1, sweep_param = 'amplitude', sweep_stop = 1.1, sweep_step = 1)
@@ -38,7 +37,6 @@ def get_readout_group(
                 decimation):
     readout_start = int(readout_start/decimation)
     readout = int(readout/decimation)
-    be.READOUT_TRIGGER_OFFSET = readout_trigger_offset
     
     #start, duration, amplitude, channel, sweep_type, sweep_end, sweep_step, readout
     ro = be.Readout_Pulse(readout_start, readout, amplitude = 1)
@@ -63,7 +61,6 @@ def get_T1_pulse_group(q_dur, #pulse start time
     q_start_step = int(q_start_step/decimation)
     readout_start = int(readout_start/decimation)
     readout = int(readout/decimation)
-    be.READOUT_TRIGGER_OFFSET = readout_trigger_offset
     
     p1 = be.Sweep_Pulse(q_start_start, q_dur, amplitude = 1, channel = 1, sweep_param = 'start', sweep_stop = q_start_end, sweep_step = q_start_step)
     ro = be.Readout_Pulse(readout_start, readout, amplitude = 1)
@@ -90,7 +87,6 @@ def get_echo_pulse_group(pi_dur, #pulse start time
     t_step = int(t_step/decimation)
     readout_start = int(readout_start/decimation)
     readout = int(readout/decimation)
-    be.READOUT_TRIGGER_OFFSET = readout_trigger_offset
     
     x_pulse_2 = be.Pulse(readout_start - gap_2 - int(pi_dur/2) , int(pi_dur/2), 1, 1)
     
@@ -134,7 +130,6 @@ def get_echo1_pulse_group(pi_dur, #pulse start time
     readout_start = int(readout_start/decimation)
     readout = int(readout/decimation)
     
-    be.READOUT_TRIGGER_OFFSET = readout_trigger_offset
     x_pulse_2 = be.Pulse(readout_start - gap_2 - int(pi_dur/2) , int(pi_dur/2), 1, 1)
     
     
@@ -180,7 +175,6 @@ def get_rabi_pulse_group(start_time, #pulse start time
     readout = int(readout/decimation)
     
     
-    be.READOUT_TRIGGER_OFFSET = readout_trigger_offset
     p1 = be.Sweep_Pulse(start_time, q_dur_start, amplitude = 1, channel = 1, sweep_param = 'duration', sweep_stop = q_dur_stop, sweep_step = q_dur_step)
     ro = be.Readout_Pulse(readout_start, readout, amplitude = 1)
     pg = be.PulseGroup([p1, ro])
@@ -205,9 +199,6 @@ def get_ramsey_pulse_group(q_duration, #pulse duration
     readout_start = int(readout_start/decimation)
     readout = int(readout/decimation)
     
-    
-    be.READOUT_TRIGGER_OFFSET = readout_trigger_offset
-    
     p1 = be.Sweep_Pulse(first_pulse_start, q_duration, amplitude = 1, channel = 1, 
                         sweep_param = 'start',
                         sweep_stop = first_pulse_final_start,
@@ -231,9 +222,6 @@ def get_pg(params):
 
     readout_trigger_offset = params['readout_trigger_offset']
     step = params['time_domain_step']
-
-    #awg = be.get_awg()
-
 
     match measurement:
         case 'T1':

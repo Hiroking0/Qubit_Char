@@ -66,7 +66,7 @@ if __name__ == "__main__":
     run_funcs.init_params(params)
     
     #saves raw data if only readout or readout + pulse
-    if num_patterns < 3:
+    if num_patterns < 3 and seq_repeat * pattern_repeat <= 10000:
         save_raw = True
     else:
         save_raw = False
@@ -83,7 +83,7 @@ if __name__ == "__main__":
     json.dump(params, j_file, indent = 4)
     j_file.close()
     
-    if num_patterns < 3:
+    if num_patterns < 3 and seq_repeat * pattern_repeat <= 10000:
         dp.plot_all(chA, chB, num_patterns, pattern_repeat, seq_repeat, params['avg_start'], params['avg_length'], large_data_plot = False)
         #dp.plot_np_file(num_patterns, pattern_repeat, seq_repeat, time_step, path)
     else:

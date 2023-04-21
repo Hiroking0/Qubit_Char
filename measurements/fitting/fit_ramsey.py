@@ -39,11 +39,6 @@ def fit_ramsey(y, init_a, init_b, init_t2, init_f, init_phi, num_points, max_len
 
 if __name__ == "__main__":
 
-    f = open('../general_config.yaml','r')
-    params = yaml.safe_load(f)
-    f.close()    
-
-
     fn = askopenfilename()
     
     nf = '\\'.join(fn.split('/')[0:-1]) + "/"
@@ -62,10 +57,10 @@ if __name__ == "__main__":
     for i in range(len(arr)):
         avgs[i] = np.average(arr[i])
         
-    a = 190.3
-    b = .2
+    a = 192.0
+    b = .15
     t2 = 1500
-    f = 1/9400
+    f = 1/5200
     phi = 1.57
     shortest_ramsey = params['ramsey_gap_1_init']
     longest_ramsey = params['ramsey_gap_1_final']
@@ -85,6 +80,7 @@ if __name__ == "__main__":
     plt.plot(x, fit_data, 'r')
     plt.xlabel("$t_{ramsey}$ (ns)")
     plt.ylabel("V")
+    plt.title("Ramsey measurement")
     plt.show()
     
     
