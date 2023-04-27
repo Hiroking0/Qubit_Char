@@ -18,6 +18,7 @@ import pyvisa as visa
 from datetime import datetime
 import csv
 import matplotlib.pyplot as plt
+import json
 
 #board should be acquired by running ats.Board(systemId = 1, boardId = 1)
 #then npt.ConfigureBoard(board)
@@ -80,7 +81,9 @@ def run_and_acquire(awg,
     acproc.join()
     
     awg.stop()
-    
+    j_file = open(path+"json.json", 'w')
+    json.dump(params, j_file, indent = 4)
+    j_file.close()
     #DATA processing part
     chA = None
     chB = None
@@ -141,12 +144,20 @@ def single_sweep(name, awg, board, num_patterns, params, sweep_param, start, sto
     avgsA_nosub = np.zeros((num_patterns, len(np.arange(start,stop,step))))
     avgsB_nosub = np.zeros((num_patterns, len(np.arange(start,stop,step))))
 
+    mags_sub = np.zeros((num_patterns, len(np.arange(start,stop,step))))
+    mags_nosub = np.zeros((num_patterns, len(np.arange(start,stop,step))))
 
-    #h, = plt.plot(np.random.randn(50))
-    #plt.draw()
+
+    if live_plot:
+        plt.ion()
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        line1, = ax.plot(mags_nosub) # Returns a tuple of line objects, thus the comma
+
 
     sweep_num = 0
-    for param in np.arange(start, stop, step):
+    sweeps = np.arange(start, stop, step)
+    for param in sweeps:
         #this is the func call that sets the new sweep parameter built from previous commands
         func_call(param)
         #print(func_call)
@@ -159,48 +170,15 @@ def single_sweep(name, awg, board, num_patterns, params, sweep_param, start, sto
                         save_raw = False,
                         path = name)
         
-        #run_and_acquire(awg, 
-        #                board,
-        #                seq_repeat = seq_repeat,
-        #                pattern_repeat = pattern_repeat,
-        #                num_patterns = num_patterns,
-        #                samples_per_ac=samples_per_ac,
-        #                avg_start=avg_start,
-        #                avg_length=avg_length,
-        #                save_raw=False,
-        #                path = name)
-        
-        
-        #cAp = dp.get_p1_p2(chA, num_patterns, pattern_repeat, seq_repeat)
-        #cBp = dp.get_p1_p2(chB, num_patterns, pattern_repeat, seq_repeat)
-        #print(np.shape(cAp))
-
-        #this plots individual sweeps
-        
         
         chA_sub = np.load(name + "chA_sub.npy")
         chB_sub = np.load(name + "chB_sub.npy")
         chA_nosub = np.load(name + "chA_nosub.npy")
         chB_nosub = np.load(name + "chB_nosub.npy")
+
         
         
-        '''
-        plot1 = dp.average_all_iterations(cAp[0])
-        plot2 = dp.average_all_iterations(cAp[1])
-        ts = time.time()
-        plt.plot(plot1, color = 'red')
-        plt.plot(plot2, color = 'green')
-        plt.title('chA '+str(param))
-        plt.figure()
-        te = time.time()
-        print(te-ts)
-        plot1 = dp.average_all_iterations(cBp[0])
-        plot2 = dp.average_all_iterations(cBp[1])
-        plt.plot(plot1, color = 'red')
-        plt.plot(plot2, color = 'green')
-        plt.title('chB '+str(param))
-        plt.figure()
-        '''
+
         
         #avgsA should be array of shape(num_patterns, sweep_num, x)
         
@@ -209,40 +187,46 @@ def single_sweep(name, awg, board, num_patterns, params, sweep_param, start, sto
             avgsB_sub[i][sweep_num] = np.average(chB_sub[i])
             avgsA_nosub[i][sweep_num] = np.average(chA_nosub[i])
             avgsB_nosub[i][sweep_num] = np.average(chB_nosub[i])
-            
-            #can probably do csv saving here
-            #maybe make csv files again, with columns being [channel A, channel B, pattern#, sweep_param_val]
-            #assume name is the path without file name
-            #name of file will be sweepparam_sweepval_pattern#.csv
-            #pattern num = i
-            #sweep param val = param
-            #channel A = avgsA[i][sweep_num]
-            
-            f_name = sweep_param + "_" + str(param) + "_" + str(i) + ".csv"
-            with open(name + '_' + f_name, 'w', newline='') as output:
-                wr = csv.writer(output, delimiter=',', quoting=csv.QUOTE_NONE)
-                if extra_column != None:
-                    header = header=['ChA','ChB','pattern_num', str(sweep_param), extra_column[0]]
-                else:
-                    header=['ChA','ChB','pattern_num', str(sweep_param)]
-                wr.writerow(header)
-                
-                
-                #t_avgA = dp.average_all_iterations(cAp[i])
-                #t_avgB = dp.average_all_iterations(cBp[i])
-                
-                #for j in range(len(t_avgA)):
-                #    if extra_column != None:
-                #        wr.writerow([t_avgA[j], t_avgB[j], i, param, extra_column[1]])
-                #    else:    
-                #        wr.writerow([t_avgA[j], t_avgB[j], i, param])
+            mags_sub[i][sweep_num] = np.sqrt(avgsA_sub[i][sweep_num] ** 2 + avgsB_sub[i][sweep_num] ** 2)
+            mags_nosub[i][sweep_num] = np.sqrt(avgsA_nosub[i][sweep_num] ** 2 + avgsB_nosub[i][sweep_num] ** 2)
+        #Here avgs[:][0:sweep_num] should be correct. the rest of avgs[:][sweep_num:] should be 0
+        
+            if live_plot:
+                line1.set_ydata(mags_nosub[i])
+                fig.canvas.draw()
+                fig.canvas.flush_events()
         
         sweep_num += 1
+            
+        #can probably do csv saving here
+        #maybe make csv files again, with columns being [channel A, channel B, pattern#, sweep_param_val]
+        #assume name is the path without file name
+        #name of file will be sweepparam_sweepval_pattern#.csv
+        #pattern num = i
+        #sweep param val = param
+        #channel A = avgsA[i][sweep_num]
+    f_name = sweep_param + "_" + str(param) + "_" + str(i) + ".csv"
+    with open(name + '_' + f_name, 'w', newline='') as output:
+        wr = csv.writer(output, delimiter=',', quoting=csv.QUOTE_NONE)
+        if extra_column != None:
+            header = header=['chA_sub','chB_sub','mag_sub', 'chA_nosub', 'chB_nosub', 'mag_nosub', 'pattern_num', str(sweep_param), extra_column[0]]
+        else:
+            header=['chA_sub','chB_sub','mag_sub', 'chA_nosub', 'chB_nosub', 'mag_nosub', 'pattern_num', str(sweep_param)]
+        wr.writerow(header)
         
-        
-    #returns an array of sweep averages
-    #avgsA[i] is pattern i
-    #avgsA[i][j] is the average of all averages of the jth sweep, of pattern i
+        for pattern in range(len(avgsA_sub)):
+            for j in range(len(avgsA_nosub[pattern])):
+                #for each sweep, write the row into the file
+                t_row = [avgsA_sub[pattern][j],
+                         avgsB_sub[pattern][j],
+                         mags_sub[pattern][j],
+                         avgsA_nosub[pattern][j],
+                         avgsB_nosub[pattern][j],
+                         mags_nosub[pattern][j],
+                         pattern,
+                         sweeps[j]
+                         ]
+                wr.writerow(t_row)
     return (avgsA_sub, avgsB_sub, avgsA_nosub, avgsB_nosub)
     
     

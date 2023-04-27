@@ -79,11 +79,8 @@ if __name__ == "__main__":
                 save_raw,
                 path
                 )
-    j_file = open(path+"json.json", 'w')
-    json.dump(params, j_file, indent = 4)
-    j_file.close()
     
-    if num_patterns < 3 and seq_repeat * pattern_repeat <= 10000:
+    if num_patterns < 3 and seq_repeat * pattern_repeat < 10000:
         dp.plot_all(chA, chB, num_patterns, pattern_repeat, seq_repeat, params['avg_start'], params['avg_length'], large_data_plot = False)
         #dp.plot_np_file(num_patterns, pattern_repeat, seq_repeat, time_step, path)
     else:
