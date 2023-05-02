@@ -10,13 +10,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tkinter.filedialog import askopenfilename
 from scipy.optimize import curve_fit
-import yaml
 import sys
 sys.path.append("../../")
 from lib import data_process as dp
 import os
 import json
-from pathlib import Path
 
 def objective_T1(x, a, b, c):
 
@@ -67,7 +65,7 @@ if __name__ == "__main__":
                     params = json.load(file)
 
     arr = np.load(fn)
-    pop = dp.get_population_v_pattern(arr, params['v_threshold'])
+    pop = dp.get_population_v_pattern(arr, params['v_threshold'], flipped = True)
 
     #first get pattern avgs
     avgs = np.zeros(len(arr))
@@ -89,10 +87,16 @@ if __name__ == "__main__":
     print("tau: ", new_c)
     
     x = np.linspace(shortest_T1,longest_T1, num_patterns)
-    plt.plot(x, pop, 'ko')
-    plt.plot(x, fit_data, 'r')
+    plt.rcParams.update({'font.size': 22})
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    for axis in ['top', 'bottom', 'left', 'right']:
+        ax.spines[axis].set_linewidth(2.5)
+        
+    plt.plot(x, pop, 'ko', markersize=10)
+    plt.plot(x, fit_data, 'r', linewidth=3.5)
     plt.xlabel("$t_{T1}$ (ns)")
-    plt.ylabel("V")
+    plt.ylabel("PE")
     plt.title("T1 measurement")
     plt.show()
     

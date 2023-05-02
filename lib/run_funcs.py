@@ -19,7 +19,6 @@ from datetime import datetime
 import csv
 import matplotlib.pyplot as plt
 import json
-
 #board should be acquired by running ats.Board(systemId = 1, boardId = 1)
 #then npt.ConfigureBoard(board)
 #awg by running be.get_awg()
@@ -146,13 +145,19 @@ def single_sweep(name, awg, board, num_patterns, params, sweep_param, start, sto
 
     mags_sub = np.zeros((num_patterns, len(np.arange(start,stop,step))))
     mags_nosub = np.zeros((num_patterns, len(np.arange(start,stop,step))))
-
+    #print(np.shape(mags_nosub))
 
     if live_plot:
         plt.ion()
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
-        line1, = ax.plot(mags_nosub) # Returns a tuple of line objects, thus the comma
+        
+        fig, ax1 = plt.subplots()
+        #ax = fig.add_subplot(111)
+        #plt.pcolormesh(mags_nosub)
+        #fig.canvas.draw()
+        axim1 = ax1.imshow(mags_nosub, vmin=280, vmax=320)
+        
+        #myobj = plt.imshow(mags_nosub, vmin = 100, vmax = 400)
+        
 
 
     sweep_num = 0
@@ -191,10 +196,11 @@ def single_sweep(name, awg, board, num_patterns, params, sweep_param, start, sto
             mags_nosub[i][sweep_num] = np.sqrt(avgsA_nosub[i][sweep_num] ** 2 + avgsB_nosub[i][sweep_num] ** 2)
         #Here avgs[:][0:sweep_num] should be correct. the rest of avgs[:][sweep_num:] should be 0
         
-            if live_plot:
-                line1.set_ydata(mags_nosub[i])
-                fig.canvas.draw()
-                fig.canvas.flush_events()
+        if live_plot and sweep_num > 0:
+            axim1.set_data(mags_nosub)
+            fig.canvas.flush_events()
+            plt.pause(.01)
+            
         
         sweep_num += 1
             

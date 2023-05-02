@@ -10,10 +10,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tkinter.filedialog import askopenfilename
 from scipy.optimize import curve_fit
-import yaml
 import json
 import os
-from pathlib import Path
+import sys
+sys.path.append("../../")
+from lib import data_process as dp
 
 def objective_ramsey(x, a, b, t2, f, phi):
     
@@ -50,6 +51,7 @@ if __name__ == "__main__":
                     params = json.load(file)
 
     arr = np.load(fn)
+    pop = dp.get_population_v_pattern(arr, params['v_threshold'], flipped = False)
 
     print(np.shape(arr))
     #first get pattern avgs
@@ -57,17 +59,17 @@ if __name__ == "__main__":
     for i in range(len(arr)):
         avgs[i] = np.average(arr[i])
         
-    a = 192.0
-    b = .15
-    t2 = 1500
-    f = 1/5200
+    a = .5
+    b = .3
+    t2 = 15000
+    f = 1/8000
     phi = 1.57
     shortest_ramsey = params['ramsey_gap_1_init']
     longest_ramsey = params['ramsey_gap_1_final']
     num_patterns = len(arr)
     
     
-    fit_data, new_a, new_b, new_t2, new_f, new_phi = fit_ramsey(avgs, a, b, t2, f, phi, num_patterns, longest_ramsey)
+    fit_data, new_a, new_b, new_t2, new_f, new_phi = fit_ramsey(pop, a, b, t2, f, phi, num_patterns, longest_ramsey)
     print("offset: ", new_a)
     print("amplitude: ", new_b)
     print("tau: ", new_t2)
@@ -75,11 +77,17 @@ if __name__ == "__main__":
     print("frequency: ", new_f)
     
     
-    x = np.linspace(shortest_ramsey, longest_ramsey, num_patterns)
-    plt.plot(x, avgs, 'ko')
-    plt.plot(x, fit_data, 'r')
+    x = np.linspace(shortest_ramsey, longest_ramsey, num = num_patterns)
+    plt.rcParams.update({'font.size': 22})
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    for axis in ['top', 'bottom', 'left', 'right']:
+        ax.spines[axis].set_linewidth(2.5)
+    
+    plt.plot(x, pop, 'ko', markersize=10)
+    plt.plot(x, fit_data, 'r', linewidth=3.5)
     plt.xlabel("$t_{ramsey}$ (ns)")
-    plt.ylabel("V")
+    plt.ylabel("PE")
     plt.title("Ramsey measurement")
     plt.show()
     

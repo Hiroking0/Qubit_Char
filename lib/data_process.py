@@ -9,13 +9,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 
-def get_population_v_pattern(arr, thresh):
+def get_population_v_pattern(arr, thresh, flipped = False):
     plt_arr = np.zeros(len(arr))
     for i in range(len(arr)):
         pe = 0
         #for each pattern, look at every point and see if its above thresh
         for j in arr[i]:
-            if j > thresh:
+            if (j > thresh and not flipped) or (j < thresh and flipped):
                 pe += 1
         pe /= len(arr[0])
         plt_arr[i] = pe
@@ -255,12 +255,21 @@ def plot_iq(cAp, cBp):
 def plot_histogram(arr):
     #histogram here
     num_patterns = len(arr)
+    
+    plt.rcParams.update({'font.size': 22})
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    
+    for axis in ['top', 'bottom', 'left', 'right']:
+        ax.spines[axis].set_linewidth(2.5)
     for i in range(num_patterns):
-        plt.hist(arr[i], bins = 100, histtype = 'step')
+        plt.hist(arr[i], bins = 100, alpha = .7)
     #plt.title("chA no subtraction")
     #cAp1av = get_avgs(cAp)
     #cBp1av = get_avgs(cBp)
     plt.legend(["no pulse", "pulse"], loc = 'upper center')
+    plt.xlabel("V")
+    plt.ylabel("count")
     plt.show()
 
 

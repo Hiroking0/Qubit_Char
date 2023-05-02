@@ -26,7 +26,7 @@ if __name__ == "__main__":
     #name = params['name']
 
     directory = tkf.askdirectory()
-    name = directory + "/" + params['name']
+    name = directory + "/" + params['name'] + "_"
     decimation = params['decimation']
 
 
@@ -77,7 +77,7 @@ if __name__ == "__main__":
     run_funcs.init_params(params)
 
 
-    cAp_sub, cBp_sub, cAp_nosub, cBp_nosub = run_funcs.single_sweep(name, awg, board, num_patterns, params, p1, p1start, p1stop, p1step, params['avg_start'], params['avg_length'])
+    cAp_sub, cBp_sub, cAp_nosub, cBp_nosub = run_funcs.single_sweep(name, awg, board, num_patterns, params, p1, p1start, p1stop, p1step, params['avg_start'], params['avg_length'], live_plot = False)
     x = np.arange(p1start, p1stop, p1step)
     
     print(np.shape(cAp_sub))
