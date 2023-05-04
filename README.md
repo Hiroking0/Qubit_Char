@@ -10,6 +10,7 @@ This library has code for the following measurements/calibrations
 ### Terminology 
 pattern: one entry (of all four channels) on the AWG. For the no-pulse pulse measurement, one pattern would be an entry including just
 the readout pulse, one pattern would be the entry including the pulse and readout.
+
 sequence: The group of patterns that make up a measurement. That would be all n patterns making up a rabi, ramsey, etc...
 
 ## Use of library

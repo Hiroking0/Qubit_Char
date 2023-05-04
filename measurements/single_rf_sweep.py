@@ -16,19 +16,25 @@ from instruments.alazar import atsapi as ats
 import yaml
 import time
 import tkinter.filedialog as tkf
+import json
 
 if __name__ == "__main__":
     
     f = open('general_config.yaml','r')
     params = yaml.safe_load(f)
     f.close()
+    
+    
 
     #name = params['name']
 
     directory = tkf.askdirectory()
     name = directory + "/" + params['name'] + "_"
     decimation = params['decimation']
-
+    
+    j_file = open(name+"json.json", 'w')
+    json.dump(params, j_file, indent = 4)
+    j_file.close()
 
     zero_length = params['zero_length']
     zero_multiple = params['zero_multiple']
@@ -59,25 +65,29 @@ if __name__ == "__main__":
 
     
     awg = be.get_awg()
-    
     num_patterns = awg.get_seq_length()
-    
-    
-    for i in range(num_patterns):
-        awg.set_seq_element_loop_cnt(i+1, pattern_repeat)
-        time.sleep(.005)
 
     board = ats.Board(systemId = 1, boardId = 1)
     npt.ConfigureBoard(board)
-
-    wlen = readout_start + readout + wait_time
-
 
     run_funcs.initialize_awg(awg, num_patterns, pattern_repeat, decimation)
     run_funcs.init_params(params)
 
 
-    cAp_sub, cBp_sub, cAp_nosub, cBp_nosub = run_funcs.single_sweep(name, awg, board, num_patterns, params, p1, p1start, p1stop, p1step, params['avg_start'], params['avg_length'], live_plot = False)
+    cAp_sub, cBp_sub, cAp_nosub, cBp_nosub, mags_sub, mags_nosub = run_funcs.single_sweep(name,
+                                                                    awg,
+                                                                    board,
+                                                                    num_patterns,
+                                                                    params,
+                                                                    live_plot = False)
+    
+    np.save(name + "chA_sub", cAp_sub)
+    np.save(name + "chB_sub", cBp_sub)
+    np.save(name + "chA_nosub", cAp_nosub)
+    np.save(name + "chB_nosub", cBp_nosub)
+    np.save(name + "mags_sub", mags_sub)
+    np.save(name + "mags_sub", mags_nosub)
+    
     x = np.arange(p1start, p1stop, p1step)
     
     print(np.shape(cAp_sub))
@@ -94,10 +104,9 @@ if __name__ == "__main__":
     
     
     plt.subplot(2,3,3)
-    for j in range(num_patterns):
-        mag_arr = [ np.sqrt(cAp_sub[j][i]**2 + cBp_sub[j][i]**2) for i in range(len(cAp_sub[0])) ]
-        plt.plot(x, mag_arr)
-    plt.title('Magnitude')
+    for i in range(num_patterns):
+        plt.plot(x, mags_sub[i])
+    plt.title('Magnitude sub')
     
     plt.subplot(2,3,4)
     for i in range(num_patterns):
@@ -111,16 +120,9 @@ if __name__ == "__main__":
     
     
     plt.subplot(2,3,6)
-    for j in range(num_patterns):
-        mag_arr = [ np.sqrt(cAp_nosub[j][i]**2 + cBp_nosub[j][i]**2) for i in range(len(cAp_nosub[0])) ]
-        plt.plot(x, mag_arr)
+    for i in range(num_patterns):
+       plt.plot(x, mags_nosub[i])
     plt.title('Magnitude nosub')
-    
-    
-    
-    #plt.figure()
-    #plt.plot(x, ap1-ap2)
-    #plt.title('difference between chA p1 and p2')
     
     plt.show()
     
