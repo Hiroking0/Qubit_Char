@@ -56,7 +56,7 @@ if __name__ == "__main__":
     run_funcs.init_params(params)
     
     #saves raw data if only readout or readout + pulse
-    if num_patterns < 3 and seq_repeat * pattern_repeat * num_patterns <= 10000:
+    if num_patterns < 3 and seq_repeat * pattern_repeat * num_patterns <= 20000:
         save_raw = True
     else:
         save_raw = False
@@ -73,17 +73,20 @@ if __name__ == "__main__":
     json.dump(params, j_file, indent = 4)
     j_file.close()
     
+    np.save(path + "chA_sub", chA_avgs_sub)
+    np.save(path + "chB_sub", chB_avgs_sub)
+    np.save(path + "chA_nosub", chA_avgs_nosub)
+    np.save(path + "chB_nosub", chB_avgs_nosub)
+    np.save(path + "mag_sub", mag_sub)
+    np.save(path + "mag_nosub", mag_nosub)
+    
+    
     if save_raw:
         (chA, chB) = dp.frombin(tot_samples = samples_per_ac, numAcquisitions = num_patterns*pattern_repeat*seq_repeat, channels = 2, name = path + "rawdata.bin")
         dp.plot_all(chA, chB, num_patterns, pattern_repeat, seq_repeat, params['avg_start'], params['avg_length'], large_data_plot = False)
         #dp.plot_np_file(num_patterns, pattern_repeat, seq_repeat, time_step, path)
     else:
-        np.save(path + "chA_sub", chA_avgs_sub)
-        np.save(path + "chB_sub", chB_avgs_sub)
-        np.save(path + "chA_nosub", chA_avgs_nosub)
-        np.save(path + "chB_nosub", chB_avgs_nosub)
-        np.save(path + "mag_sub", mag_sub)
-        np.save(path + "mag_nosub", mag_nosub)
+        
         
         dp.plot_np_file(num_patterns, pattern_repeat, seq_repeat, time_step, path)
     #dp.plot_np_file(num_patterns, pattern_repeat, seq_repeat, time_step, path)

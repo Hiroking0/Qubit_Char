@@ -73,7 +73,8 @@ def disp_single_sweep():
     min_sweep = min(csvFile[sweep_param].to_list())
     max_sweep = max(csvFile[sweep_param].to_list())
     print(min_sweep, max_sweep)
-    x = range(num_patterns)
+    #x = range(num_patterns)
+    x = np.linspace(0, 600, num = 51)
     y = np.linspace(min_sweep, max_sweep, num=sweep_num)
     
     plt.subplot(2,3,1)
@@ -112,14 +113,16 @@ def disp_single_sweep():
     plt.xlabel("pattern #")
     plt.ylabel(sweep_param)
 
+
+    plt.rcParams.update({'font.size': 16})
     plt.subplot(2,3,5)
     chB_sub = csvFile['chB_sub'].to_list()
     chB_sub = np.reshape(chB_sub, shape)
     chB_sub = np.transpose(chB_sub)
     plt.pcolormesh(x, y, chB_sub, shading = 'auto')
-    plt.title("chB_sub")
-    plt.xlabel("pattern #")
-    plt.ylabel(sweep_param)
+    plt.title("Chevron plot")
+    plt.xlabel("$t_{rabi} (ns)$", fontsize=16)
+    plt.ylabel('qubit drive frequency (GHz)', fontsize=16)
     
     plt.subplot(2,3,6)
     mags_sub = csvFile['mag_sub'].to_list()

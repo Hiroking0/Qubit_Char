@@ -65,7 +65,8 @@ if __name__ == "__main__":
                     params = json.load(file)
 
     arr = np.load(fn)
-    pop = dp.get_population_v_pattern(arr, params['v_threshold'], flipped = True)
+    #pop = dp.get_population_v_pattern(arr, params['v_threshold'], flipped = False)
+    pop = [np.average(i) for i in arr]
 
     #first get pattern avgs
     avgs = np.zeros(len(arr))

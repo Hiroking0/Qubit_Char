@@ -38,7 +38,7 @@ def ConfigureBoard(board):
 
     #board.setExternalClockLevel(50)
     
-    #9870 only compatible with 400mv 200mv 100mv 40mv
+    #9870 only compatible with 400mv 200mv 100mv 40mv 1V
     sensitivity = ats.INPUT_RANGE_PM_100_MV
     
     # TODO: Select channel A input parameters as required.

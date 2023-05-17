@@ -51,18 +51,18 @@ if __name__ == "__main__":
                     params = json.load(file)
 
     arr = np.load(fn)
-    pop = dp.get_population_v_pattern(arr, params['v_threshold'], flipped = False)
-
-    print(np.shape(arr))
+    #pop = dp.get_population_v_pattern(arr, params['v_threshold'], flipped = False)
+    pop = [np.average(i) for i in arr]
+    print(np.shape(arr), np.shape(pop))
     #first get pattern avgs
     avgs = np.zeros(len(arr))
     for i in range(len(arr)):
         avgs[i] = np.average(arr[i])
         
-    a = .5
+    a = 225.57
     b = .3
     t2 = 15000
-    f = 1/8000
+    f = 1/11720
     phi = 1.57
     shortest_ramsey = params['ramsey_gap_1_init']
     longest_ramsey = params['ramsey_gap_1_final']

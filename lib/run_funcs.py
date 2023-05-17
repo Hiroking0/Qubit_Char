@@ -21,6 +21,11 @@ import queue
 #then npt.ConfigureBoard(board)
 #awg by running be.get_awg()
 
+def get_func_call_and_param(params):
+    pass
+
+
+
 #wave length should be wait_time + readout_start + readout+duration
 def initialize_awg(awg, num_patterns, pattern_repeat, decimation):
     awg.set_chan_state(1, [1,2])
@@ -101,6 +106,7 @@ def single_sweep(name,
     readout_addr = "TCPIP0::172.20.1.8::5025::SOCKET"
     q_atten_addr = "TCPIP0::172.20.1.6::5025::SOCKET"
     r_atten_addr = "TCPIP0::172.20.1.9::5025::SOCKET"
+    twpa_addr = "TCPIP0::172.20.1.11::5025::SOCKET"
 
     addrs = {
         'wr': readout_addr,
@@ -109,6 +115,8 @@ def single_sweep(name,
         'pq': qubit_addr,
         'r_att': r_atten_addr,
         'q_att': q_atten_addr,
+        'p_twpa': twpa_addr,
+        'w_twpa': twpa_addr
     }
 
     sweep_param = params['p1']
@@ -122,9 +130,9 @@ def single_sweep(name,
         inst = RF.RF_source(rm, addrs[sweep_param])
 
 
-    if sweep_param == 'wq' or sweep_param == 'wr':
+    if sweep_param == 'wq' or sweep_param == 'wr' or sweep_param == 'w_twpa':
         func_call = inst.set_freq
-    elif sweep_param == 'pq' or sweep_param == 'pr':
+    elif sweep_param == 'pq' or sweep_param == 'pr' or sweep_param == 'p_twpa':
         func_call = inst.set_power
     else:
         #attenuator

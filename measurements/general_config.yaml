@@ -2,15 +2,15 @@
 name: 'T1_1ms'
 
 #ramsey, T1, rabi, nopulse_pulse, readout
-measurement: 'ramsey'
+measurement: 'T1'
 
-decimation: 1 #This parameter divides the sampling rate by this number.
+decimation: 10 #This parameter divides the sampling rate by this number.
 #Then divides all the other parameters by this number as well.
 #assuming decimation = 1 is with 1GS/s. each time unit is 1ns.
 #for example, decimation = 2 will divide all the parameters by 2, set the sampling rate to 500MS/s.
 
-readout_start: 1000
-readout_duration: 10000
+readout_start: 801000
+readout_duration: 20000
 #pattern length for all measurements will be readout_start + readout_duration + total_wait_time
 
 zero_length: 1000 #length of single wait time segment in ns. Minimum length of <~1000
@@ -19,7 +19,7 @@ zero_multiple: 2000 #how many times you want to repeat the zero segment
 #total_wait_time is zero_length * zero_multiple. Time between end of readout to end of pattern
 
 nop_p_q_gap: 20 #samples between end of qubit pulse and beginning of readout
-nop_p_q_dur: 164
+nop_p_q_dur: 150
 
 #For most measurements, to get exactly the number of patterns you want,
 #(final_sweep_param - initial_sweep_param)/step_size should be an integer.
@@ -27,33 +27,33 @@ nop_p_q_dur: 164
 
 rabi_pulse_gap: 20 #samples between readout pulse and end of qubit pulse. Does NOT change between patterns
 rabi_pulse_initial_duration: 0 #first duration of qubit pulse
-rabi_pulse_end_duration: 400 #final duration of qubit pulse (should be larger than initial)
+rabi_pulse_end_duration: 800 #final duration of qubit pulse (should be larger than initial)
 
 T1_init_gap: 20 #samples between beginning of readout pulse and initial T1 pulse
-T1_final_gap: 1000020 #samples between beginning of readout pulse and final T1 pulse
-T1_q_dur: 152 #pulse width of qubit pulse. Does not change between patterns
+T1_final_gap: 800020 #samples between beginning of readout pulse and final T1 pulse
+T1_q_dur: 150 #pulse width of qubit pulse. Does not change between patterns
 
 ramsey_gap_2: 20 #unchanging gap between end of second qubit pulse and beginning of readout
 ramsey_gap_1_init: 0 #initial gap between the two qubit pulses
-ramsey_gap_1_final: 60000 #final gap between the two readout pulses
-ramsey_q_dur: 77 #size of each individual pulse (i.e. pi/2 pulse)
+ramsey_gap_1_final: 70000 #final gap between the two readout pulses
+ramsey_q_dur: 75 #size of each individual pulse (i.e. pi/2 pulse)
 
 echo_gap_2: 20 #gap between last qubit pulse and readout pulse. Does not change by pattern
 echo_initial_t: 10 #inital t gap between first x pulse and y pulse. Or between y pulse and second x pulse
 #initial should be smaller than final. Gap increases
-echo_final_t: 40010 #final t gap
-echo_pi_pulse: 164 #pi pulse used in y pulse and number/2 used in both x pulses
+echo_final_t: 1000010 #final t gap
+echo_pi_pulse: 180 #pi pulse used in y pulse and number/2 used in both x pulses
 
 #This parameter used in all time domain measurements, step size in samples between each pattern
-time_domain_step: 8
+time_domain_step: 16000
 
 #inclusive of end points now
 #num_patterns will be len(range(q_dur_start, end + step, step))
 
 #running parameters
 pattern_repeat: 1
-seq_repeat: 200
-acq_multiples: 58 #number of multiples of 256 that the alazar will acquire
+seq_repeat: 1000
+acq_multiples: 100 #number of multiples of 256 that the alazar will acquire
 
 #averaging
 
@@ -62,21 +62,23 @@ acq_multiples: 58 #number of multiples of 256 that the alazar will acquire
 readout_trigger_offset: 800 #number of samples before readout starts that the alazar trigger should be placed
 
 avg_start: 2000
-avg_length: 8800
+avg_length: 19800
 
-v_threshold: 318.6 #threshold value 
+v_threshold: 191.4 #threshold value 
 
 #sweep parameters are frequency ('wr', 'wq') in GHz, power of rf generators ('pr', 'pq') in DBm, and attenuator value ('q_att', 'r_att') in DB
 #first letter is w for frequency p for power
 #second letter is q for qubit RF generator and r for readout RF
+#also p_twpa and w_twpa
+
 #sweep params in GHz or db for attenuator
 #If doing a single sweep, will look at p1, double will look at both
 
 #Y axis
-p1: 'q_att'
-p1start: 10
-p1stop: 30
-p1step: 1
+p1: 'wq' #7.14864 +- 1 MHz
+p1start: 3.31
+p1stop: 3.33
+p1step: .0005
 
 #x axis
 p2: 'wr'
@@ -85,10 +87,20 @@ p2stop: 7.0845
 p2step: .00003
 
 #static parameters, set before each running of the sequence
-set_wr: 7.10798
-set_wq: 3.181  #2.9378
+set_wr: 7.1486
+set_wq: 3.3183  #2.9378
 set_pr: 15
 set_pq: 15
 set_q_att: 20
-set_r_att: 22
+set_r_att: 40
+
+#TWPA params:
+#8.2893
+#-19.2
+
+#-18.6
+#8.2952
+
+#-19.58
+
 

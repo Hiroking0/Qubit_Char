@@ -48,21 +48,23 @@ if __name__ == "__main__":
     acq_multiples = params['acq_multiples']
     samples_per_ac = 256*acq_multiples #length of acquisition in nS must be n*256
     
-    GHz=1e9
-    MHz=1e6
-    kHz=1e3
     
+    p1start = params['p1start']
+    p1stop = params['p1stop']
+    p1step = params['p1step']
+
 
     p1 = params['p1']
+    '''
     if p1 == 'wq' or p1 == 'wr':
-        p1start = params['p1start']*GHz
-        p1stop = params['p1stop']*GHz
-        p1step = params['p1step']*GHz
+        p1start = params['p1start']
+        p1stop = params['p1stop']
+        p1step = params['p1step']
     else:
         p1start = params['p1start']
         p1stop = params['p1stop']
         p1step = params['p1step']
-
+        '''
     
     awg = be.get_awg()
     num_patterns = awg.get_seq_length()
