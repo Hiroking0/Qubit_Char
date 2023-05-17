@@ -4,9 +4,9 @@ from .LAN_instrument_base import Instrument
 
 class RF_source(Instrument):
 
-    #freq in MHz
+    #freq in GHz
     def set_freq(self, freq: float):
-        command = ':FREQuency:CW ' + str(freq) + 'Hz'
+        command = ':FREQuency:CW ' + str(freq) + 'GHz'
         print(command)
         return self.inst.write(command)
 

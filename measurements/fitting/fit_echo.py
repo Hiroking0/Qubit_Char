@@ -10,11 +10,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tkinter.filedialog import askopenfilename
 from scipy.optimize import curve_fit
+import yaml
 import sys
 sys.path.append("../../")
 from lib import data_process as dp
 import os
 import json
+from pathlib import Path
 
 def objective_T1(x, a, b, c):
 
@@ -65,7 +67,7 @@ if __name__ == "__main__":
                     params = json.load(file)
 
     arr = np.load(fn)
-    #pop = dp.get_population_v_pattern(arr, params['v_threshold'], flipped = False)
+    #pop = dp.get_population_v_pattern(arr, params['v_threshold'], flipped = True)
     pop = [np.average(i) for i in arr]
 
     #first get pattern avgs
@@ -77,8 +79,8 @@ if __name__ == "__main__":
     b = -.3
     c = 10679
 
-    longest_T1 = params['T1_final_gap']
-    shortest_T1 = params['T1_init_gap']
+    longest_T1 = params['echo_final_t']
+    shortest_T1 = params['echo_initial_t']
     num_patterns = len(arr)
     
     fit_data, new_a, new_b, new_c = fit_T1(pop, a, b, c, num_patterns, longest_T1)
@@ -91,14 +93,15 @@ if __name__ == "__main__":
     plt.rcParams.update({'font.size': 22})
     fig = plt.figure()
     ax = fig.add_subplot(111)
+    
     for axis in ['top', 'bottom', 'left', 'right']:
         ax.spines[axis].set_linewidth(2.5)
-        
     plt.plot(x, pop, 'ko', markersize=10)
     plt.plot(x, fit_data, 'r', linewidth=3.5)
-    plt.xlabel("$t_{T1}$ (ns)")
+    plt.xlabel("$t_{echo}$ (ns)")
     plt.ylabel("PE")
-    plt.title("T1 measurement")
+    plt.title("echo measurement")
+
     plt.show()
     
     

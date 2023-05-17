@@ -102,7 +102,7 @@ class Pulse:
 #readout trigger for alazar on c2m2
 class Readout_Pulse(Pulse):
 
-    def __init__(self, start, duration, amplitude, wait_time):
+    def __init__(self, start, duration, amplitude, wait_time = 777):
         super().__init__(start, duration, amplitude, channel = None)
         self.wait_time = wait_time
 
@@ -192,7 +192,7 @@ class PulseGroup:
     RF_TRIGGER_OFFSET = 100
     RF_TRIGGER_LENGTH = 100
     READOUT_TRIGGER_OFFSET = 800 #how long before readout should alazar trigger happen in nS
-    READOUT_TRIGGER_LENGTH = 100
+    READOUT_TRIGGER_LENGTH = 50
 
     def __init__(self, pulses = []):
         self.pulses = pulses
@@ -260,7 +260,7 @@ class PulseGroup:
 
     #this function will send waves and sequence them
     def send_waves_awg(self, awg, name, pattern_repeat, zero_length, zero_multiple, readout_trigger_offset, decimation):
-        PulseGroup.READOUT_TRIGGER_OFFSET = readout_trigger_offset
+        PulseGroup.READOUT_TRIGGER_OFFSET = int(readout_trigger_offset/decimation)
         zero_multiple = int(zero_multiple/decimation)
         #First convert all arrays to waveforms, then send
         (c1Waves, c2Waves) = self.get_waveforms()
@@ -288,10 +288,9 @@ class PulseGroup:
     
     
     def show(self, decimation = 1, subplots = True):
-
+        PulseGroup.READOUT_TRIGGER_OFFSET = int(PulseGroup.READOUT_TRIGGER_OFFSET/decimation)
         (arr1, a1m1, a1m2, arr2, a2m1, a2m2) = self.make()
         x = np.linspace(0, len(arr1[0])*decimation, num = len(arr1[0]))
-        #plt.clf()
         if arr1.ndim == 1:
             arr1 = np.expand_dims(arr1, axis=0)
             a1m1 = np.expand_dims(a1m1, axis=0)
@@ -304,22 +303,22 @@ class PulseGroup:
             for i in range(len(arr1)):
                 plt.subplot(2,3,1)
                 plt.plot(x, arr1[i]+i)
-                plt.title('CH1(qubit pulse)', fontsize=14)
+                plt.title('CH1 (qubit pulse)', fontsize=14)
                 plt.xticks(rotation=45)
 
                 plt.subplot(2,3,2)
                 plt.plot(x, a1m1[i]+i)
-                plt.title('CH1M1(aux pulse)', fontsize=14)
+                plt.title('CH1M1 (aux pulse)', fontsize=14)
                 plt.xticks(rotation=45)
 
                 plt.subplot(2,3,3)
                 plt.plot(x, a1m2[i]+i)
-                plt.title('CH1M2(nothing)', fontsize=14)
+                plt.title('CH1M2 (nothing)', fontsize=14)
                 plt.xticks(rotation=45)
 
                 plt.subplot(2,3,4)
                 plt.plot(x, arr2[i]+i)
-                plt.title('CH2(qubit pulse)', fontsize=14)
+                plt.title('CH2 (qubit pulse)', fontsize=14)
                 plt.xticks(rotation=45)                
 
                 plt.subplot(2,3,5)
@@ -329,7 +328,7 @@ class PulseGroup:
                 
                 plt.subplot(2,3,6)
                 plt.plot(x, a2m2[i]+i)
-                plt.title('CH2 M2(Alazar trigger)', fontsize=14)
+                plt.title('CH2 M2 (Alazar trigger)', fontsize=14)
                 plt.xticks(rotation=45)
                 #plt.subplot(2,3,6)
                 #plt.plot(a2m2[i])
@@ -343,6 +342,7 @@ class PulseGroup:
                 plt.plot(x, a2m1[i]+i*1.1, 'r')
                 plt.plot(x, arr2[i]+i*1.1, 'g')
                 #plt.plot(a2m2[i])
+                #plt.legend(["ch1", "ch2m1", "ch2"])
                 plt.xticks(rotation=45)
                 #plt.tight_layout()
                 

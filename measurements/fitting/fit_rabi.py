@@ -11,7 +11,11 @@ import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 from tkinter.filedialog import askopenfilename
 import yaml
-from pathlib import Path
+import json
+import os
+import sys
+sys.path.append("../../")
+from lib import data_process as dp
 
 def objective_rabi(x, a, b, c, d):
 	return a + (b*np.sin(2*np.pi*c*x+d))
@@ -35,7 +39,17 @@ if __name__ == "__main__":
     f.close()
     
     fn = askopenfilename()
+    
+    nf = '\\'.join(fn.split('/')[0:-1]) + "/"
+
+    for (root, dirs, files) in os.walk(nf):
+        for f in files:
+            if ".json" in f:
+                with open(nf + f) as file:
+                    params = json.load(file)
+
     arr = np.load(fn)
+    pop = dp.get_population_v_pattern(arr, params['v_threshold'], flipped = False)
     #first get pattern avgs
     avgs = np.zeros(len(arr))
     for i in range(len(arr)):
@@ -49,7 +63,7 @@ if __name__ == "__main__":
     longest_rabi = params['rabi_pulse_end_duration']
     shortest_rabi = params['rabi_pulse_initial_duration']
     
-    fit_data, a, b, c, d = fit_rabi(avgs, a, b, c, d, num_patterns, longest_rabi)
+    fit_data, a, b, c, d = fit_rabi(pop, a, b, c, d, num_patterns, longest_rabi)
     print("final parameters:")
     print("offset: ", a)
     print("amplitude: ", b)
@@ -58,11 +72,19 @@ if __name__ == "__main__":
     
     
     x = np.linspace(shortest_rabi, longest_rabi, num_patterns)
-    plt.plot(x, avgs, 'ko')
-    plt.plot(x, fit_data, 'r')
+    plt.rcParams.update({'font.size': 22})
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    
+    for axis in ['top', 'bottom', 'left', 'right']:
+        ax.spines[axis].set_linewidth(2.5)
+    
+    
+    plt.plot(x, pop, 'ko', markersize=10)
+    plt.plot(x, fit_data, 'r', linewidth=3.5)
     plt.xlabel("$t_{rabi}$ (ns)")
-    plt.ylabel("V")
-    plt.title(Path(fn).stem)
+    plt.ylabel("PE")
+    plt.title("rabi measurement")
     plt.show()
     
     

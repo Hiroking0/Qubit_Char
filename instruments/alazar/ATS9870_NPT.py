@@ -38,7 +38,7 @@ def ConfigureBoard(board):
 
     #board.setExternalClockLevel(50)
     
-    #9870 only compatible with 400mv 200mv 100mv 40mv
+    #9870 only compatible with 400mv 200mv 100mv 40mv 1V
     sensitivity = ats.INPUT_RANGE_PM_100_MV
     
     # TODO: Select channel A input parameters as required.
@@ -312,10 +312,10 @@ def AcquireData(board, params, num_patterns, path, saveData = True, live_plot = 
           (recordsPerBuffer * buffersCompleted, recordsPerSec))
     print("Transferred %d bytes (%f bytes per sec)" %
           (bytesTransferred, bytesPerSec))
-    np.save(path + "chA_sub", chA_avgs_sub)
-    np.save(path + "chB_sub", chB_avgs_sub)
-    np.save(path + "chA_nosub", chA_avgs_nosub)
-    np.save(path + "chB_nosub", chB_avgs_nosub)
+    #np.save(path + "chA_sub", chA_avgs_sub)
+    #np.save(path + "chB_sub", chB_avgs_sub)
+    #np.save(path + "chA_nosub", chA_avgs_nosub)
+    #np.save(path + "chB_nosub", chB_avgs_nosub)
     mag_sub = np.zeros((len(chA_avgs_sub), len(chA_avgs_sub[0])))
     mag_nosub = np.zeros((len(chA_avgs_sub), len(chA_avgs_sub[0])))
     for i in range(len(chA_avgs_sub)):
@@ -323,17 +323,14 @@ def AcquireData(board, params, num_patterns, path, saveData = True, live_plot = 
             mag_sub[i][j] = np.sqrt(chA_avgs_sub[i][j] ** 2 + chB_avgs_sub[i][j] ** 2)
             mag_nosub[i][j] = np.sqrt(chA_avgs_nosub[i][j] ** 2 + chB_avgs_nosub[i][j] ** 2)
     
-    np.save(path + "mag_sub", mag_sub)
-    np.save(path + "mag_nosub", mag_nosub)
+    #np.save(path + "mag_sub", mag_sub)
+    #np.save(path + "mag_nosub", mag_nosub)
     
     if live_plot:
         print('closed')
         fig.canvas.close()
-        
     
-    
-    
-    return (chA_avgs_sub, chB_avgs_sub, chA_avgs_nosub, chB_avgs_nosub)
+    return (chA_avgs_sub, chB_avgs_sub, chA_avgs_nosub, chB_avgs_nosub, mag_sub, mag_nosub)
 
 
 if __name__ == "__main__":
