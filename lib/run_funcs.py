@@ -46,12 +46,15 @@ def init_params(params):
     r_rf = RF.RF_source(rm, "TCPIP0::172.20.1.8::5025::SOCKET")
     q_att = ATT.Atten(rm, "TCPIP0::172.20.1.6::5025::SOCKET")
     r_att = ATT.Atten(rm, "TCPIP0::172.20.1.9::5025::SOCKET")
+    twpa_rf = RF.RF_source(rm, "TCPIP0::172.20.1.11::5025::SOCKET")
     q_rf.set_freq(params['set_wq'])
     r_rf.set_freq(params['set_wr'])
     q_rf.set_power(params['set_pq'])
     r_rf.set_power(params['set_pr'])
     q_att.set_attenuation(params['set_q_att'])
     r_att.set_attenuation(params['set_r_att'])
+    twpa_rf.set_power(params['set_p_twpa'])
+    twpa_rf.set_freq(params['set_w_twpa'])
 
 def run_and_acquire(awg,
                 board,

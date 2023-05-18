@@ -107,7 +107,7 @@ def get_p1_p2(arr, num_patterns, pattern_reps, seq_reps):
         
     return final_arr
 
-def parse_np_file(arr, num_patterns, pattern_reps, seq_reps):
+def parse_np_file(arr, num_patterns, pattern_reps, seq_reps, measurement = None):
     arr = np.reshape(arr, (num_patterns * seq_reps, pattern_reps))
     final_arr = np.zeros((num_patterns, pattern_reps*seq_reps))
     for i in range(num_patterns):
@@ -163,9 +163,7 @@ def plot_np_file(num_patterns, pattern_reps, seq_reps, time_step, path):
         pattern_avgs_cB_sub[i] = np.average(chB_sub[i])
         mags_sub[i] = np.average(np.sqrt(chB_sub[i] ** 2 + chA_sub[i] ** 2))
         
-        
     x = [i*time_step for i in range(num_patterns)]
-    
     
     #x = np.arange(num_patterns)
     plt.subplot(2,3,1)

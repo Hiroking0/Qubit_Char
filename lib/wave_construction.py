@@ -256,6 +256,7 @@ class PulseGroup:
             for i in range(len(c1)):
                 c1Waves.append(tawg.Waveform(c1[i], c1m1[i], c1m2[i]))
                 c2Waves.append(tawg.Waveform(c2[i], c2m1[i], c2m2[i]))
+        
         return (c1Waves, c2Waves)
 
     #this function will send waves and sequence them

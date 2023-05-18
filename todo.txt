@@ -1,4 +1,4 @@
 calculate estimated time, print
+automatically find readout start and other parameters
 live plot for sweeps and single run
-echo sends one extra pulse
 save image of plot in folder
