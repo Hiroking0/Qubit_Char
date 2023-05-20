@@ -11,9 +11,9 @@ import qcodes as qc
 import qcodes.instrument_drivers.AlazarTech as ats
 from qcodes.instrument_drivers.AlazarTech import AcquisitionController
 import numpy as np
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple, TypeVar
 from lib import wave_construction as be
-
+OutputType = TypeVar('OutputType')
 
 
 class qubit_ac_controller(AcquisitionController[float]):
@@ -76,12 +76,10 @@ class qubit_ac_controller(AcquisitionController[float]):
         self.records_per_buffer = alazar.records_per_buffer.get()
         self.buffers_per_acquisition = alazar.buffers_per_acquisition.get()
         #sample_speed = alazar.get_sample_rate()
-        self.chA_nosub = np.zeros((num_patterns, seq_repeat * pattern_repeat))
-        self.chB_nosub = np.zeros((num_patterns, seq_repeat * pattern_repeat))
-        self.chA_sub = np.zeros((num_patterns, seq_repeat * pattern_repeat))
-        self.chB_sub = np.zeros((num_patterns, seq_repeat * pattern_repeat))
-
-
+        self.chA_nosub = np.zeros((self.num_patterns, seq_repeat * pattern_repeat))
+        self.chB_nosub = np.zeros((self.num_patterns, seq_repeat * pattern_repeat))
+        self.chA_sub = np.zeros((self.num_patterns, seq_repeat * pattern_repeat))
+        self.chB_sub = np.zeros((self.num_patterns, seq_repeat * pattern_repeat))
 
     def pre_acquire(self) -> None:
         """
@@ -108,21 +106,16 @@ class qubit_ac_controller(AcquisitionController[float]):
         
         index_number = seq_number*self.pattern_repeat + buffer_number % self.pattern_repeat
 
-
-
         half = int(len(buffer)/2)
         chA = buffer[:half]
         chB = buffer[half:]
         t_Aavg = np.average(chA[self.avg_start: self.avg_start + self.avg_len])
         t_Bavg = np.average(chB[self.avg_start: self.avg_start + self.avg_len])
             
-            
         self.chA_sub[pattern_number][index_number] = t_Aavg - np.average(chA[200:800])
         self.chB_sub[pattern_number][index_number] = t_Bavg - np.average(chB[200:800])
         self.chA_nosub[pattern_number][index_number] = t_Aavg
         self.chB_nosub[pattern_number][index_number] = t_Bavg
-
-
 
     def post_acquire(self) -> OutputType:
         """
@@ -147,28 +140,7 @@ class qubit_ac_controller(AcquisitionController[float]):
                 self.chA_nosub[i,j] = alazar.signal_to_volt(1, self.chA_nosub[i,j])
                 self.chB_nosub[i,j] = alazar.signal_to_volt(2, self.chB_nosub[i,j])
 
-
-        
-
         return (self.chA_sub, self.chB_sub, self.chA_nosub, self.chB_nosub)
-
-
-    def buffer_done_callback(self, buffers_completed: int) -> None:
-        """
-        This method is called when a buffer is completed. It can be used
-        if you want to implement an event that happens for each buffer.
-        You will probably want to combine this with `AUX_IN_TRIGGER_ENABLE`
-        to wait before starting capture of the next buffer.
-
-        Args:
-            buffers_completed: how many buffers have been completed and copied
-                to local memory at the time of this callback.
-        """
-
-        pass
-
-
-
 
 at = ats.AlazarTechATS9870("t_name", dll_path = 'C:\\WINDOWS\\System32\\ATSApi.dll')
 
