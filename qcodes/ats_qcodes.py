@@ -166,4 +166,4 @@ at.set('buffer_timeout', 5000)
 at.sync_settings_to_card()
 ac = qubit_ac_controller('t_ac', "t_name")
 
-at.acquire(acquisition_controller = ac)
+(chA_sub, chB_sub, chA_nosub, chB_nosub) = at.acquire(acquisition_controller = ac)
