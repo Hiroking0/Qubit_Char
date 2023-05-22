@@ -57,7 +57,7 @@ time_domain_step: 12000
 
 #running parameters
 pattern_repeat: 1
-seq_repeat: 2000
+seq_repeat: 4000
 acq_multiples: 100 #number of multiples of 256 that the alazar will acquire
 
 #averaging
