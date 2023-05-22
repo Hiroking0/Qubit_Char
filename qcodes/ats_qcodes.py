@@ -13,6 +13,7 @@ from qcodes.instrument_drivers.AlazarTech import AcquisitionController
 import numpy as np
 from typing import Any, Dict, Optional, Tuple, TypeVar
 from lib import wave_construction as be
+import matplotlib.pyplot as plt
 OutputType = TypeVar('OutputType')
 
 
@@ -36,10 +37,12 @@ class qubit_ac_controller(AcquisitionController[float]):
           alazar internals
         - Return return value from :meth:`AcquisitionController.post_acquire`
     """
-    def __init__(self, name, alazar_name, num_patterns, avg_start, avg_len, **kwargs):
+    def __init__(self, name, alazar_name, num_patterns, avg_start, avg_len, pattern_rep, seq_rep, **kwargs):
         self.num_patterns = num_patterns
         self.avg_start = avg_start
         self.avg_len = avg_len
+        self.pattern_repeat = pattern_rep
+        self.seq_repeat = seq_rep
         self.samples_per_record = 0
         self.records_per_buffer = 0
         self.buffers_per_acquisition = 0
@@ -76,10 +79,10 @@ class qubit_ac_controller(AcquisitionController[float]):
         self.records_per_buffer = alazar.records_per_buffer.get()
         self.buffers_per_acquisition = alazar.buffers_per_acquisition.get()
         #sample_speed = alazar.get_sample_rate()
-        self.chA_nosub = np.zeros((self.num_patterns, seq_repeat * pattern_repeat))
-        self.chB_nosub = np.zeros((self.num_patterns, seq_repeat * pattern_repeat))
-        self.chA_sub = np.zeros((self.num_patterns, seq_repeat * pattern_repeat))
-        self.chB_sub = np.zeros((self.num_patterns, seq_repeat * pattern_repeat))
+        self.chA_nosub = np.zeros((self.num_patterns, self.seq_repeat * self.pattern_repeat))
+        self.chB_nosub = np.zeros((self.num_patterns, self.seq_repeat * self.pattern_repeat))
+        self.chA_sub = np.zeros((self.num_patterns, self.seq_repeat * self.pattern_repeat))
+        self.chB_sub = np.zeros((self.num_patterns, self.seq_repeat * self.pattern_repeat))
 
     def pre_acquire(self) -> None:
         """
@@ -157,13 +160,20 @@ at.set('channel_range2', sensitivity)
 at.set('trigger_source1', 'EXTERNAL')
 at.set('trigger_level1', 150)
 rec_mult = 256*100
-seq_repeat = 1000
+seq_repeat = 4000
 pattern_repeat = 1
+num_patterns = 2
 at.set('samples_per_record', rec_mult)
-at.set('buffers_per_acquisition', seq_repeat * pattern_repeat)
+at.set('buffers_per_acquisition', seq_repeat * pattern_repeat * num_patterns)
 at.set('allocated_buffers', 6)
 at.set('buffer_timeout', 5000)
 at.sync_settings_to_card()
-ac = qubit_ac_controller('t_ac', "t_name")
+
+avg_start = 1000
+avg_len = 19800
+ac = qubit_ac_controller('t_ac', "t_name", num_patterns, avg_start, avg_len, pattern_repeat, seq_repeat)
 
 (chA_sub, chB_sub, chA_nosub, chB_nosub) = at.acquire(acquisition_controller = ac)
+plt.hist(chA_nosub[0], bins = 200, histtype = 'step')
+plt.hist(chA_nosub[1], bins = 200, histtype = 'step')
+plt.show()
