@@ -22,6 +22,9 @@ to the "measurement" parameter in the config file. The possible parameters are l
 Running one of these files looks at the appropraite parameters in the config file and ignore the others.
 After sending the waves, you can run one of four files in the measurements folder.
 
+The "show_sequency.py" file will display a plot of the pattern that will be sent to the AWG.
+The x axis is in ns. The y axis is the pattern number. For example, pattern number 5 will start at y=5. The indexing begins at y=0
+
 The "run_sequence.py" file will run the sequence according to the config file a single time.
 
 The "single_rf_sweep.py" file will run a sweep based on the p1 parameter provided in the config file
