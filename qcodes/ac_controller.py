@@ -7,13 +7,11 @@ Created on Fri May 19 10:00:47 2023
 import sys
 sys.path.append("../")
 
-import qcodes as qc
-import qcodes.instrument_drivers.AlazarTech as ats
 from qcodes.instrument_drivers.AlazarTech import AcquisitionController
 import numpy as np
-from typing import Any, Dict, Optional, Tuple, TypeVar
-from lib import wave_construction as be
-import matplotlib.pyplot as plt
+from typing import Any, Dict, Optional, TypeVar
+#from lib import wave_construction as be
+
 OutputType = TypeVar('OutputType')
 
 
@@ -37,21 +35,22 @@ class qubit_ac_controller(AcquisitionController[float]):
           alazar internals
         - Return return value from :meth:`AcquisitionController.post_acquire`
     """
-    def __init__(self, name, alazar_name, num_patterns, avg_start, avg_len, pattern_rep, seq_rep, **kwargs):
-        self.num_patterns = num_patterns
+    def __init__(self, name, alazar_name, avg_start, avg_len, pattern_rep, seq_rep, num_patterns, awg, **kwargs):
         self.avg_start = avg_start
         self.avg_len = avg_len
         self.pattern_repeat = pattern_rep
         self.seq_repeat = seq_rep
+        self.awg = awg
+        
+        self.num_patterns = num_patterns
         self.samples_per_record = 0
         self.records_per_buffer = 0
         self.buffers_per_acquisition = 0
-        self.number_of_channels = 2
+        
         self.chA_nosub: Optional[np.ndarray] = None
         self.chB_nosub: Optional[np.ndarray] = None
         self.chA_sub: Optional[np.ndarray] = None
         self.chB_sub: Optional[np.ndarray] = None
-        self.awg = None
         self.acquisitionkwargs: Dict[str, Any] = {}
         super().__init__(name, alazar_name, **kwargs)
 
@@ -73,8 +72,10 @@ class qubit_ac_controller(AcquisitionController[float]):
         The Alazar instrument will call this method right before
         'AlazarStartCapture' is called
         """
-
+        
         alazar = self._get_alazar()
+        alazar.sync_settings_to_card()
+        
         self.samples_per_record = alazar.samples_per_record.get()
         self.records_per_buffer = alazar.records_per_buffer.get()
         self.buffers_per_acquisition = alazar.buffers_per_acquisition.get()
@@ -88,7 +89,6 @@ class qubit_ac_controller(AcquisitionController[float]):
         """
         This method is called immediately after 'AlazarStartCapture' is called
         """
-        self.awg = be.get_awg()
         self.awg.run()
 
 
@@ -105,7 +105,7 @@ class qubit_ac_controller(AcquisitionController[float]):
 
         """
         pattern_number = int(buffer_number/self.pattern_repeat) % self.num_patterns
-        seq_number = int(buffer_number/(self.num_patterns*pattern_repeat))
+        seq_number = int(buffer_number/(self.num_patterns*self.pattern_repeat))
         
         index_number = seq_number*self.pattern_repeat + buffer_number % self.pattern_repeat
 
@@ -144,36 +144,3 @@ class qubit_ac_controller(AcquisitionController[float]):
                 self.chB_nosub[i,j] = alazar.signal_to_volt(2, self.chB_nosub[i,j])
 
         return (self.chA_sub, self.chB_sub, self.chA_nosub, self.chB_nosub)
-
-at = ats.AlazarTechATS9870("t_name", dll_path = 'C:\\WINDOWS\\System32\\ATSApi.dll')
-
-#print(at.get_idn())
-at.set('mode', 'NPT')
-at.set('clock_source', 'EXTERNAL_CLOCK_10MHz_REF')
-at.set('decimation', 1)
-at.set('coupling1', 'DC')
-at.set('coupling2', 'DC')
-sensitivity = .1
-at.set('channel_range1', sensitivity)
-at.set('channel_range2', sensitivity)
-
-at.set('trigger_source1', 'EXTERNAL')
-at.set('trigger_level1', 150)
-rec_mult = 256*100
-seq_repeat = 4000
-pattern_repeat = 1
-num_patterns = 2
-at.set('samples_per_record', rec_mult)
-at.set('buffers_per_acquisition', seq_repeat * pattern_repeat * num_patterns)
-at.set('allocated_buffers', 6)
-at.set('buffer_timeout', 5000)
-at.sync_settings_to_card()
-
-avg_start = 1000
-avg_len = 19800
-ac = qubit_ac_controller('t_ac', "t_name", num_patterns, avg_start, avg_len, pattern_repeat, seq_repeat)
-
-(chA_sub, chB_sub, chA_nosub, chB_nosub) = at.acquire(acquisition_controller = ac)
-plt.hist(chA_nosub[0], bins = 200, histtype = 'step')
-plt.hist(chA_nosub[1], bins = 200, histtype = 'step')
-plt.show()

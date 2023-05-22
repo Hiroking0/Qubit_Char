@@ -12,11 +12,9 @@ from instruments import RF_interface as RF
 
 import time
 import numpy as np
-from threading import Thread
 import pyvisa as visa
 import csv
 import matplotlib.pyplot as plt
-import queue
 #board should be acquired by running ats.Board(systemId = 1, boardId = 1)
 #then npt.ConfigureBoard(board)
 #awg by running be.get_awg()
@@ -56,36 +54,7 @@ def init_params(params):
     twpa_rf.set_power(params['set_p_twpa'])
     twpa_rf.set_freq(params['set_w_twpa'])
 
-def run_and_acquire(awg,
-                board,
-                params,
-                num_patterns,
-                save_raw,
-                path):
-    """
-    runs sequence on AWG once. params should be dictionary of YAML file.
-    """
-    #samples_per_ac = params['acq_multiples']*256
-    #pattern_repeat = params['pattern_repeat']
-    #seq_repeat = params['seq_repeat']
-    
-    que = queue.Queue()
-    acproc = Thread(target = lambda q, board, params, num_patterns, path, raw, live:
-                            q.put(npt.AcquireData(board, params, num_patterns, path, raw, live)), 
-                            args = (que, board, params, num_patterns, path, save_raw, False))
-    #acproc = Thread(target = npt.AcquireData, args = (board, params, num_patterns, path, save_raw, False))
-    
-    acproc.start()
-    time.sleep(.3)
-    awg.run()
-    acproc.join()
-    awg.stop()
-    
-    (chA_avgs_sub, chB_avgs_sub, chA_avgs_nosub, chB_avgs_nosub, mag_sub, mag_nosub) = que.get()
-    
-    return (chA_avgs_sub, chB_avgs_sub, chA_avgs_nosub, chB_avgs_nosub, mag_sub, mag_nosub)
-    
-    
+
 #this function will take one of the do_all functions as a parameter
 #sweep param should be 'wq', 'pq', 'wr', 'pr', 'att'
 #w is for frequency, p for power
