@@ -19,7 +19,7 @@ After setting the parameters, you must send the waves to the AWG. To do this run
 to the "measurement" parameter in the config file. The possible parameters are listed at the top of the file.
 
 
-Running one of these files should look at the appropraite parameters in the config file and ignore the others.
+Running one of these files looks at the appropraite parameters in the config file and ignore the others.
 After sending the waves, you can run one of four files in the measurements folder.
 
 The "run_sequence.py" file will run the sequence according to the config file a single time.
