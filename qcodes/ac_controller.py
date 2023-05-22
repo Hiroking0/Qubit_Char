@@ -80,7 +80,12 @@ class qubit_ac_controller(AcquisitionController[float]):
         self.chB_sub: Optional[np.ndarray] = None
         self.acquisitionkwargs: Dict[str, Any] = {}
         super().__init__(name, alazar_name, **kwargs)
+        self.add_parameter("acquisition", get_cmd=self.do_acquisition)
 
+    def do_acquisition(self):
+        (a, b, c, d) = self._get_alazar().acquire(acquisition_controller=self,
+                                           **self.acquisitionkwargs)
+        return (a, b, c, d)
 
 
     def update_acquisitionkwargs(self, **kwargs: Any) -> None:

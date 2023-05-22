@@ -6,9 +6,8 @@ Created on Fri Feb 10 11:11:27 2023
 """
 import sys
 sys.path.append("../")
-from instruments.alazar import ATS9870_NPT as npt
-from instruments import Var_att_interface as ATT
-from instruments import RF_interface as RF
+#from instruments import Var_att_interface as ATT
+#from instruments import RF_interface as RF
 
 import time
 import numpy as np

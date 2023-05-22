@@ -8,7 +8,7 @@ from typing import Any
 from qcodes.instrument import VisaInstrument
 from qcodes.validators import Numbers
 
-class AgilentN5183A(VisaInstrument):
+class N5183A(VisaInstrument):
     def __init__(self, name: str, address: str, **kwargs: Any) -> None:
         super().__init__(name, address, terminator="\n", **kwargs)
         self.add_parameter(
