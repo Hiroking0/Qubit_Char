@@ -99,7 +99,7 @@ if __name__ == "__main__":
     plt.plot(x, pop, 'ko', markersize=10)
     plt.plot(x, fit_data, 'r', linewidth=3.5)
     plt.xlabel("$t_{echo}$ (ns)")
-    plt.ylabel("PE")
+    plt.ylabel("V")
     plt.title("echo measurement")
 
     plt.show()

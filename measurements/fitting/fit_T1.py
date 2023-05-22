@@ -97,7 +97,7 @@ if __name__ == "__main__":
     plt.plot(x, pop, 'ko', markersize=10)
     plt.plot(x, fit_data, 'r', linewidth=3.5)
     plt.xlabel("$t_{T1}$ (ns)")
-    plt.ylabel("PE")
+    plt.ylabel("V")
     plt.title("T1 measurement")
     plt.show()
     

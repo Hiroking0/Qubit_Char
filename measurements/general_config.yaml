@@ -19,7 +19,7 @@ zero_multiple: 2000 #how many times you want to repeat the zero segment
 #total_wait_time is zero_length * zero_multiple. Time between end of readout to end of pattern
 
 nop_p_q_gap: 20 #samples between end of qubit pulse and beginning of readout
-nop_p_q_dur: 130
+nop_p_q_dur: 150
 
 amp_start: 0
 amp_stop: 2
@@ -46,8 +46,8 @@ ramsey_q_dur: 65 #size of each individual pulse (i.e. pi/2 pulse)
 echo_gap_2: 20 #gap between last qubit pulse and readout pulse. Does not change by pattern
 echo_initial_t: 20 #inital t gap between first x pulse and y pulse. Or between y pulse and second x pulse
 #initial should be smaller than final. Gap increases
-echo_final_t: 1020 #final t gap
-echo_pi_pulse: 140 #pi pulse used in y pulse and number/2 used in both x pulses
+echo_final_t: 600020 #final t gap
+echo_pi_pulse: 150 #pi pulse used in y pulse and number/2 used in both x pulses
 
 #This parameter used in all time domain measurements, step size in samples between each pattern
 time_domain_step: 12000
@@ -57,7 +57,7 @@ time_domain_step: 12000
 
 #running parameters
 pattern_repeat: 1
-seq_repeat: 2000
+seq_repeat: 200
 acq_multiples: 100 #number of multiples of 256 that the alazar will acquire
 
 #averaging
