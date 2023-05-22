@@ -26,6 +26,7 @@ from qcodes.parameters import Parameter
 rf = AgilentN5183A('qubit_rf', "TCPIP0::172.20.1.7::5025::SOCKET")
 rf.set('power', -22)
 rf.set('frequency', 2.9396)
+rf.set('enable', True)
 
 VNA = PNABase(name = 'test',
               address = 'TCPIP0::K-E5080B-00202.local::hislip0::INSTR',
@@ -87,6 +88,7 @@ with context_meas.run() as datasaver:
             dataid = datasaver.run_id
             dataset = datasaver.dataset
     
+rf.set('enable', False)
 plot_dataset(dataset)
 
 plt.show()

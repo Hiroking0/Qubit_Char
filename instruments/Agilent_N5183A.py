@@ -31,4 +31,11 @@ class AgilentN5183A(VisaInstrument):
             vals=Numbers(min_value=-32, max_value=30),
         )
         
-        
+        self.add_parameter(
+            name="enable",
+            label="Enable",
+            get_cmd=":OUTPut:STATe?",
+            set_cmd=":OUTPut:STATe {}",
+            get_parser=float,
+            val_mapping={True: 'ON', False: 'OFF'},
+        )
