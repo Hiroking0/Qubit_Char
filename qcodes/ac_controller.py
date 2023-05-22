@@ -15,6 +15,33 @@ from typing import Any, Dict, Optional, TypeVar
 OutputType = TypeVar('OutputType')
 
 
+def set_alazar_settings(params, alazar, awg):
+    seq_repeat = params['seq_repeat']
+    pattern_repeat = params['pattern_repeat']
+    acq_multiples = params['acq_multiples']
+    alazar.set('mode', 'NPT')
+    alazar.set('clock_source', 'EXTERNAL_CLOCK_10MHz_REF')
+    alazar.set('decimation', 1)
+    alazar.set('coupling1', 'DC')
+    alazar.set('coupling2', 'DC')
+    sensitivity = .1
+    alazar.set('channel_range1', sensitivity)
+    alazar.set('channel_range2', sensitivity)
+    
+    alazar.set('trigger_source1', 'EXTERNAL')
+    alazar.set('trigger_level1', 150)
+    rec_mult = 256*acq_multiples
+    
+    alazar.set('samples_per_record', rec_mult)
+    
+    num_patterns = awg.get_seq_length()
+    alazar.set('buffers_per_acquisition', seq_repeat * pattern_repeat * num_patterns)
+    alazar.set('allocated_buffers', 6)
+    alazar.set('buffer_timeout', 5000)
+    alazar.sync_settings_to_card()
+
+
+
 class qubit_ac_controller(AcquisitionController[float]):
     
     """
