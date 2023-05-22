@@ -94,12 +94,12 @@ p2step: .00003
 #static parameters, set before each running of the sequence
 set_wr: 7.1486
 set_wq: 3.3184  #2.9378
-set_pr: 14.85
-set_pq: 15.49
+set_pr: 15
+set_pq: 15
 set_q_att: 20
 set_r_att: 40
-set_p_twpa: -19.78
-set_w_twpa: 8.3889
+set_p_twpa: -192
+set_w_twpa: 8.5689
 
 #TWPA params:
 #8.2893
