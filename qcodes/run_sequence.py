@@ -15,6 +15,7 @@ import sys
 sys.path.append("../")
 from instruments import Agilent_N5183A
 from instruments import Keysight_J7201B
+import numpy as np
 
 from qcodes.dataset import (
     LinSweep,
@@ -56,24 +57,26 @@ if __name__ == "__main__":
     station.add_component(r_rf)
     station.add_component(q_att)
     station.add_component(r_att)
+    station.add_component(ac)
+    station.add_component(at)
     
     initialise_or_create_database_at("./database.db")
     
     
     tutorial_exp = load_or_create_experiment(
-    experiment_name="tutorial_exp",
-    sample_name="synthetic data"
+    experiment_name="sweep_wq",
+    #sample_name="synthetic data"
     )
     
     context_meas = Measurement(exp=tutorial_exp, station=station, name='context_example')
     context_meas.register_parameter(ac.acquisition)
     
     with context_meas.run() as datasaver:
-        for set_v in np.linspace(0, 25, 10):
-            dac.ch1.set(set_v)
-            get_v = dmm.v1.get()
-            datasaver.add_result((dac.ch1, set_v),
-                                 (dmm.v1, get_v))
+        for set_f in np.linspace(3, 3.2, .01):
+            q_rf.frequency.set(set_f)
+            (asub, bsub, anosub, bnosub) = ac.acquisition.get()
+            datasaver.add_result((q_rf.frequency, set_f),
+                                 (ac.acquisition, asub))
 
         # Convenient to have for plotting and data access
         dataset = datasaver.dataset
@@ -83,11 +86,6 @@ if __name__ == "__main__":
 
 
 
-
-
-
-
-    
     
     (chA_sub, chB_sub, chA_nosub, chB_nosub) = at.acquire(acquisition_controller = ac)
     plt.hist(chB_nosub[0], bins = 200, histtype = 'step')

@@ -4,8 +4,10 @@ Created on Fri May 19 12:16:01 2023
 
 @author: lqc
 """
+import sys
+sys.path.append("../../")
 import qcodes as qc
-from RF_qcodes import AgilentN5183A
+from instruments import Agilent_N5183A
 from qcodes.instrument_drivers.Keysight.N52xx import PNABase
 from qcodes.dataset import (
     LinSweep,
@@ -23,7 +25,7 @@ import numpy as np
 from qcodes.parameters import Parameter
 
 
-rf = AgilentN5183A('qubit_rf', "TCPIP0::172.20.1.7::5025::SOCKET")
+rf = Agilent_N5183A.N5183A('qubit_rf', "TCPIP0::172.20.1.7::5025::SOCKET")
 rf.set('power', -22)
 rf.set('frequency', 2.9396)
 rf.set('enable', True)
@@ -49,10 +51,10 @@ station.add_component(rf)
 station.add_component(VNA)
 pow_start = -32
 pow_stop = 15
-pow_step = 2
+pow_step = 1
 
-freq_start = 2.930
-freq_stop = 2.945
+freq_start = 2.4
+freq_stop = 2.9
 freq_step = .0004
 
 
