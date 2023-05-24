@@ -2,14 +2,14 @@
 name: 'test'
 
 #ramsey, T1, rabi, npp, readout, echo, echo_1ax, amplitude
-measurement: 'echo'
+measurement: 'ramsey'
 
-decimation: 5 #This parameter divides the sampling rate by this number.
+decimation: 1 #This parameter divides the sampling rate by this number.
 #Then divides all the other parameters by this number as well.
 #assuming decimation = 1 is with 1GS/s. each time unit is 1ns.
 #for example, decimation = 2 will divide all the parameters by 2, set the sampling rate to 500MS/s.
 
-readout_start: 601000
+readout_start: 61000
 readout_duration: 20000
 #pattern length for all measurements will be readout_start + readout_duration + total_wait_time
 
@@ -46,11 +46,11 @@ ramsey_q_dur: 75 #size of each individual pulse (i.e. pi/2 pulse)
 echo_gap_2: 20 #gap between last qubit pulse and readout pulse. Does not change by pattern
 echo_initial_t: 20 #inital t gap between first x pulse and y pulse. Or between y pulse and second x pulse
 #initial should be smaller than final. Gap increases
-echo_final_t: 600020 #final t gap
+echo_final_t: 400020 #final t gap
 echo_pi_pulse: 150 #pi pulse used in y pulse and number/2 used in both x pulses
 
 #This parameter used in all time domain measurements, step size in samples between each pattern
-time_domain_step: 12000
+time_domain_step: 1200
 
 #inclusive of end points now
 #num_patterns will be len(range(q_dur_start, end + step, step))
@@ -92,12 +92,12 @@ p2stop: 7.0845
 p2step: .00003
 
 #static parameters, set before each running of the sequence
-set_wr: 7.1478
-set_wq: 3.3184  #2.9378
-set_pr: 13.5
+set_wr: 7.1486 #7.1486 7.1478
+set_wq: 3.31845
+set_pr: 15 # 15, 13.5
 set_pq: 15
 set_q_att: 20
-set_r_att: 22
+set_r_att: 40 #40, 22
 set_p_twpa: -19.2
 set_w_twpa: 8.5689
 
