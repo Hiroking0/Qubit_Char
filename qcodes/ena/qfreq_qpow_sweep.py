@@ -39,7 +39,7 @@ VNA = PNABase(name = 'test',
               nports = 2
               )
 VNA.set('power', -65)
-VNA.set('points',101)
+VNA.set('points',51)
 VNA.set('timeout',None)
 VNA.set('if_bandwidth',200)
 VNA.set('cw', 7.08434e9)
@@ -49,13 +49,13 @@ VNA.set('sweep_type', 'CW')
 station = qc.Station()
 station.add_component(rf)
 station.add_component(VNA)
-pow_start = -32
+pow_start = 0
 pow_stop = 15
-pow_step = 1
+pow_step = .5
 
-freq_start = 2.4
-freq_stop = 2.9
-freq_step = .0004
+freq_start = 2.75
+freq_stop = 2.95
+freq_step = .0002
 
 
 
