@@ -102,14 +102,13 @@ class Pulse:
 #readout trigger for alazar on c2m2
 class Readout_Pulse(Pulse):
 
-    def __init__(self, start, duration, amplitude, wait_time = 777):
+    def __init__(self, start, duration, amplitude):
         super().__init__(start, duration, amplitude, channel = None)
-        self.wait_time = wait_time
 
     def is_readout(self):
         return True
 
-    def make(self, t_len = 0):
+    def make(self, t_len = None):
         length = self.start + self.duration# + self.wait_time
         c1 = np.zeros(length, dtype = np.float32)
         c1m1 = np.zeros(length, dtype = np.float32)
@@ -182,6 +181,30 @@ class Sweep_Pulse(Pulse):
 
 
         return c1, c1m1, c1m2, c2, c2m1, c2m2
+
+
+class Sin_Pulse(Pulse):
+    
+    def __init__(self, start: int, duration: int, amplitude, frequency, channel: int, upconvert: bool):
+        super().__init__(start, duration, amplitude, channel)
+        self.frequency = frequency
+        self.upconvert = upconvert
+        
+        
+    def make(self, pad_length = None):
+        if pad_length == None:
+            length = self.start + self.duration
+        else:
+            length = pad_length
+        c1 = np.zeros(length, dtype = np.float32)
+        c2 = np.zeros(length, dtype = np.float32)
+        for i in range(self.duration):
+            c1[self.start + i] = np.sin((self.frequency/1e9)*np.pi*2*i)
+            if self.upconvert:
+                c2[self.start + i] = np.sin((self.frequency/1e9)*np.pi*2*i + (np.pi/2))
+            else:
+                c2[self.start + i] = np.sin((self.frequency/1e9)*np.pi*2*i - (np.pi/2))
+        return c1, 0, 0, c2, 0, 0
 
 
 #TODO: make sweep_pulse class
