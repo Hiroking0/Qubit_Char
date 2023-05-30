@@ -74,7 +74,7 @@ if __name__ == "__main__":
         avgs[i] = np.average(arr[i])
         
     a = 207
-    b = -.3
+    b = .2
     c = 10679
 
     longest_T1 = params['T1_final_gap']

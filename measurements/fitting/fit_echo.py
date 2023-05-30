@@ -75,9 +75,9 @@ if __name__ == "__main__":
     for i in range(len(arr)):
         avgs[i] = np.average(arr[i])
         
-    a = 207.7
-    b = -.3
-    c = 10679
+    a = 207.8
+    b = .2
+    c = 15679
 
     longest_T1 = params['echo_final_t']
     shortest_T1 = params['echo_initial_t']

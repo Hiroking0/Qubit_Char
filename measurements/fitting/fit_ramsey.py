@@ -59,7 +59,7 @@ if __name__ == "__main__":
     for i in range(len(arr)):
         avgs[i] = np.average(arr[i])
         
-    a = 225.57
+    a = 217.2
     b = .3
     t2 = 15000
     f = 1/11720
