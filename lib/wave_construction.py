@@ -185,10 +185,10 @@ class Sweep_Pulse(Pulse):
 
 class Sin_Pulse(Pulse):
     
-    def __init__(self, start: int, duration: int, amplitude, frequency, channel: int, upconvert: bool):
+    def __init__(self, start: int, duration: int, amplitude, frequency, channel: int, phase: float):
         super().__init__(start, duration, amplitude, channel)
         self.frequency = frequency
-        self.upconvert = upconvert
+        self.phase = phase
         
         
     def make(self, pad_length = None):
@@ -200,10 +200,13 @@ class Sin_Pulse(Pulse):
         c2 = np.zeros(length, dtype = np.float32)
         for i in range(self.duration):
             c1[self.start + i] = np.sin((self.frequency/1e9)*np.pi*2*i)
+            c2[self.start + i] = np.sin((self.frequency/1e9)*np.pi*2*i + self.phase)
+            '''
             if self.upconvert:
                 c2[self.start + i] = np.sin((self.frequency/1e9)*np.pi*2*i + (np.pi/2))
             else:
                 c2[self.start + i] = np.sin((self.frequency/1e9)*np.pi*2*i - (np.pi/2))
+            '''
         return c1, 0, 0, c2, 0, 0
 
 
