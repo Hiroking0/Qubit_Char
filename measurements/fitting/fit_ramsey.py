@@ -59,10 +59,10 @@ if __name__ == "__main__":
     for i in range(len(arr)):
         avgs[i] = np.average(arr[i])
         
-    a = 217.2
-    b = .3
-    t2 = 15000
-    f = 1/11720
+    a = 216.2
+    b = .01
+    t2 = 6000
+    f = 1/3000
     phi = 1.57
     shortest_ramsey = params['ramsey_gap_1_init']
     longest_ramsey = params['ramsey_gap_1_final']

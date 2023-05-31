@@ -74,7 +74,7 @@ def disp_single_sweep():
     max_sweep = max(csvFile[sweep_param].to_list())
     print(min_sweep, max_sweep)
     #x = range(num_patterns)
-    x = np.linspace(0, 40000, num = 51)
+    x = np.linspace(0, 40000, num = 81)
     y = np.linspace(min_sweep, max_sweep, num=sweep_num)
     
     plt.subplot(2,3,1)
