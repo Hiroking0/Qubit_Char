@@ -10,15 +10,10 @@ sys.path.append("../../")
 from instruments.Agilent_N5183A import N5183A
 from qcodes.instrument_drivers.Keysight.N52xx import PNABase
 from qcodes.dataset import (
-    LinSweep,
     Measurement,
-    dond,
-    experiments,
     initialise_or_create_database_at,
-    load_by_run_spec,
     load_or_create_experiment,
-    plot_dataset,
-    plot_by_id
+    plot_dataset
 )
 import matplotlib.pyplot as plt
 import numpy as np
@@ -40,12 +35,16 @@ VNA.set('stop',7.2045e9)
 VNA.set('points',1001)
 VNA.set('timeout',None)
 VNA.set('if_bandwidth',300)
+VNA.set('averages_enabled', True)
+VNA.set('averages', 1) #Only works for sweep mode averaging
 VNA.set('trace','S21')
 VNA.set('sweep_type', 'LOG')
-VNA.get_idn()
+print(VNA.get_idn())
+
 station = qc.Station()
 station.add_component(rf)
 station.add_component(VNA)
+
 sweep_start = -65
 sweep_stop = -20
 sweep_step = 1
@@ -53,8 +52,8 @@ sweep_step = 1
 initialise_or_create_database_at("./databases/resonator_spectro.db")
 
 tutorial_exp = load_or_create_experiment(
-    experiment_name="tutorial_exp",
-    sample_name="synthetic data"
+    experiment_name="Resonator Spectroscopy",
+    sample_name="qubit 4"
 )
 
 context_meas = Measurement(exp=tutorial_exp, station=station, name='context_example')
@@ -78,11 +77,5 @@ with context_meas.run() as datasaver:
     
 plot_dataset(dataset)
 
-#plot_by_id(dataid)
-plt.title("Qubit 4 Resonator Spectroscopy")
 plt.show()
-
-# ...then register the dependent parameter
-#context_meas.register_parameter(dmm.v1, setpoints=(dac.ch1,))
-
 

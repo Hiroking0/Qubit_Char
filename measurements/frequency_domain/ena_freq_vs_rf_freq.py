@@ -49,6 +49,8 @@ VNA.set('timeout',None)
 VNA.set('if_bandwidth',300)
 VNA.set('trace','S21')
 VNA.set('sweep_type', 'LOG')
+VNA.set('averages_enabled', True)
+VNA.set('averages', 1) #Only works for sweep mode averaging
 #VNA.get_idn()
 station = qc.Station()
 station.add_component(rf)

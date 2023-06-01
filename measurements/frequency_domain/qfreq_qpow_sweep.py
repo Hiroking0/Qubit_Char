@@ -45,6 +45,7 @@ VNA.set('if_bandwidth',200)
 VNA.set('cw', 7.20263e9)
 VNA.set('trace','S21')
 VNA.set('sweep_type', 'CW')
+VNA.set('averages_enabled', False)
 #VNA.get_idn()
 station = qc.Station()
 station.add_component(rf)
@@ -56,8 +57,6 @@ pow_step = 1
 freq_start = 3.345
 freq_stop = 3.355
 freq_step = .0004
-
-
 
 initialise_or_create_database_at("./databases/wq_pq_sweep.db")
 
