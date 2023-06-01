@@ -41,23 +41,27 @@ def disp_sequence():
         x = np.linspace(params['T1_init_gap'], params['T1_final_gap'], num = len(arr))
     if "echo" in nf.lower():
         x = np.linspace(params['echo_initial_t'], params['echo_final_t'], num = len(arr))
-    
+    if len(arr) > 1:
+        avgs = [np.average(a) for a in arr]
+        plt.plot(avgs)
+        plt.show()
+    '''
     if len(arr) > 1:
         pop = dp.get_population_v_pattern(arr, params['v_threshold'], flipped = True)
         plt.plot(pop)
         #print(pop)
         plt.show()
-        
+     '''  
     #n_points = params['seq_repeat'] * params['pattern_repeat']
     wq = params['set_wq']*(10**9)
     kb = 1.38e-23
     hbar = 1.054e-34
     del_E = (-hbar * 2 * np.pi * wq)
     
-    denom = kb * np.log(pop[1]/(1-pop[1]))
+    #denom = kb * np.log(pop[1]/(1-pop[1]))
     
-    T = -del_E/denom
-    print("Effective tempurature (mK):", T*(10**3))
+    #T = -del_E/denom
+    #print("Effective tempurature (mK):", T*(10**3))
     
 
 def disp_single_sweep():
@@ -287,9 +291,9 @@ def show_sweep_output():
     plt.show()
 
 if __name__ == "__main__":
-    #disp_sequence()
+    disp_sequence()
     #show_sweep_output()
-    disp_single_sweep()
+    #disp_single_sweep()
     #disp_3_chevrons()
     
     
