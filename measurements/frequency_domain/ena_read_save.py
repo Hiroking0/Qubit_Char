@@ -47,7 +47,7 @@ VNA = PNABase(name = 'test',
 probe_start  = 7.2014e9
 probe_stop   = 7.2036e9
 
-probe_pwr = -55 # in dBm
+probe_pwr = -65 # in dBm
 num_points=1001
 if_bandwidth=500
 #timeout=100000
@@ -89,10 +89,10 @@ plt.show()
 
 x = np.linspace(probe_start, probe_stop, num = num_points)/1e9
 #peaks, _= find_peaks(values*-1, height = 75)
-peaks, _= find_peaks(values*-1, prominence = 10)
+peaks, _= find_peaks(values, prominence = 10)
 
-proms = peak_prominences(values*-1, peaks)
-print("prominences", proms)
+#proms = peak_prominences(values*-1, peaks)
+#print("prominences", proms)
 print(peaks)
 
 f = -x[peaks[0]]
@@ -106,7 +106,6 @@ g = 1
 
 
 guess = objective_lorentz(x, a, b, c, f, g)
-#x = range(len(values))
 fit_data, new_a, new_b, new_c, new_f, new_g = fit_lor(x, values, a, b, c, f, g)
 print(new_a, new_b, new_c, new_f, new_g)
 #plt.plot(x, guess)
@@ -115,22 +114,6 @@ plt.plot(x, fit_data, 'r', linewidth=3.5)
 plt.xlabel("Frequency (GHz)")
 plt.ylabel("Magnitude")
 plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
