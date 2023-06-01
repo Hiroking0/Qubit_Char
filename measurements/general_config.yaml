@@ -1,25 +1,28 @@
 #parameters of waveform
-name: 'test'
+name: 'Res Spec'
 
 #ramsey, T1, rabi, npp, readout, echo, echo_1ax, amplitude
-measurement: 'readout'
+measurement: 'npp'
 
 decimation: 1 #This parameter divides the sampling rate by this number.
 #Then divides all the other parameters by this number as well.
 #assuming decimation = 1 is with 1GS/s. each time unit is 1ns.
 #for example, decimation = 2 will divide all the parameters by 2, set the sampling rate to 500MS/s.
 
-readout_start: 1000
+readout_start: 101000
 readout_duration: 20000
 #pattern length for all measurements will be readout_start + readout_duration + total_wait_time
 
 zero_length: 1000 #length of single wait time segment in ns. Minimum length of <~1000
 zero_multiple: 2000 #how many times you want to repeat the zero segment
 
-#total_wait_time is zero_length * zero_multiple. Time between end of readout to end of pattern
+#total_wait_time = zero_length * zero_multiple. Time between end of readout to end of pattern
 
 nop_p_q_gap: 20 #samples between end of qubit pulse and beginning of readout
-nop_p_q_dur: 150
+nop_p_q_dur: 100000
+
+
+
 
 amp_start: 0
 amp_stop: 2
@@ -50,14 +53,14 @@ echo_final_t: 25020 #final t gap
 echo_pi_pulse: 150 #pi pulse used in y pulse and number/2 used in both x pulses
 
 #This parameter used in all time domain measurements, step size in samples between each pattern
-time_domain_step: 1000
+time_domain_step: 200
 
 #inclusive of end points now
 #num_patterns will be len(range(q_dur_start, end + step, step))
 
 #running parameters
 pattern_repeat: 1
-seq_repeat: 3000
+seq_repeat: 2000
 acq_multiples: 100 #number of multiples of 256 that the alazar will acquire
 
 #averaging
@@ -80,10 +83,10 @@ v_threshold: 191.4 #threshold value
 #If doing a single sweep, will look at p1, double will look at both
 
 #Y axis
-p1: 'wr' #7.1486 +- 2 MHz
-p1start: 7.14855
-p1stop: 7.14865
-p1step: .000002
+p1: 'wq' #7.1486 +- 2 MHz
+p1start: 3.348
+p1stop: 3.354
+p1step: .0003
 
 #x axis
 p2: 'wr'
@@ -92,8 +95,8 @@ p2stop: 7.0845
 p2step: .00003
 
 #static parameters, set before each running of the sequence
-set_wr: 7.1486 #7.1486 7.1478
-set_wq: 3.3178
+set_wr: 7.2025 #7.1486 7.1478
+set_wq: 3.3554
 set_pr: 15 # 15, 13.5
 set_pq: 15
 set_q_att: 20
