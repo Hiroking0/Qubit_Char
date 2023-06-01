@@ -5,7 +5,9 @@ Created on Fri May 19 12:16:01 2023
 @author: lqc
 """
 import qcodes as qc
-from RF_qcodes import AgilentN5183A
+import sys
+sys.path.append("../../")
+from instruments.Agilent_N5183A import N5183A
 from qcodes.instrument_drivers.Keysight.N52xx import PNABase
 from qcodes.dataset import (
     LinSweep,
@@ -23,7 +25,7 @@ import numpy as np
 
 
 
-rf = AgilentN5183A('qubit_rf', "TCPIP0::172.20.1.7::5025::SOCKET")
+rf = N5183A('qubit_rf', "TCPIP0::172.20.1.7::5025::SOCKET")
 VNA = PNABase(name = 'test',
               address = 'TCPIP0::K-E5080B-00202.local::hislip0::INSTR',
               min_freq = 9e6,
@@ -33,8 +35,8 @@ VNA = PNABase(name = 'test',
               nports = 2
               )
 
-VNA.set('start',7.08335e9)
-VNA.set('stop',7.08535e9)
+VNA.set('start',7.2e9)
+VNA.set('stop',7.2045e9)
 VNA.set('points',1001)
 VNA.set('timeout',None)
 VNA.set('if_bandwidth',200)
@@ -44,7 +46,7 @@ VNA.get_idn()
 station = qc.Station()
 station.add_component(rf)
 station.add_component(VNA)
-sweep_start = -70
+sweep_start = -60
 sweep_stop = -20
 sweep_step = 5
 
@@ -76,6 +78,7 @@ with context_meas.run() as datasaver:
 plot_dataset(dataset)
 
 #plot_by_id(dataid)
+plt.title("Qubit 4 Resonator Spectroscopy")
 plt.show()
 
 # ...then register the dependent parameter

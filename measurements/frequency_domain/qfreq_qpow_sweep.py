@@ -7,7 +7,7 @@ Created on Fri May 19 12:16:01 2023
 import sys
 sys.path.append("../../")
 import qcodes as qc
-from instruments import Agilent_N5183A
+from instruments.Agilent_N5183A import N5183A
 from qcodes.instrument_drivers.Keysight.N52xx import PNABase
 from qcodes.dataset import (
     LinSweep,
@@ -25,7 +25,7 @@ import numpy as np
 from qcodes.parameters import Parameter
 
 
-rf = Agilent_N5183A.N5183A('qubit_rf', "TCPIP0::172.20.1.7::5025::SOCKET")
+rf = N5183A('qubit_rf', "TCPIP0::172.20.1.7::5025::SOCKET")
 rf.set('power', -22)
 rf.set('frequency', 2.9396)
 rf.set('enable', True)
@@ -42,20 +42,20 @@ VNA.set('power', -65)
 VNA.set('points',51)
 VNA.set('timeout',None)
 VNA.set('if_bandwidth',200)
-VNA.set('cw', 7.08434e9)
+VNA.set('cw', 7.20263e9)
 VNA.set('trace','S21')
 VNA.set('sweep_type', 'CW')
 #VNA.get_idn()
 station = qc.Station()
 station.add_component(rf)
 station.add_component(VNA)
-pow_start = 0
+pow_start = 12
 pow_stop = 15
-pow_step = .5
+pow_step = 1
 
-freq_start = 2.75
-freq_stop = 2.95
-freq_step = .0002
+freq_start = 3.345
+freq_stop = 3.355
+freq_step = .0004
 
 
 

@@ -17,12 +17,12 @@ VNA = PNABase(name = 'test',
               nports = 2
               )
 print(VNA.get_options())
-probe_start  = 4e9
-probe_stop   = 8e9
+probe_start  = 7.197e9
+probe_stop   = 7.205e9
 
-probe_pwr = 0 # in dBm
+probe_pwr = -60 # in dBm
 num_points=1001
-if_bandwidth=500
+if_bandwidth=100
 timeout=100000
 
 VNA.set('power',probe_pwr)
@@ -36,12 +36,14 @@ VNA.set('sweep_type', 'LOG')
 VNA.get_idn()
 
 
-VNA.traces.tr1.run_sweep()
+#VNA.traces.tr1.run_sweep()
 
-values=VNA.real()+1j*VNA.imaginary()
+#values=VNA.real()+1j*VNA.imaginary()
+values = VNA.magnitude()
 coordinates=np.linspace(probe_start,probe_stop,num_points)
-plt.plot(coordinates, 20 * np.log10(np.abs(values)))
-
+plt.plot(coordinates/1E9, values)
+plt.xlabel('Frequency (GHz)')
+plt.ylabel('|$S_{21}$|')
 plt.show()
 
 
