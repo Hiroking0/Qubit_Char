@@ -26,7 +26,7 @@ import numpy as np
 
 
 rf = N5183A('qubit_rf', "TCPIP0::172.20.1.7::5025::SOCKET")
-rf.set('power', -22)
+rf.set('power', 15)
 rf.set('frequency', 2.9396)
 
 VNA = PNABase(name = 'test',
@@ -37,23 +37,27 @@ VNA = PNABase(name = 'test',
               max_power = 20,
               nports = 2
               )
+
+
+
+
 VNA.set('power', -65)
-VNA.set('start',7.0835e9)
-VNA.set('stop',7.085e9)
+VNA.set('start',7.2e9)
+VNA.set('stop',7.2045e9)
 VNA.set('points',1001)
 VNA.set('timeout',None)
-VNA.set('if_bandwidth',200)
+VNA.set('if_bandwidth',300)
 VNA.set('trace','S21')
 VNA.set('sweep_type', 'LOG')
 #VNA.get_idn()
 station = qc.Station()
 station.add_component(rf)
 station.add_component(VNA)
-sweep_start = -32
-sweep_stop = 0
-sweep_step = 3
+sweep_start = 3.345
+sweep_stop = 3.3575
+sweep_step = .0005
 
-initialise_or_create_database_at("./rf_freq_sweep.db")
+initialise_or_create_database_at("./databases/rf_freq_sweep.db")
 
 tutorial_exp = load_or_create_experiment(
     experiment_name="tutorial_exp",
@@ -63,7 +67,7 @@ tutorial_exp = load_or_create_experiment(
 context_meas = Measurement(exp=tutorial_exp, station=station, name='context_example')
 # Register the independent parameter...
 
-param = rf.power
+param = rf.frequency
 context_meas.register_parameter(param)
 
 #context_meas.register_parameter(rf.frequency)

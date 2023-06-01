@@ -59,7 +59,7 @@ freq_step = .0004
 
 
 
-initialise_or_create_database_at("./wq_pq_sweep.db")
+initialise_or_create_database_at("./databases/wq_pq_sweep.db")
 
 tutorial_exp = load_or_create_experiment(
     experiment_name="tutorial_exp",

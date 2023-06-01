@@ -39,18 +39,18 @@ VNA.set('start',7.2e9)
 VNA.set('stop',7.2045e9)
 VNA.set('points',1001)
 VNA.set('timeout',None)
-VNA.set('if_bandwidth',200)
+VNA.set('if_bandwidth',300)
 VNA.set('trace','S21')
 VNA.set('sweep_type', 'LOG')
 VNA.get_idn()
 station = qc.Station()
 station.add_component(rf)
 station.add_component(VNA)
-sweep_start = -60
+sweep_start = -65
 sweep_stop = -20
-sweep_step = 5
+sweep_step = 1
 
-initialise_or_create_database_at("./ena_power.db")
+initialise_or_create_database_at("./databases/resonator_spectro.db")
 
 tutorial_exp = load_or_create_experiment(
     experiment_name="tutorial_exp",
@@ -68,6 +68,7 @@ context_meas.register_parameter(VNA.magnitude, setpoints = (param,))
 
 with context_meas.run() as datasaver:
     for set_param in np.arange(sweep_start, sweep_stop, sweep_step):
+        print(set_param)
         VNA.set('power', set_param)
         #rf.frequency.set(set_freq)
         mag = VNA.magnitude()
