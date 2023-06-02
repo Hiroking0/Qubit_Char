@@ -36,14 +36,8 @@ if __name__ == "__main__":
     avg_start = params['avg_start']
     avg_length = params['avg_length']
     
-    
-    
-    
 
     awg = be.get_awg()
-    
-    
-    
     
     num_patterns = awg.get_seq_length()
     
