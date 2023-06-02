@@ -63,7 +63,7 @@ def get_T1_pulse_group(q_dur, #pulse start time
     readout = int(readout/decimation)
     frequency *= decimation
     
-    p1 = be.Sweep_Pulse(q_start_start, q_dur, amplitude = 1, channel = 1, sweep_param = 'start', sweep_stop = q_start_end, sweep_step = q_start_step)
+    p1 = be.Sweep_Pulse(q_start_start, q_dur, amplitude = 1, frequency=frequency, channel = 1, sweep_param = 'start', sweep_stop = q_start_end, sweep_step = q_start_step)
     ro = be.Readout_Pulse(readout_start, readout, amplitude = 1)
     pg = be.PulseGroup([p1, ro])
     #pg.send_waves_awg(awg, "hi", 5)

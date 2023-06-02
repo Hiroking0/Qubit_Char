@@ -20,7 +20,7 @@ zero_multiple: 2000 #how many times you want to repeat the zero segment
 
 npp:
     nop_p_q_gap: 20 #samples between end of qubit pulse and beginning of readout
-    nop_p_q_dur: 950
+    nop_p_q_dur: 150
     readout_duration: 20000
 
 amplitude:
@@ -40,17 +40,17 @@ rabi:
 
 T1:
     T1_init_gap: 20 #samples between beginning of readout pulse and initial T1 pulse
-    T1_final_gap: 80020 #samples between beginning of readout pulse and final T1 pulse
+    T1_final_gap: 500020 #samples between beginning of readout pulse and final T1 pulse
     T1_q_dur: 150 #pulse width of qubit pulse. Does not change between patterns
-    step: 1600
+    step: 25000
     readout_duration: 20000
 
 ramsey:
     ramsey_gap_2: 20 #unchanging gap between end of second qubit pulse and beginning of readout
     ramsey_gap_1_init: 0 #initial gap between the two qubit pulses
-    ramsey_gap_1_final: 70000 #final gap between the two readout pulses
+    ramsey_gap_1_final: 30000 #final gap between the two readout pulses
     ramsey_q_dur: 75 #size of each individual pulse (i.e. pi/2 pulse)
-    step: 1400
+    step: 600
     readout_duration: 20000
 
 echo:
@@ -93,9 +93,9 @@ v_threshold: 191.4 #threshold value for distinguishing ground and excited states
 
 #Y axis
 p1: 'wq' #7.1486 +- 2 MHz
-p1start: 3.348
-p1stop: 3.354
-p1step: .0003
+p1start: 3.08
+p1stop: 3.09
+p1step: .0005
 
 #x axis
 p2: 'wr'
@@ -105,9 +105,9 @@ p2step: .00003
 
 #static parameters, set before each running of the sequence
 
-set_wr: 7.1486 #7.1486 7.1478
+set_wr: 7.10798 #7.1486 7.1478
 #set_wr_offset: 0.1
-set_wq: 3.218
+set_wq: 3.0822
 set_wq_offset: 0.1
 
 set_pr: 15 # 15, 13.5
