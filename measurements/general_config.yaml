@@ -2,9 +2,9 @@
 name: 'test'
 
 #ramsey, T1, rabi, npp, readout, echo, echo_1ax, amplitude
-measurement: 'echo'
+measurement: 'ramsey'
 
-decimation: 5 #This parameter divides the sampling rate by this number.
+decimation: 1 #This parameter divides the sampling rate by this number.
 #Then divides all the other parameters by this number as well.
 #assuming decimation = 1 is with 1GS/s. each time unit is 1ns.
 #for example, decimation = 2 will divide all the parameters by 2, set the sampling rate to 500MS/s.
@@ -20,6 +20,7 @@ zero_multiple: 2000 #how many times you want to repeat the zero segment
 npp:
     nop_p_q_gap: 20 #samples between end of qubit pulse and beginning of readout
     nop_p_q_dur: 150
+    readout_duration: 20000
 
 amplitude:
     amp_start: 0
@@ -27,26 +28,29 @@ amplitude:
     amp_q_dur: 150
     amp_q_gap: 20
     step: .1
-
-rabi:
     readout_duration: 20000
+    
+rabi:
     rabi_pulse_gap: 20 #samples between readout pulse and end of qubit pulse. Does NOT change between patterns
     rabi_pulse_initial_duration: 0 #first duration of qubit pulse
     rabi_pulse_end_duration: 800 #final duration of qubit pulse (should be larger than initial)
     step: 16
+    readout_duration: 20000
 
 T1:
     T1_init_gap: 20 #samples between beginning of readout pulse and initial T1 pulse
-    T1_final_gap: 800020 #samples between beginning of readout pulse and final T1 pulse
+    T1_final_gap: 80020 #samples between beginning of readout pulse and final T1 pulse
     T1_q_dur: 150 #pulse width of qubit pulse. Does not change between patterns
-    step: 60000
+    step: 1600
+    readout_duration: 20000
 
 ramsey:
     ramsey_gap_2: 20 #unchanging gap between end of second qubit pulse and beginning of readout
     ramsey_gap_1_init: 0 #initial gap between the two qubit pulses
     ramsey_gap_1_final: 60000 #final gap between the two readout pulses
     ramsey_q_dur: 75 #size of each individual pulse (i.e. pi/2 pulse)
-    step: 60000
+    step: 1200
+    readout_duration: 20000
 
 echo:
     echo_gap_2: 20 #gap between last qubit pulse and readout pulse. Does not change by pattern
@@ -56,6 +60,7 @@ echo:
     echo_final_t: 600020 #final t gap
     echo_pi_pulse: 150 #pi pulse used in y pulse and number/2 used in both x pulses
     step: 12000
+    readout_duration: 20000
 
 #inclusive of end points now
 #num_patterns will be len(range(q_dur_start, end + step, step))
@@ -63,7 +68,6 @@ echo:
 #running parameters
 pattern_repeat: 1
 seq_repeat: 1000
-acq_multiples: 100 #number of multiples of 256 that the alazar will acquire
 
 #averaging
 
@@ -74,7 +78,9 @@ readout_trigger_offset: 800 #number of samples before readout starts that the al
 avg_start: 1000
 avg_length: 19800
 
-v_threshold: 191.4 #threshold value 
+v_threshold: 191.4 #threshold value for distinguishing ground and excited states.
+#This value is only used in the fitting scripts. It can be ignored and changed
+#In the saved copy as necessary.
 
 #sweep parameters are frequency ('wr', 'wq') in GHz, power of rf generators ('pr', 'pq') in DBm, and attenuator value ('q_att', 'r_att') in DB
 #first letter is w for frequency p for power

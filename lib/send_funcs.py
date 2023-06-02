@@ -7,7 +7,7 @@ sys.path.append("../")
 from lib import wave_construction as be
 import yaml
 from lib import run_funcs
-
+import math
 
 def get_nopi_pi_group(
                 start_time, #pulse start time
@@ -224,6 +224,7 @@ def get_amp_pg(q_duration,
     return pg
 
 
+
 def get_pg(params):
 
     #First get params that are used by all measurements (readout values, name)
@@ -231,28 +232,38 @@ def get_pg(params):
     measurement = params['measurement']
 
     decimation = params['decimation']
-    readout_start = params['readout_start']
-    readout = params['readout_duration']
-
+    #readout_start = params['readout_start']
+    
     readout_trigger_offset = params['readout_trigger_offset']
-    step = params['time_domain_step']
+    
+    params = params[measurement]
+    readout = params['readout_duration']
 
     match measurement:
         case 'T1':
             q_duration = params['T1_q_dur']
             init_gap = params['T1_init_gap']
             final_gap = params['T1_final_gap']
-
+            step = params['step']
+            readout_start = q_duration + final_gap + 100
+            readout_start = decimation * math.ceil(readout_start/decimation)
+            
+            
+            
             q_start_start = readout_start - final_gap - q_duration
             q_start_end = readout_start - init_gap - q_duration + step
             num_patterns = int((q_start_end - q_start_start)/step)
             pg = get_T1_pulse_group(q_duration, q_start_start, q_start_end, step, readout_start, readout, decimation)
 
         case 'rabi':
+            step = params['step']
             q_dur_start = params['rabi_pulse_initial_duration']
             q_dur_stop = params['rabi_pulse_end_duration'] + step
             gap = params['rabi_pulse_gap']
-
+            
+            readout_start = gap + q_dur_stop + 100
+            readout_start = decimation * math.ceil(readout_start/decimation)
+            
             start_time = readout_start - gap - q_dur_start
             num_patterns = int((q_dur_stop - q_dur_start)/step)
             pg = get_rabi_pulse_group(start_time, q_dur_start, q_dur_stop, step, readout_start, readout, decimation)
@@ -261,8 +272,16 @@ def get_pg(params):
             gap2 = params['ramsey_gap_2']
             g1_init = params['ramsey_gap_1_init']
             g1_final = params['ramsey_gap_1_final']
+            step = params['step']
+            q_duration = params['ramsey_q_dur'] # pi/2 pulse
             
-            q_duration = params['ramsey_q_dur']
+            
+            
+            readout_start = 100 + gap2 + 2*q_duration + g1_final
+            #Round to nearest multiple of decimation 
+            readout_start = decimation * math.ceil(readout_start/decimation)
+            
+            print(readout_start)
             second_pulse_start = readout_start - gap2 - q_duration
             first_pulse_final_start = readout_start - gap2 - q_duration - g1_init - q_duration + step
             first_pulse_start = readout_start - gap2 - q_duration - g1_final - q_duration
@@ -279,6 +298,10 @@ def get_pg(params):
         case 'npp':
             gap = params['nop_p_q_gap']
             q_duration = params['nop_p_q_dur']
+            
+            readout_start = gap + q_duration + 100
+            readout_start = decimation * math.ceil(readout_start/decimation)
+            
             q_start = readout_start - gap - q_duration
             num_patterns = 2
             pg = get_nopi_pi_group(start_time = q_start,
@@ -289,15 +312,23 @@ def get_pg(params):
 
         case 'readout':
             num_patterns = 1
+            readout_start = 100
+            readout_start = decimation * math.ceil(readout_start/decimation)
             pg = get_readout_group(readout_start = readout_start,
                             readout = readout,
                             decimation = decimation)
+            
 
         case 'echo':
             gap_2 = params['echo_gap_2']
             t_initial = params['echo_initial_t']
             t_final = params['echo_final_t']
             pi_dur = params['echo_pi_pulse']
+            step = params['step']
+            
+            readout_start = 100 + 2*pi_dur + t_final + gap_2
+            readout_start = decimation * math.ceil(readout_start/decimation)
+            
             num_patterns = int((t_final - t_initial)/step)
             pg = get_echo_pulse_group(pi_dur, gap_2, t_initial, t_final, step, readout_start, readout, decimation)
 
@@ -306,6 +337,10 @@ def get_pg(params):
             t_initial = params['echo_initial_t']
             t_final = params['echo_final_t']
             pi_dur = params['echo_pi_pulse']
+            step = params['step']
+            readout_start = 100 + 2*pi_dur + t_final + gap_2
+            readout_start = decimation * math.ceil(readout_start/decimation)
+            
             num_patterns = int((t_final - t_initial)/step)
             pg = get_echo1_pulse_group(pi_dur, gap_2, t_initial, t_final, step, readout_start, readout, decimation)
             
@@ -314,9 +349,12 @@ def get_pg(params):
             q_gap = params['amp_q_gap']
             a_start = params['amp_start']
             a_stop = params['amp_stop']
-            a_step = params['time_domain_step']
-            num_patterns = int((a_stop-a_start)/a_step)
-            pg = get_amp_pg(q_duration, q_gap, a_start, a_stop, a_step, readout_start, readout)
+            step = params['step']
+            readout_start = 100 + q_gap + q_duration
+            readout_start = decimation * math.ceil(readout_start/decimation)
+            
+            num_patterns = int((a_stop-a_start)/step)
+            pg = get_amp_pg(q_duration, q_gap, a_start, a_stop, step, readout_start, readout)
 
     print(num_patterns)
     return pg
