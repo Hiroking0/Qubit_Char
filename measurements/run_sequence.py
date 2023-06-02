@@ -31,6 +31,7 @@ if __name__ == "__main__":
     readout_dur = params[params['measurement']]['readout_duration']
     readout_trigger_offset = params['readout_trigger_offset']
     acq_multiples = int((readout_dur + readout_trigger_offset)/256) + 10
+    print(acq_multiples)
     samples_per_ac = 256*acq_multiples #length of acquisition in nS must be n*256
 
     avg_start = params['avg_start']

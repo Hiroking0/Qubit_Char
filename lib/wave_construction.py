@@ -125,13 +125,16 @@ class Readout_Pulse(Pulse):
         return (c1,c1m1,c1m2,c2,c2m1,c2m2)
 
 
+
+
 class Sweep_Pulse(Pulse):
     #sweep_type can be 'amplitude' 'amp', 'duration' 'dur', or 'start'
-    def __init__(self, start, duration, amplitude, sweep_param, sweep_stop, sweep_step, channel = None):
+    def __init__(self, start, duration, amplitude, frequency, sweep_param, sweep_stop, sweep_step, channel = None):
         super().__init__(start, duration, amplitude, channel)
         self.sweep_type = sweep_param
         self.sweep_stop = sweep_stop
         self.sweep_step = sweep_step
+        self.frequency = frequency*1e9
 
     #assume sweep_stop is NON-inclusive
     def make(self, length = 0):
@@ -141,10 +144,16 @@ class Sweep_Pulse(Pulse):
             sweeps = np.arange(self.duration, self.sweep_stop, self.sweep_step)
             num_sweeps = len(sweeps)
             longest_length = max(length, self.start + self.duration)
-            final_arr = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+            final_arr_1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+            final_arr_2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
             for ind, duration in enumerate(sweeps):
                 #self.start + self.duration - duration : self.start + self.duration
-                final_arr[ind][self.start + self.duration - duration : self.start + self.duration] += self.amplitude
+                t_cos_arr1 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i) for i in range(duration)]
+                final_arr_1[ind][self.start + self.duration - duration : self.start + self.duration] = t_cos_arr1
+                
+                t_cos_arr2 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i-np.pi/2) for i in range(duration)]
+                final_arr_2[ind][self.start + self.duration - duration : self.start + self.duration] = t_cos_arr2
+                
 
         elif self.sweep_type == "start":
             sweeps = np.arange(self.start, self.sweep_stop, self.sweep_step)
@@ -152,27 +161,37 @@ class Sweep_Pulse(Pulse):
             longest_length = max(length, max(sweeps) + self.duration)
             
             
-            final_arr = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+            final_arr_1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+            final_arr_2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+            cos_arr1 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i) for i in range(self.duration)]
+            cos_arr2 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i-np.pi/2) for i in range(self.duration)]
             for ind, start in enumerate(sweeps):
-                final_arr[ind][start : start + self.duration] += self.amplitude
-            final_arr = final_arr[::-1]
                 
+                final_arr_1[ind][start : start + self.duration] = cos_arr1
+                final_arr_1[ind][start : start + self.duration] = cos_arr2
+                
+            #reverse array
+            final_arr_1 = final_arr_1[::-1]
+            final_arr_2 = final_arr_2[::-1]
+                
+            
         elif self.sweep_type == "amplitude" or self.sweep_type == 'amp':
             sweeps = np.arange(self.amplitude, self.sweep_stop, self.sweep_step)
             num_sweeps = len(sweeps)
             longest_length = max(length, self.start + self.duration)
 
-            final_arr = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+            final_arr_1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+            final_arr_2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
             for ind, amp in enumerate(sweeps):
-                final_arr[ind][self.start : self.start + self.duration] += amp
+                cos_arr1 = [amp*np.cos((self.frequency/1e9)*np.pi*2*i) for i in range(self.duration)]
+                cos_arr2 = [amp*np.cos((self.frequency/1e9)*np.pi*2*i-np.pi/2) for i in range(self.duration)]
+                
+                final_arr_1[ind][self.start : self.start + self.duration] = cos_arr1
+                final_arr_2[ind][self.start : self.start + self.duration] = cos_arr2
 
 
-        if self.channel == None or self.channel == 1:
-            c1 = final_arr
-            c2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
-        else:
-            c2 = final_arr
-            c1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+        c1 = final_arr_1
+        c2 = final_arr_2
 
         c1m1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
         c1m2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
@@ -185,10 +204,9 @@ class Sweep_Pulse(Pulse):
 
 class Sin_Pulse(Pulse):
     
-    def __init__(self, start: int, duration: int, amplitude, frequency, channel: int, phase: float):
+    def __init__(self, start: int, duration: int, amplitude: float, frequency: float, channel: int):
         super().__init__(start, duration, amplitude, channel)
         self.frequency = frequency
-        self.phase = phase
         
         
     def make(self, pad_length = None):
@@ -200,7 +218,7 @@ class Sin_Pulse(Pulse):
         c2 = np.zeros(length, dtype = np.float32)
         for i in range(self.duration):
             c1[self.start + i] = np.sin((self.frequency/1e9)*np.pi*2*i)
-            c2[self.start + i] = np.sin((self.frequency/1e9)*np.pi*2*i + self.phase)
+            c2[self.start + i] = np.sin((self.frequency/1e9)*np.pi*2*i - np.pi/2)
             '''
             if self.upconvert:
                 c2[self.start + i] = np.sin((self.frequency/1e9)*np.pi*2*i + (np.pi/2))
@@ -327,34 +345,35 @@ class PulseGroup:
             a2m2 = np.expand_dims(a2m2, axis=0)
             
         if subplots:
+            step = 2
             for i in range(len(arr1)):
                 plt.subplot(2,3,1)
-                plt.plot(x, arr1[i]+i)
+                plt.plot(x, arr1[i]+step*i)
                 plt.title('CH1 (qubit pulse)', fontsize=14)
                 plt.xticks(rotation=45)
 
                 plt.subplot(2,3,2)
-                plt.plot(x, a1m1[i]+i)
+                plt.plot(x, a1m1[i]+step*i)
                 plt.title('CH1M1 (aux pulse)', fontsize=14)
                 plt.xticks(rotation=45)
 
                 plt.subplot(2,3,3)
-                plt.plot(x, a1m2[i]+i)
+                plt.plot(x, a1m2[i]+step*i)
                 plt.title('CH1M2 (nothing)', fontsize=14)
                 plt.xticks(rotation=45)
 
                 plt.subplot(2,3,4)
-                plt.plot(x, arr2[i]+i)
+                plt.plot(x, arr2[i]+step*i)
                 plt.title('CH2 (qubit pulse)', fontsize=14)
                 plt.xticks(rotation=45)                
 
                 plt.subplot(2,3,5)
-                plt.plot(x, a2m1[i]+i)
+                plt.plot(x, a2m1[i]+step*i)
                 plt.title('CH2 M1 (readout pulse)', fontsize=14)
                 plt.xticks(rotation=45)
                 
                 plt.subplot(2,3,6)
-                plt.plot(x, a2m2[i]+i)
+                plt.plot(x, a2m2[i]+step*i)
                 plt.title('CH2 M2 (Alazar trigger)', fontsize=14)
                 plt.xticks(rotation=45)
                 #plt.subplot(2,3,6)
