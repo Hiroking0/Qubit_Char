@@ -26,7 +26,7 @@ def frombin(tot_samples, numAcquisitions, channels = 2, name = 'data.bin'):
     #assume 1 record per buffer
     
     arr = np.fromfile(name, np.ubyte)
-    #print(np.shape(arr))
+    
     #arr is shaped like [A1 for samples, B1 for samples, A2 for samples, B2 for samples]
     
     chA = np.zeros((numAcquisitions, tot_samples))

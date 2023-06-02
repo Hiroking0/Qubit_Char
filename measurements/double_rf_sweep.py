@@ -31,14 +31,8 @@ if __name__ == "__main__":
     json.dump(params, j_file, indent = 4)
     j_file.close()
     
-
     #start_time is the time between triggering the AWG and start of the qubit pulse
-    zero_length = params['zero_length']
-    zero_multiple = params['zero_multiple']
-    wait_time = zero_length * zero_multiple
     
-    readout_start = params['readout_start']
-    readout = params['readout_duration']
     pattern_repeat = params['pattern_repeat']
     seq_repeat = params['seq_repeat']
     
@@ -48,8 +42,6 @@ if __name__ == "__main__":
     p2 = params['p2']
 
     #sweep power J7201B
-    avg_start = params['avg_start']
-    avg_length = params['avg_length']
     decimation = params['decimation']
     
     awg = be.get_awg()
