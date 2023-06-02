@@ -17,10 +17,8 @@ GHz = 1e9
 
 
 #self, start: int, duration: int, amplitude, frequency, channel: int, phase: float
-sp1 = be.Sin_Pulse(0, 2000, 1, 50*MHz, 1, np.pi/2)
-#sp2 = be.Sin_Pulse(3000, 2000, 1, 100*MHz, 1, np.pi/2)
-
-ro = be.Readout_Pulse(0, 2000, 1)
+sp1 = be.Sin_Pulse(10, 1000, 1, 100*MHz, 1, -np.pi/2)
+ro = be.Readout_Pulse(2000, 20000, 1)
 
 pg = be.PulseGroup([sp1, ro])
 #c1, c1m1, c1m2, c2, c2m1, c2m2 = sp1.make()
@@ -33,5 +31,5 @@ pg = be.PulseGroup([sp1, ro])
 #plt.plot(c2)
 #plt.show()
 pg.show()
-awg = be.get_awg()
-pg.send_waves_awg(awg, "sin", 1, 1000, 1, 800, 1)
+#awg = be.get_awg()
+#pg.send_waves_awg(awg, "sin", 1, 1000, 2000, 800, 1)
