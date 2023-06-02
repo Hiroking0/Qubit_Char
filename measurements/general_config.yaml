@@ -2,7 +2,7 @@
 name: 'test'
 
 #ramsey, T1, rabi, npp, readout, echo, echo_1ax, amplitude
-measurement: 'ramsey'
+measurement: 'npp'
 
 decimation: 1 #This parameter divides the sampling rate by this number.
 #Then divides all the other parameters by this number as well.

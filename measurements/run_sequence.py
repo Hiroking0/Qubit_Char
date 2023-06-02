@@ -25,21 +25,16 @@ if __name__ == "__main__":
     name = params['name']
     decimation = params['decimation']
     
-    
-    
-    readout_start = params['readout_start']
-    readout_dur = params['readout_duration']
     pattern_repeat = params['pattern_repeat']
     seq_repeat = params['seq_repeat']
-    acq_multiples = params['acq_multiples']
+    
+    readout_dur = params[params['measurement']]['readout_duration']
+    readout_trigger_offset = params['readout_trigger_offset']
+    acq_multiples = int((readout_dur + readout_trigger_offset)/256) + 10
     samples_per_ac = 256*acq_multiples #length of acquisition in nS must be n*256
 
     avg_start = params['avg_start']
     avg_length = params['avg_length']
-
-    #wave_len = readout_start + readout_dur + wait_time
-
-    time_step = params['time_domain_step']
 
     awg = be.get_awg()
     num_patterns = awg.get_seq_length()
@@ -86,9 +81,9 @@ if __name__ == "__main__":
         dp.plot_all(chA, chB, num_patterns, pattern_repeat, seq_repeat, params['avg_start'], params['avg_length'], large_data_plot = False)
         #dp.plot_np_file(num_patterns, pattern_repeat, seq_repeat, time_step, path)
     else:
-        
-        
+        time_step = params[params['measurement']]['step']
         dp.plot_np_file(num_patterns, pattern_repeat, seq_repeat, time_step, path)
+        
     #dp.plot_np_file(num_patterns, pattern_repeat, seq_repeat, time_step, path)
     
     

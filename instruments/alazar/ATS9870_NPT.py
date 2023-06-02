@@ -100,7 +100,13 @@ def ConfigureBoard(board):
 
 def AcquireData(board, params, num_patterns, path, saveData = True, live_plot = False):
     
-    samp_per_acq = params['acq_multiples']*256
+    readout_dur = params[params['measurement']]['readout_duration']
+    readout_trigger_offset = params['readout_trigger_offset']
+    
+    acq_multiples = int((readout_dur + readout_trigger_offset)/256) + 10
+    samp_per_acq = 256*acq_multiples #length of acquisition in nS must be n*256
+    
+    
     pattern_repeat = params['pattern_repeat']
     seq_repeat = params['seq_repeat']
     avg_start = params['avg_start']

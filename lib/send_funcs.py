@@ -281,7 +281,6 @@ def get_pg(params):
             #Round to nearest multiple of decimation 
             readout_start = decimation * math.ceil(readout_start/decimation)
             
-            print(readout_start)
             second_pulse_start = readout_start - gap2 - q_duration
             first_pulse_final_start = readout_start - gap2 - q_duration - g1_init - q_duration + step
             first_pulse_start = readout_start - gap2 - q_duration - g1_final - q_duration
