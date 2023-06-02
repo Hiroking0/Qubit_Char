@@ -138,7 +138,6 @@ class Sweep_Pulse(Pulse):
 
     #assume sweep_stop is NON-inclusive
     def make(self, length = 0):
-
         if self.sweep_type == "duration":
             
             sweeps = np.arange(self.duration, self.sweep_stop, self.sweep_step)
@@ -146,14 +145,15 @@ class Sweep_Pulse(Pulse):
             longest_length = max(length, self.start + self.duration)
             final_arr_1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
             final_arr_2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+            
+            #Create the longest arrays, then slice them to get the correct length
+            t_cos_arr1 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i) for i in range(self.sweep_stop)]
+            t_cos_arr2 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i-np.pi/2) for i in range(self.sweep_stop)]
             for ind, duration in enumerate(sweeps):
                 #self.start + self.duration - duration : self.start + self.duration
-                t_cos_arr1 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i) for i in range(duration)]
-                final_arr_1[ind][self.start + self.duration - duration : self.start + self.duration] = t_cos_arr1
+                final_arr_1[ind][self.start + self.duration - duration : self.start + self.duration] = t_cos_arr1[:duration]
                 
-                t_cos_arr2 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i-np.pi/2) for i in range(duration)]
-                final_arr_2[ind][self.start + self.duration - duration : self.start + self.duration] = t_cos_arr2
-                
+                final_arr_2[ind][self.start + self.duration - duration : self.start + self.duration] = t_cos_arr2[:duration]
 
         elif self.sweep_type == "start":
             sweeps = np.arange(self.start, self.sweep_stop, self.sweep_step)
@@ -264,10 +264,11 @@ class PulseGroup:
         c2 = np.zeros((num_sweeps, total_length), dtype = np.float32)
         c2m1 = np.zeros((num_sweeps, total_length), dtype = np.float32)
         c2m2 = np.zeros((num_sweeps, total_length), dtype = np.float32)
-        for ind in range(num_sweeps):
-            for pulse in self.pulses:
+        for pulse in self.pulses:
+            (t1, t1m1, t1m2, t2, t2m1, t2m2) = pulse.make(total_length)
+            for ind in range(num_sweeps):
                 #add each pulse to its corresponding array
-                (t1, t1m1, t1m2, t2, t2m1, t2m2) = pulse.make(total_length)
+                
                 if t1.ndim > 1:
                     c1[ind] = np.add(c1[ind], t1[ind])
                     c1m1[ind] = np.add(c1m1[ind], t1m1[ind])
@@ -282,6 +283,7 @@ class PulseGroup:
                     c2[ind] = np.add(c2[ind], t2)
                     c2m1[ind] = np.add(c2m1[ind], t2m1)
                     c2m2[ind] = np.add(c2m2[ind], t2m2)
+
         #make all of the pulses in the array.
         #if its a sweep, it will be shape (num_sweeps, length_n)
         #if its not a sweep, it will be just shape (length_n)

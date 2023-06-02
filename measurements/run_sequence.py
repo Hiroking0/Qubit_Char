@@ -76,6 +76,7 @@ if __name__ == "__main__":
                 save_raw,
                 path
                 )
+    
     j_file = open(path+"json.json", 'w')
     json.dump(params, j_file, indent = 4)
     j_file.close()

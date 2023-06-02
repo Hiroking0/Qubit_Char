@@ -2,7 +2,7 @@
 name: 'Res Spec'
 
 #ramsey, T1, rabi, npp, readout, echo, echo_1ax, amplitude
-measurement: 'npp'
+measurement: 'rabi'
 
 decimation: 1 #This parameter divides the sampling rate by this number.
 #Then divides all the other parameters by this number as well.
@@ -105,14 +105,14 @@ p2step: .00003
 
 #static parameters, set before each running of the sequence
 
-set_wr: 7.2025 #7.1486 7.1478
+set_wr: 7.1087 #7.1486 7.1478
 #set_wr_offset: 0.1
-set_wq: 3.2525
+set_wq: 3.081
 set_wq_offset: 0.1
 
 set_pr: 15 # 15, 13.5
 set_pq: 15
-set_q_att: 18
+set_q_att: 20
 set_r_att: 40 #40, 22
 set_p_twpa: -19.2
 set_w_twpa: 8.5689
