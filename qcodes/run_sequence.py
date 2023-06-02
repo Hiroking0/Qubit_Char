@@ -31,14 +31,15 @@ from qcodes.dataset import (
 
 if __name__ == "__main__":
     
-    f = open('../measurements/general_config.yaml','r')
+    f = open('../measurements/time_domain/general_config.yaml','r')
     params = yaml.safe_load(f)
     f.close()
 
     awg = get_awg()
     alazar_name = "t_name"
     at = ats.AlazarTechATS9870(alazar_name, dll_path = 'C:\\WINDOWS\\System32\\ATSApi.dll')
-    ac = set_alazar_settings(params, at, awg)
+    print("here1")
+    set_alazar_settings(params, at, awg)
     ac = qubit_ac_controller('t_ac',
                              alazar_name,
                              params['avg_start'],
@@ -57,7 +58,7 @@ if __name__ == "__main__":
     station.add_component(r_rf)
     station.add_component(q_att)
     station.add_component(r_att)
-    station.add_component(ac)
+    #station.add_component(ac)
     station.add_component(at)
     
     initialise_or_create_database_at("./database.db")
@@ -67,27 +68,24 @@ if __name__ == "__main__":
     experiment_name="sweep_wq",
     #sample_name="synthetic data"
     )
-    
     context_meas = Measurement(exp=tutorial_exp, station=station, name='context_example')
     context_meas.register_parameter(ac.acquisition)
+    context_meas.register_parameter(q_rf.frequency)
     
     with context_meas.run() as datasaver:
-        for set_f in np.linspace(3, 3.2, .01):
-            q_rf.frequency.set(set_f)
-            (asub, bsub, anosub, bnosub) = ac.acquisition.get()
+        for set_f in np.arange(3, 3.2, .01):
+            q_rf.set('frequency', set_f)
+            (asub, bsub, anosub, bnosub) = ac.acquisition()
             datasaver.add_result((q_rf.frequency, set_f),
                                  (ac.acquisition, asub))
 
         # Convenient to have for plotting and data access
         dataset = datasaver.dataset
     
-
-
-
-
-
     
     (chA_sub, chB_sub, chA_nosub, chB_nosub) = at.acquire(acquisition_controller = ac)
+    awg.close()
     plt.hist(chB_nosub[0], bins = 200, histtype = 'step')
     plt.hist(chB_nosub[1], bins = 200, histtype = 'step')
     plt.show()
+    

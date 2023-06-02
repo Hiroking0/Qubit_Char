@@ -163,7 +163,7 @@ class qubit_ac_controller(AcquisitionController[float]):
             to get form the acquisition
         """
         self.awg.stop()
-        self.awg.close()
+        #self.awg.close()
 
         assert self.chA_sub is not None
         alazar = self._get_alazar()
