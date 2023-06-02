@@ -40,14 +40,8 @@ if __name__ == "__main__":
     zero_multiple = params['zero_multiple']
     wait_time = zero_length * zero_multiple
     
-    readout_start = params['readout_start']
-    readout = params['readout_duration']
     pattern_repeat = params['pattern_repeat']
     seq_repeat = params['seq_repeat']
-    
-    acq_multiples = params['acq_multiples']
-    samples_per_ac = 256*acq_multiples #length of acquisition in nS must be n*256
-    
     
     p1start = params['p1start']
     p1stop = params['p1stop']
