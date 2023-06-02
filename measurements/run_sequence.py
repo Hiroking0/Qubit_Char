@@ -25,24 +25,29 @@ if __name__ == "__main__":
     name = params['name']
     decimation = params['decimation']
     
-    
-    
-    readout_start = params['readout_start']
-    readout_dur = params['readout_duration']
     pattern_repeat = params['pattern_repeat']
     seq_repeat = params['seq_repeat']
-    acq_multiples = params['acq_multiples']
+    
+    readout_dur = params[params['measurement']]['readout_duration']
+    readout_trigger_offset = params['readout_trigger_offset']
+    acq_multiples = int((readout_dur + readout_trigger_offset)/256) + 10
     samples_per_ac = 256*acq_multiples #length of acquisition in nS must be n*256
 
     avg_start = params['avg_start']
     avg_length = params['avg_length']
-
-    #wave_len = readout_start + readout_dur + wait_time
-
-    time_step = params['time_domain_step']
+    
 
     awg = be.get_awg()
+    
     num_patterns = awg.get_seq_length()
+    
+    w_len = awg.get_waveform_lengths(name + "_1_0")
+    wait_time = params['zero_length'] * params['zero_multiple'] + w_len
+    wait_time *= seq_repeat * pattern_repeat * num_patterns
+    wait_time /= 1e9
+    wait_time += .3
+    print(f'estimated wait time is {wait_time} seconds')
+
     
     path = filedialog.askdirectory() + "/" + name + "_"
     
@@ -60,6 +65,7 @@ if __name__ == "__main__":
         save_raw = True
     else:
         save_raw = False
+    
     
     chA_avgs_sub, chB_avgs_sub, chA_avgs_nosub, chB_avgs_nosub, mag_sub, mag_nosub = run_funcs.run_and_acquire(
                 awg,
@@ -86,9 +92,9 @@ if __name__ == "__main__":
         dp.plot_all(chA, chB, num_patterns, pattern_repeat, seq_repeat, params['avg_start'], params['avg_length'], large_data_plot = False)
         #dp.plot_np_file(num_patterns, pattern_repeat, seq_repeat, time_step, path)
     else:
-        
-        
+        time_step = params[params['measurement']]['step']
         dp.plot_np_file(num_patterns, pattern_repeat, seq_repeat, time_step, path)
+        
     #dp.plot_np_file(num_patterns, pattern_repeat, seq_repeat, time_step, path)
     
     

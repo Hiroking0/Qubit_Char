@@ -317,7 +317,7 @@ class PulseGroup:
     def show(self, decimation = 1, subplots = True):
         PulseGroup.READOUT_TRIGGER_OFFSET = int(PulseGroup.READOUT_TRIGGER_OFFSET/decimation)
         (arr1, a1m1, a1m2, arr2, a2m1, a2m2) = self.make()
-        x = np.linspace(0, len(arr1[0])*decimation, num = len(arr1[0]))
+        x = np.linspace(0, len(arr1[0])*decimation, num = len(arr1[0]), endpoint=False)
         if arr1.ndim == 1:
             arr1 = np.expand_dims(arr1, axis=0)
             a1m1 = np.expand_dims(a1m1, axis=0)
