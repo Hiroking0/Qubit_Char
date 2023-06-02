@@ -152,7 +152,6 @@ class Sweep_Pulse(Pulse):
             for ind, duration in enumerate(sweeps):
                 #self.start + self.duration - duration : self.start + self.duration
                 final_arr_1[ind][self.start + self.duration - duration : self.start + self.duration] = t_cos_arr1[:duration]
-                
                 final_arr_2[ind][self.start + self.duration - duration : self.start + self.duration] = t_cos_arr2[:duration]
 
         elif self.sweep_type == "start":
@@ -168,7 +167,7 @@ class Sweep_Pulse(Pulse):
             for ind, start in enumerate(sweeps):
                 
                 final_arr_1[ind][start : start + self.duration] = cos_arr1
-                final_arr_1[ind][start : start + self.duration] = cos_arr2
+                final_arr_2[ind][start : start + self.duration] = cos_arr2
                 
             #reverse array
             final_arr_1 = final_arr_1[::-1]
@@ -206,7 +205,7 @@ class Sin_Pulse(Pulse):
     
     def __init__(self, start: int, duration: int, amplitude: float, frequency: float, channel: int):
         super().__init__(start, duration, amplitude, channel)
-        self.frequency = frequency
+        self.frequency = frequency*1e9
         
         
     def make(self, pad_length = None):
@@ -215,17 +214,37 @@ class Sin_Pulse(Pulse):
         else:
             length = pad_length
         c1 = np.zeros(length, dtype = np.float32)
+        c1m1 = np.zeros(length, dtype = np.float32)
+        c1m2 = np.zeros(length, dtype = np.float32)
         c2 = np.zeros(length, dtype = np.float32)
-        for i in range(self.duration):
-            c1[self.start + i] = np.sin((self.frequency/1e9)*np.pi*2*i)
-            c2[self.start + i] = np.sin((self.frequency/1e9)*np.pi*2*i - np.pi/2)
-            '''
-            if self.upconvert:
-                c2[self.start + i] = np.sin((self.frequency/1e9)*np.pi*2*i + (np.pi/2))
-            else:
-                c2[self.start + i] = np.sin((self.frequency/1e9)*np.pi*2*i - (np.pi/2))
-            '''
-        return c1, 0, 0, c2, 0, 0
+        c2m1 = np.zeros(length, dtype = np.float32)
+        c2m2 = np.zeros(length, dtype = np.float32)
+        cos_arr1 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i) for i in range(self.duration)]
+        cos_arr2 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i-np.pi/2) for i in range(self.duration)]
+        c1[self.start:self.start + self.duration] = cos_arr1
+        c2[self.start:self.start + self.duration] = cos_arr2
+        return c1, c1m1, c1m2, c2, c2m1, c2m2
+
+
+    def show(self):
+        c1, c1m1, c1m2, c2, c2m1, c2m2 = self.make()
+        plt.subplot(2,2,1)
+        plt.plot(c1)
+        plt.title("channel 1")
+        
+        plt.subplot(2,2,2)
+        plt.plot(c2m1)
+        plt.title("c2m1")
+
+        plt.subplot(2,2,3)
+        plt.plot(c2m2)
+        plt.title("c2m2")
+
+        plt.subplot(2,2,4)
+        plt.plot(c1m1)
+        plt.title("c1m1")
+        
+        plt.show()
 
 
 #TODO: make sweep_pulse class

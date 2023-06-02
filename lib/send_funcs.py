@@ -206,9 +206,7 @@ def get_ramsey_pulse_group(q_duration, #pulse duration
                         sweep_param = 'start',
                         sweep_stop = first_pulse_final_start,
                         sweep_step = first_pulse_step)
-    
-    p2 = be.Pulse(second_pulse_start, q_duration, amplitude = 1, channel = 1)
-    
+    p2 = be.Sin_Pulse(second_pulse_start, q_duration, amplitude = 1, frequency=frequency, channel = 1)
     ro = be.Readout_Pulse(readout_start, readout, amplitude = 1)
     pg = be.PulseGroup([p1, p2, ro])
     return pg
