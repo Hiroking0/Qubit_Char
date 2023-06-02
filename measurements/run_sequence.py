@@ -35,9 +35,25 @@ if __name__ == "__main__":
 
     avg_start = params['avg_start']
     avg_length = params['avg_length']
+    
+    
+    
+    
 
     awg = be.get_awg()
+    
+    
+    
+    
     num_patterns = awg.get_seq_length()
+    
+    w_len = awg.get_waveform_lengths(name + "_1_0")
+    wait_time = params['zero_length'] * params['zero_multiple'] + w_len
+    wait_time *= seq_repeat * pattern_repeat * num_patterns
+    wait_time /= 1e9
+    wait_time += .3
+    print(f'estimated wait time is {wait_time} seconds')
+
     
     path = filedialog.askdirectory() + "/" + name + "_"
     
@@ -55,6 +71,7 @@ if __name__ == "__main__":
         save_raw = True
     else:
         save_raw = False
+    
     
     chA_avgs_sub, chB_avgs_sub, chA_avgs_nosub, chB_avgs_nosub, mag_sub, mag_nosub = run_funcs.run_and_acquire(
                 awg,
