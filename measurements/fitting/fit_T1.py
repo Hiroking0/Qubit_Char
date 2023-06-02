@@ -73,9 +73,9 @@ if __name__ == "__main__":
     for i in range(len(arr)):
         avgs[i] = np.average(arr[i])
         
-    a = 191
-    b = -.3
-    c = 10679
+    a = -.6
+    b = .02
+    c = 5000
 
     longest_T1 = params['T1_final_gap']
     shortest_T1 = params['T1_init_gap']

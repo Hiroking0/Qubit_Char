@@ -41,23 +41,27 @@ def disp_sequence():
         x = np.linspace(params['T1_init_gap'], params['T1_final_gap'], num = len(arr))
     if "echo" in nf.lower():
         x = np.linspace(params['echo_initial_t'], params['echo_final_t'], num = len(arr))
-    
+    if len(arr) > 1:
+        avgs = [np.average(a) for a in arr]
+        plt.plot(avgs)
+        plt.show()
+    '''
     if len(arr) > 1:
         pop = dp.get_population_v_pattern(arr, params['v_threshold'], flipped = True)
         plt.plot(pop)
         #print(pop)
         plt.show()
-        
+     '''  
     #n_points = params['seq_repeat'] * params['pattern_repeat']
     wq = params['set_wq']*(10**9)
     kb = 1.38e-23
     hbar = 1.054e-34
     del_E = (-hbar * 2 * np.pi * wq)
     
-    denom = kb * np.log(pop[1]/(1-pop[1]))
+    #denom = kb * np.log(pop[1]/(1-pop[1]))
     
-    T = -del_E/denom
-    print("Effective tempurature (mK):", T*(10**3))
+    #T = -del_E/denom
+    #print("Effective tempurature (mK):", T*(10**3))
     
 
 def disp_single_sweep():
@@ -74,7 +78,7 @@ def disp_single_sweep():
     max_sweep = max(csvFile[sweep_param].to_list())
     print(min_sweep, max_sweep)
     #x = range(num_patterns)
-    x = np.linspace(0, 600, num = 51)
+    x = np.linspace(0, 40000, num = 81)
     y = np.linspace(min_sweep, max_sweep, num=sweep_num)
     
     plt.subplot(2,3,1)
@@ -120,8 +124,8 @@ def disp_single_sweep():
     chB_sub = np.reshape(chB_sub, shape)
     chB_sub = np.transpose(chB_sub)
     plt.pcolormesh(x, y, chB_sub, shading = 'auto')
-    plt.title("Chevron plot")
-    plt.xlabel("$t_{rabi} (ns)$", fontsize=16)
+    plt.title("ChB_sub")
+    plt.xlabel("$t_{ramsey} (ns)$", fontsize=16)
     plt.ylabel('qubit drive frequency (GHz)', fontsize=16)
     
     plt.subplot(2,3,6)

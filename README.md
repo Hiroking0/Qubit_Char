@@ -2,7 +2,7 @@
 This library has code for the following measurements/calibrations
 - Readout only pulse
 - no-pulse/pulse measurement
-- T1
+- T1 Measurement 
 - Rabi
 - Ramsey
 - Echo
