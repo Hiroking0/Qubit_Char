@@ -17,6 +17,10 @@ zero_multiple: 2000 #how many times you want to repeat the zero segment
 #For most measurements, to get exactly the number of patterns you want,
 #(final_sweep_param - initial_sweep_param)/step_size should be an integer.
 #otherwise there may be some remainder that gives one more or less pattern.
+
+readout:
+    readout_duration: 20000
+
 npp:
     nop_p_q_gap: 20 #samples between end of qubit pulse and beginning of readout
     nop_p_q_dur: 150
@@ -91,21 +95,21 @@ v_threshold: 191.4 #threshold value for distinguishing ground and excited states
 #If doing a single sweep, will look at p1, double will look at both
 
 #Y axis
-p1: 'wq' #7.1486 +- 2 MHz
-p1start: 3.348
-p1stop: 3.354
-p1step: .0003
+p1: 'r_att' #7.1486 +- 2 MHz
+p1start: 38
+p1stop: 53
+p1step: 1
 
 #x axis
-p2: 'wr'
-p2start: 7.08345
-p2stop: 7.0845
-p2step: .00003
+p2: 'pr'
+p2start: 13
+p2stop: 17
+p2step: .5
 
 #static parameters, set before each running of the sequence
-set_wr: 7.2025 #7.1486 7.1478
-set_wq: 3.3554
-set_pr: 15 # 15, 13.5
+set_wr: 7.1486 #7.1486 7.1478
+set_wq: 3.3183
+set_pr: 16.5 # 15, 13.5
 set_pq: 15
 set_q_att: 20
 set_r_att: 40 #40, 22
