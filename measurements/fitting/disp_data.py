@@ -29,8 +29,8 @@ def disp_sequence():
     
     arr = np.load(fn)
     #print(np.shape(arr))
-    #ratio = dp.get_population_ratio(arr, params['v_threshold'])
-    #print(ratio)
+    pop = dp.get_population_v_pattern(arr, params['v_threshold'])
+    print(pop)
     dp.plot_histogram(arr)
     x = []
     if "rabi" in nf.lower():
@@ -58,10 +58,10 @@ def disp_sequence():
     hbar = 1.054e-34
     del_E = (-hbar * 2 * np.pi * wq)
     
-    #denom = kb * np.log(pop[1]/(1-pop[1]))
+    denom = kb * np.log((1-pop[1])/(pop[1]))
     
-    #T = -del_E/denom
-    #print("Effective tempurature (mK):", T*(10**3))
+    T = -del_E/denom
+    print("Effective tempurature (mK):", T*(10**3))
     
 
 def disp_single_sweep():
