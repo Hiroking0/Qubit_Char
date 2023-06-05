@@ -26,21 +26,22 @@ def get_nopi_pi_group(
     
     #start, duration, amplitude, channel, sweep_type, sweep_end, sweep_step, readout
     p1 = be.Sweep_Pulse(start_time, q_duration, amplitude = 0, frequency=frequency, channel = 1, sweep_param = 'amplitude', sweep_stop = 1.1, sweep_step = 1)
-    ro = be.Sin_Readout(readout_start, readout, amplitude = 1, frequency=ro_freq)
-    #ro = be.Readout_Pulse(readout_start, readout, amplitude = 1)
+    #ro = be.Sin_Readout(readout_start, readout, amplitude = 1, frequency=ro_freq)
+    ro = be.Readout_Pulse(readout_start, readout, amplitude = 1)
     pg = be.PulseGroup([p1, ro])
     return pg
-
 
 
 def get_readout_group(
                 readout_start, #readout
                 readout, #readout duration
+                freq,
                 decimation):
     readout_start = int(readout_start/decimation)
     readout = int(readout/decimation)
     
     #start, duration, amplitude, channel, sweep_type, sweep_end, sweep_step, readout
+    #ro = be.Sin_Readout(readout_start, readout, 1, freq)
     ro = be.Readout_Pulse(readout_start, readout, amplitude = 1)
     pg = be.PulseGroup([ro])
     return pg
@@ -327,6 +328,7 @@ def get_pg(params):
             readout_start = decimation * math.ceil(readout_start/decimation)
             pg = get_readout_group(readout_start = readout_start,
                             readout = readout,
+                            freq = wr_offset,
                             decimation = decimation)
             
 

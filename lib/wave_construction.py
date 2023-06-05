@@ -119,9 +119,9 @@ class Readout_Pulse(Pulse):
         c4 = np.zeros(length, dtype = np.float32)
         c2m1 = np.zeros(length, dtype = np.float32)
         c2m2 = np.zeros(length, dtype = np.float32)
+        
+        c2m1[self.start : self.start + self.duration] += self.amplitude
         c2m2[self.start - PulseGroup.READOUT_TRIGGER_OFFSET : self.start - PulseGroup.READOUT_TRIGGER_OFFSET + PulseGroup.READOUT_TRIGGER_LENGTH] += 1
-
-
         return (c1,c1m1,c2,c2m1,c2m2,c3,c4)
 
 
