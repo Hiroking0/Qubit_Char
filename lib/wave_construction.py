@@ -420,7 +420,7 @@ class PulseGroup:
                 
                 plt.subplot(2,4,6)
                 plt.plot(x, a4[i]+step*i)
-                plt.title('CH3 (SSB Readout)', fontsize=14)
+                plt.title('CH4 (SSB Readout)', fontsize=14)
                 plt.xticks(rotation=45)
                 
                 plt.subplot(2,4,7)
