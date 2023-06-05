@@ -2,7 +2,7 @@
 name: 'Res Spec'
 
 #ramsey, T1, rabi, npp, readout, echo, echo_1ax, amplitude
-measurement: 'ramsey'
+measurement: 'npp'
 
 decimation: 1 #This parameter divides the sampling rate by this number.
 #Then divides all the other parameters by this number as well.
@@ -68,7 +68,7 @@ echo:
 
 #running parameters
 pattern_repeat: 1
-seq_repeat: 600
+seq_repeat: 4000
 
 #averaging
 
@@ -79,7 +79,7 @@ readout_trigger_offset: 800 #number of samples before readout starts that the al
 avg_start: 1000
 avg_length: 19800
 
-v_threshold: 191.4 #threshold value for distinguishing ground and excited states.
+v_threshold: 223.85 #threshold value for distinguishing ground and excited states.
 #This value is only used in the fitting scripts. It can be ignored and changed
 #In the saved copy as necessary.
 
@@ -105,7 +105,8 @@ p2step: .00003
 
 #static parameters, set before each running of the sequence
 
-set_wr: 7.10798 #7.1486 7.1478
+set_wr: 7.00798 #7.1486 7.1478
+set_wr_offset: 0.1
 #set_wr_offset: 0.1
 set_wq: 3.0822
 set_wq_offset: 0.1
@@ -113,7 +114,7 @@ set_wq_offset: 0.1
 set_pr: 15 # 15, 13.5
 set_pq: 15
 set_q_att: 20
-set_r_att: 40 #40, 22
+set_r_att: 25 #40, 22
 set_p_twpa: -19.2
 set_w_twpa: 8.5689
 

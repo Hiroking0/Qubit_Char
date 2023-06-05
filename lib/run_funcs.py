@@ -28,7 +28,7 @@ def get_func_call_and_param(params):
 
 #wave length should be wait_time + readout_start + readout+duration
 def initialize_awg(awg, num_patterns, pattern_repeat, decimation):
-    awg.set_chan_state(1, [1,2])
+    awg.set_chan_state(1, [1,2,3,4])
     
     
     for i in range(1, num_patterns):
