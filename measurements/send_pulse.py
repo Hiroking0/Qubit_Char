@@ -18,7 +18,7 @@ if __name__ == "__main__":
     zero_length = params['zero_length']
     zero_multiple = params['zero_multiple']
     readout_trigger_offset = params['readout_trigger_offset']
-    num_channels = 4
+    num_channels = 2
 
 
 
