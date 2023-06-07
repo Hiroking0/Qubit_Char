@@ -61,7 +61,7 @@ if __name__ == "__main__":
     run_funcs.init_params(params)
     
     #saves raw data if only readout or readout + pulse
-    if num_patterns < 3 and seq_repeat * pattern_repeat * num_patterns <= 20000:
+    if num_patterns < 3 and seq_repeat * pattern_repeat * num_patterns < 10000:
         save_raw = True
     else:
         save_raw = False

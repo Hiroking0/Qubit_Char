@@ -15,7 +15,7 @@ def get_nopi_pi_group(
                 readout_start, #readout
                 readout, #readout duration
                 frequency,
-                ro_freq,
+                #ro_freq,
                 decimation):
     
     start_time = int(start_time/decimation)
@@ -97,7 +97,7 @@ def get_echo_pulse_group(pi_dur,
     first_pulse_start = readout_start - gap_2 - (t_stop) - (2*pi_dur)# - t_step
     first_pulse_end = readout_start - gap_2 - (t_start) - (2*pi_dur) + t_step
     
-    x_pulse_1 = be.Sweep_Pulse(first_pulse_start, int(pi_dur/2), amplitude = 1, channel = 1, 
+    x_pulse_1 = be.Sweep_Pulse(first_pulse_start, int(pi_dur/2), amplitude = 1, frequency = frequency, channel = 1, 
                         sweep_param = 'start',
                         sweep_stop = first_pulse_end,
                         sweep_step = t_step)
@@ -107,7 +107,7 @@ def get_echo_pulse_group(pi_dur,
     p2_end = readout_start - gap_2 - int(t_start/2) - int(3*pi_dur/2) + int(t_step/2)
     #p2_end += half_t_step
     
-    y_pulse = be.Sweep_Pulse(p2_start, pi_dur, amplitude = 1, channel = 2, sweep_param = 'start', sweep_stop = p2_end, sweep_step = int(t_step/2))
+    y_pulse = be.Sweep_Pulse(p2_start, pi_dur, amplitude = 1, frequency = frequency, channel = 2, sweep_param = 'start', sweep_stop = p2_end, sweep_step = int(t_step/2))
     
     ro = be.Readout_Pulse(readout_start, readout, amplitude = 1)
     
@@ -246,7 +246,7 @@ def get_pg(params):
     
     readout_trigger_offset = params['readout_trigger_offset']
     wq_offset = params['set_wq_offset']
-    wr_offset = params['set_wr_offset']
+    #wr_offset = params['set_wr_offset']
     params = params[measurement]
     readout = params['readout_duration']
 
@@ -319,7 +319,7 @@ def get_pg(params):
                                     readout_start = readout_start,
                                     readout = readout,
                                     frequency = wq_offset,
-                                    ro_freq = wr_offset,
+                                    #ro_freq = wr_offset,
                                     decimation = decimation)
 
         case 'readout':
@@ -328,7 +328,7 @@ def get_pg(params):
             readout_start = decimation * math.ceil(readout_start/decimation)
             pg = get_readout_group(readout_start = readout_start,
                             readout = readout,
-                            freq = wr_offset,
+                            #freq = wr_offset,
                             decimation = decimation)
             
 

@@ -337,7 +337,6 @@ def double_sweep(name,
         
         sweep_num += 1
 
-    inst.write(':OUTPut:STATe OFF')
     
     return f_A_nosub, f_B_nosub, f_A_sub, f_B_sub, f_M_sub, f_M_nosub
     

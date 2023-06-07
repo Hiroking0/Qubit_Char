@@ -327,7 +327,7 @@ def plot_all(chA, chB, num_patterns, pattern_reps, seq_reps, avg_start, avg_leng
     for i in range(num_patterns):
         cApn_av = get_avgs(cAp[i], avg_start, avg_length, False)
         cBpn_av = get_avgs(cBp[i], avg_start, avg_length, False)
-        plt.scatter(cApn_av, cBpn_av)
+        plt.scatter(cApn_av, cBpn_av, alpha = .3)
 
     #plt.legend(["pattern "+str(i) for i in range(num_patterns)])
     plt.title("I vs Q without subtraction")

@@ -36,8 +36,6 @@ if __name__ == "__main__":
     pattern_repeat = params['pattern_repeat']
     seq_repeat = params['seq_repeat']
     
-    acq_multiples = params['acq_multiples']
-    samples_per_ac = 256*acq_multiples #length of acquisition in nS must be n*256
     p1 = params['p1']
     p2 = params['p2']
 
@@ -116,6 +114,67 @@ if __name__ == "__main__":
     plt.xlabel(p2)
     plt.ylabel(p1)
     plt.title('mags sub')
+    plt.suptitle("pattern 1")
+    
+
+    
+    if len(f_M_sub[0] == 2):
+        
+        plt.figure()
+        plt.title("pattern 2")
+        plt.subplot(2,3,1)
+        plt.pcolormesh(x, y, f_A_nosub[1])
+        plt.xlabel(p2)
+        plt.ylabel(p1)
+        plt.title('ch A nosub')
+        
+        plt.subplot(2,3,2)
+        plt.pcolormesh(x, y, f_B_nosub[1])
+        plt.xlabel(p2)
+        plt.ylabel(p1)
+        plt.title('ch B nosub')
+        
+        plt.subplot(2,3,3)
+        plt.pcolormesh(x, y, f_M_nosub[1])
+        plt.xlabel(p2)
+        plt.ylabel(p1)
+        plt.title('mags nosub')
+        
+
+        plt.subplot(2,3,4)
+        plt.pcolormesh(x, y, f_A_sub[1])
+        plt.xlabel(p2)
+        plt.ylabel(p1)
+        plt.title('ch A sub')
+        
+        plt.subplot(2,3,5)
+        plt.pcolormesh(x, y, f_B_sub[1])
+        plt.xlabel(p2)
+        plt.ylabel(p1)
+        plt.title('ch B sub')
+        
+        plt.subplot(2,3,6)
+        plt.pcolormesh(x, y, f_M_sub[1])
+        plt.xlabel(p2)
+        plt.ylabel(p1)
+        plt.title('mags sub')
+        plt.suptitle("pattern 2")
+        
+        
+        plt.figure()
+        plt.subplot(2,1,1)
+        plt.pcolormesh(x, y, np.abs(f_B_nosub[1]-f_B_nosub[0]))
+        plt.xlabel(p2)
+        plt.ylabel(p1)
+        plt.title('difference B')
+        
+        plt.subplot(2,1,2)
+        plt.pcolormesh(x, y, np.abs(f_A_nosub[1]-f_A_nosub[0]))
+        plt.xlabel(p2)
+        plt.ylabel(p1)
+        plt.title('difference A')
+
+    
     
     plt.show()
 

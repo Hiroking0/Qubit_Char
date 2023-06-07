@@ -50,6 +50,7 @@ if __name__ == "__main__":
                 with open(nf + f) as file:
                     params = json.load(file)
 
+    params = params[params['measurement']]
     arr = np.load(fn)
     #pop = dp.get_population_v_pattern(arr, params['v_threshold'], flipped = False)
     pop = [np.average(i) for i in arr]
@@ -87,7 +88,7 @@ if __name__ == "__main__":
     plt.plot(x, pop, 'ko', markersize=10)
     plt.plot(x, fit_data, 'r', linewidth=3.5)
     plt.xlabel("$t_{ramsey}$ (ns)")
-    plt.ylabel("PE")
+    plt.ylabel("V")
     plt.title("Ramsey measurement")
     plt.show()
     

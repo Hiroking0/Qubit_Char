@@ -232,7 +232,7 @@ def show_sweep_output():
     sweep_num = int(len(csvFile['pattern_num'])/num_patterns)
     shape = (num_patterns, sweep_num)
     x = csvFile[csvFile.columns[-1]].to_list()
-    
+    x = x[:int(len(x)/num_patterns)]
     
     print(np.shape(x))
     mags_nosub = csvFile['mag_nosub'].to_list()
@@ -265,8 +265,10 @@ def show_sweep_output():
     plt.subplot(2,3,2)
     for i in range(num_patterns):
         plt.plot(x, cBp_sub[i])
-    plt.title('channel b')
-    
+    plt.xlabel("$w_{drive}$ (GHz)")
+    plt.ylabel("V")
+    plt.title('Channel B')
+    plt.legend(["no pulse", "pi pulse"])
     
     plt.subplot(2,3,3)
     for j in range(num_patterns):
@@ -281,6 +283,7 @@ def show_sweep_output():
     plt.subplot(2,3,5)
     for i in range(num_patterns):
         plt.plot(x, cBp_nosub[i])
+    
     plt.title('channel b nosub')
     
     plt.subplot(2,3,6)
@@ -291,8 +294,8 @@ def show_sweep_output():
     plt.show()
 
 if __name__ == "__main__":
-    disp_sequence()
-    #show_sweep_output()
+    #disp_sequence()
+    show_sweep_output()
     #disp_single_sweep()
     #disp_3_chevrons()
     
