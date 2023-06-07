@@ -21,7 +21,7 @@ zero_multiple: 2000 #how many times you want to repeat the zero segment
 npp:
     nop_p_q_gap: 20 #samples between end of qubit pulse and beginning of readout
     nop_p_q_dur: 150
-    readout_duration: 20000
+    readout_duration: 50000
 
 amplitude:
     amp_start: 0
@@ -36,7 +36,7 @@ rabi:
     rabi_pulse_initial_duration: 0 #first duration of qubit pulse
     rabi_pulse_end_duration: 800 #final duration of qubit pulse (should be larger than initial)
     step: 16
-    readout_duration: 20000
+    readout_duration: 60000
 
 T1:
     T1_init_gap: 20 #samples between beginning of readout pulse and initial T1 pulse
@@ -48,9 +48,9 @@ T1:
 ramsey:
     ramsey_gap_2: 20 #unchanging gap between end of second qubit pulse and beginning of readout
     ramsey_gap_1_init: 0 #initial gap between the two qubit pulses
-    ramsey_gap_1_final: 30000 #final gap between the two readout pulses
+    ramsey_gap_1_final: 60000 #final gap between the two readout pulses
     ramsey_q_dur: 75 #size of each individual pulse (i.e. pi/2 pulse)
-    step: 600
+    step: 1200
     readout_duration: 20000
 
 echo:
@@ -68,7 +68,7 @@ echo:
 
 #running parameters
 pattern_repeat: 1
-seq_repeat: 3000
+seq_repeat: 2000
 
 #averaging
 
@@ -77,7 +77,7 @@ seq_repeat: 3000
 readout_trigger_offset: 800 #number of samples before readout starts that the alazar trigger should be placed
 
 avg_start: 1000
-avg_length: 19800
+avg_length: 49750
 
 v_threshold: 223.85 #threshold value for distinguishing ground and excited states.
 #This value is only used in the fitting scripts. It can be ignored and changed
@@ -92,23 +92,22 @@ v_threshold: 223.85 #threshold value for distinguishing ground and excited state
 #If doing a single sweep, will look at p1, double will look at both
 
 #Y axis
-p1: 'pq' #7.1486 +- 2 MHz
-p1start: 13
-p1stop: 17
-p1step: .5
+p1: 'wq' #7.1486 +- 2 MHz
+p1start: 3.2177
+p1stop: 3.2176
+p1step: .00001
 
 #x axis
-p2: 'q_att'
-p2start: 15
-p2stop: 30
-p2step: 1
+p2: 'pr'
+p2start: 13
+p2stop: 17
+p2step: .5
 
 #static parameters, set before each running of the sequence
 
 set_wr: 7.1486 #7.1486 7.1478
-set_wr_offset: 0.1
 #set_wr_offset: 0.1
-set_wq: 3.2183
+set_wq: 3.2176
 set_wq_offset: 0.1
 
 set_pr: 16 # 15, 13.5
