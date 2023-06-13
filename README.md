@@ -71,12 +71,12 @@ The deadtime after a readout pulse is determined by the zero_length and zero_mul
 It will add a portion of 0s with the length zero_length at the end of the readout pulse, and repeat that portion of zeros by zero_multiple times.
 For example if you use zero_length = 1000 and zero_multiple = 2000. The total dead time will be 1000*2000 samples. (for 1GS/s this will be 2ms)
 
-### Adding a new pattern
+### Adding a new pulse shape
 Use the sweep_pulse class as a template. You must have a constructor with all the necessary parameters for the pulse.
-The make function should return a 2d array for each of the channels as described above
-
-
-
+The make function should return a 2d array for each of the channels as described above.
+### Adding a new measurement sequence.
+Must be added to the send_funcs file in lib. This is where a function should be made that generates a pulse group and returns it.
+There should also be a case for the measurement name in the main function.
 
 ## Fitting
 These files are used to plot saved data with a fit line overlayed with it. 
