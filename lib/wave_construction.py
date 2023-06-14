@@ -127,17 +127,18 @@ class Readout_Pulse(Pulse):
 
 class Sweep_Pulse(Pulse):
     #sweep_type can be 'amplitude' 'amp', 'duration' 'dur', or 'start'
-    def __init__(self, start, duration, amplitude, frequency, sweep_param, sweep_stop, sweep_step, channel = None):
+    def __init__(self, start, duration, amplitude, frequency, sweep_param, sweep_stop, sweep_step, phase = 0, channel = None):
         super().__init__(start, duration, amplitude, channel)
         self.sweep_type = sweep_param
         self.sweep_stop = sweep_stop
         self.sweep_step = sweep_step
         self.frequency = frequency*1e9
+        self.phase = phase
 
     #assume sweep_stop is NON-inclusive
     def make(self, length = 0):
+        
         if self.sweep_type == "duration":
-            
             sweeps = np.arange(self.duration, self.sweep_stop, self.sweep_step)
             num_sweeps = len(sweeps)
             longest_length = max(length, self.start + self.duration)
@@ -145,8 +146,8 @@ class Sweep_Pulse(Pulse):
             final_arr_2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
             
             #Create the longest arrays, then slice them to get the correct length
-            t_cos_arr1 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i) for i in range(self.sweep_stop)]
-            t_cos_arr2 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i-np.pi/2) for i in range(self.sweep_stop)]
+            t_cos_arr1 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i + self.phase) for i in range(self.sweep_stop)]
+            t_cos_arr2 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i + self.phase - np.pi/2) for i in range(self.sweep_stop)]
             for ind, duration in enumerate(sweeps):
                 #self.start + self.duration - duration : self.start + self.duration
                 final_arr_1[ind][self.start + self.duration - duration : self.start + self.duration] = t_cos_arr1[:duration]
@@ -228,9 +229,10 @@ class Sin_Pulse(Pulse):
 
 class Sin_Readout(Readout_Pulse):
 
-    def __init__(self, start, duration, amplitude, frequency):
+    def __init__(self, start, duration, amplitude, frequency, phase = 0):
         super().__init__(start, duration, amplitude)
         self.frequency = frequency*1e9
+        self.phase = phase
 
     def make(self, t_len = None):
         length = self.start + self.duration# + self.wait_time
@@ -242,8 +244,8 @@ class Sin_Readout(Readout_Pulse):
         c3 = np.zeros(length, dtype = np.float32)
         c4 = np.zeros(length, dtype = np.float32)
         
-        cos_arr1 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i) for i in range(self.duration)]
-        cos_arr2 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i-np.pi/2) for i in range(self.duration)]
+        cos_arr1 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i + self.phase) for i in range(self.duration)]
+        cos_arr2 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i + self.phase - np.pi/2) for i in range(self.duration)]
         c3[self.start:self.start + self.duration] = cos_arr1
         c4[self.start:self.start + self.duration] = cos_arr2
         

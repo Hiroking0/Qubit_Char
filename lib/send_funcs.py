@@ -8,6 +8,7 @@ from lib import wave_construction as be
 import yaml
 from lib import run_funcs
 import math
+import numpy as np
 
 def get_nopi_pi_group(
                 start_time, #pulse start time
@@ -35,7 +36,7 @@ def get_nopi_pi_group(
 def get_readout_group(
                 readout_start, #readout
                 readout, #readout duration
-                freq,
+                #freq,
                 decimation):
     readout_start = int(readout_start/decimation)
     readout = int(readout/decimation)
@@ -177,7 +178,9 @@ def get_rabi_pulse_group(start_time, #pulse start time
     
     
     p1 = be.Sweep_Pulse(start_time, q_dur_start, amplitude = 1, frequency=frequency, channel = 1, sweep_param = 'duration', sweep_stop = q_dur_stop, sweep_step = q_dur_step)
+    
     ro = be.Readout_Pulse(readout_start, readout, amplitude = 1)
+    
     pg = be.PulseGroup([p1, ro])
     #pg.send_waves_awg(awg, "hi", 5)
     return pg
@@ -203,7 +206,7 @@ def get_ramsey_pulse_group(q_duration, #pulse duration
     
     p1 = be.Sweep_Pulse(first_pulse_start, q_duration, amplitude = 1,
                         frequency=frequency,
-                        channel = 1, 
+                        channel = 1,
                         sweep_param = 'start',
                         sweep_stop = first_pulse_final_start,
                         sweep_step = first_pulse_step)
@@ -235,12 +238,70 @@ def get_amp_pg(q_duration,
 
 
 
+def get_et_pulse_group(ge_first_duration,
+                       ge_second_duration,
+                       gap_1,
+                       gap_2,
+                       rabi_start,
+                       rabi_stop,
+                       rabi_step,
+                       readout_start,
+                       readout_dur,
+                       frequency,
+                       decimation):
+    
+    
+    p1_start_init = readout_start - gap_2 - rabi_start - gap_1 - ge_first_duration - gap_1 - ge_second_duration
+    p1_start_final = readout_start - gap_2 - rabi_stop - gap_1 - ge_first_duration  - gap_1 - ge_second_duration
+    
+    p1_start_init += rabi_step
+    p1_start_final -= rabi_step
+    #p1 has to be shifted by one step because duration sweeps from left to right
+    #and start time sweeps from right to left.
+    #This may be nice to fix in wave construction of sweep pulse.
+    
+    
+    #self, start, duration, amplitude, frequency, sweep_param, sweep_stop, sweep_step, channel = None):
+    pulse1 = be.Sweep_Pulse(p1_start_final,
+                            ge_first_duration,
+                            amplitude = 1,
+                            frequency = 0,
+                            sweep_param = 'start',
+                            sweep_stop = p1_start_init,
+                            sweep_step = rabi_step,
+                            channel = 1
+                            )
+    
+    p2_start_init = readout_start - gap_2 - rabi_start - gap_1 - ge_second_duration
+    
+    pulse2 = be.Sweep_Pulse(p2_start_init,
+                            rabi_start,
+                            amplitude = 1,
+                            frequency = 0,
+                            sweep_param = 'duration',
+                            sweep_stop = rabi_stop,
+                            sweep_step = rabi_step,
+                            phase = np.pi/2,
+                            channel = 1
+                            )
+    
+    #self, start: int, duration: int, amplitude: float, frequency: float, channel: int
+    p3_start = readout_start - gap_2 - ge_second_duration
+    
+    pulse3 = be.Sin_Pulse(p3_start, ge_second_duration, amplitude = 1, frequency = 0, channel = 1)
+    ro = be.Readout_Pulse(readout_start, readout_dur, 1)
+    pg = be.PulseGroup([pulse1, pulse2, pulse3, ro])
+    #pg = be.PulseGroup([pulse2, pulse3, ro])
+    
+    return pg
+
 def get_pg(params):
 
     #First get params that are used by all measurements (readout values, name)
     #measurement will describe which pulse to send
     measurement = params['measurement']
-    readout_buffer = 900
+    readout_buffer = int(params['readout_trigger_offset'] * 1.5)
+    #readout_buffer = 0
     decimation = params['decimation']
     #readout_start = params['readout_start']
     
@@ -258,8 +319,6 @@ def get_pg(params):
             step = params['step']
             readout_start = q_duration + final_gap + readout_buffer
             readout_start = decimation * math.ceil(readout_start/decimation)
-            
-            
             
             q_start_start = readout_start - final_gap - q_duration
             q_start_end = readout_start - init_gap - q_duration + step
@@ -368,6 +427,35 @@ def get_pg(params):
             
             num_patterns = int((a_stop-a_start)/step)
             pg = get_amp_pg(q_duration, q_gap, a_start, a_stop, step, readout_start, wq_offset, readout)
+            
+        case 'effect_temp':
+            gap_2 = params['gap_2']
+            gap_1 = params['gap_1']
+            
+            rabi_start = params['rabi_start']
+            rabi_stop = params['rabi_stop']
+            step = params['step']
+            
+            #pulse_1_duration = params['ge_pi_duration']
+            ge_first_duration = params['ge_first_duration']
+            ge_second_duration = params['ge_second_duration']
+            
+            readout_start = readout_buffer + ge_first_duration + gap_1 + rabi_stop + gap_1 + ge_second_duration + gap_2
+            #Round to nearest multiple of decimation 
+            readout_start = decimation * math.ceil(readout_start/decimation)
+            
+            num_patterns = int((rabi_stop - rabi_start)/step)
+            pg = get_et_pulse_group(ge_first_duration, #pulse duration
+                                        ge_second_duration,
+                                        gap_1,
+                                        gap_2,
+                                        rabi_start,
+                                        rabi_stop,
+                                        step,
+                                        readout_start, #readout
+                                        readout, #readout duration
+                                        wq_offset,
+                                        decimation)
 
     print(num_patterns)
     return pg

@@ -164,47 +164,51 @@ def plot_np_file(num_patterns, pattern_reps, seq_reps, time_step, path):
         mags_sub[i] = np.average(np.sqrt(chB_sub[i] ** 2 + chA_sub[i] ** 2))
         
     x = [i*time_step for i in range(num_patterns)]
-    
+    font_size = 5
     #x = np.arange(num_patterns)
+    plt.rc('xtick', labelsize=font_size)
+    plt.rc('ytick', labelsize=font_size)
+    
     plt.subplot(2,3,1)
     plt.plot(x, pattern_avgs_cA)
-    plt.title("chA nosub")
-    plt.xlabel('time (ns)', fontsize=10)
-    plt.ylabel('Voltage (V)', fontsize=10)
+    plt.title("chA nosub", fontsize=font_size)
+    plt.xlabel('time (ns)', fontsize=font_size)
+    plt.ylabel('Voltage (V)', fontsize=font_size)
     
     plt.subplot(2,3,2)
     plt.plot(x, pattern_avgs_cB)
-    plt.title("chB nosub")
-    plt.xlabel('time (ns)', fontsize=10)
-    plt.ylabel('Voltage (V)', fontsize=10)
+    plt.title("chB nosub", fontsize=font_size)
+    plt.xlabel('time (ns)', fontsize=font_size)
+    plt.ylabel('Voltage (V)', fontsize=font_size)
     
     plt.subplot(2,3,3)
     plt.plot(x, mags)
-    plt.title("mag nosub")
-    plt.xlabel('time (ns)', fontsize=10)
-    plt.ylabel('Voltage (V)', fontsize=10)
+    plt.title("mag nosub", fontsize=font_size)
+    plt.xlabel('time (ns)', fontsize=font_size)
+    plt.ylabel('Voltage (V)', fontsize=font_size)
     
     plt.subplot(2,3,4)
     plt.plot(x, pattern_avgs_cA_sub)
-    plt.title("chA sub")
-    plt.xlabel('time (ns)', fontsize=10)
-    plt.ylabel('Voltage (V)', fontsize=10)
+    plt.title("chA sub", fontsize=font_size)
+    plt.xlabel('time (ns)', fontsize=font_size)
+    plt.ylabel('Voltage (V)', fontsize=font_size)
     
     plt.subplot(2,3,5)
     plt.plot(x, pattern_avgs_cB_sub)
     
-    plt.title("chB sub")
-    plt.xlabel('time (ns)', fontsize=10)
-    plt.ylabel('Voltage (V)', fontsize=10)
+    plt.title("chB sub", fontsize=font_size)
+    plt.xlabel('time (ns)', fontsize=font_size)
+    plt.ylabel('Voltage (V)', fontsize=font_size)
     
     plt.subplot(2,3,6)
     plt.plot(x, mags_sub)
-    plt.title("mag sub")
-    plt.xlabel('time (ns)', fontsize=10)
-    plt.ylabel('Voltage (V)', fontsize=10)
+    plt.title("mag sub", fontsize=font_size)
+    plt.xlabel('time (ns)', fontsize=font_size)
+    plt.ylabel('Voltage (V)', fontsize=font_size)
     
     plt.get_current_fig_manager().window.showMaximized()
-    
+    #plt.tight_layout()
+    plt.savefig(path + "_pic", dpi= 300, pad_inches = 0, bbox_inches = 'tight')
     plt.show()
 
 
