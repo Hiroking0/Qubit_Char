@@ -76,7 +76,7 @@ if __name__ == "__main__":
     a = -.6
     b = .02
     c = 5000
-
+    params = params[params['measurement']]
     longest_T1 = params['T1_final_gap']
     shortest_T1 = params['T1_init_gap']
     num_patterns = len(arr)

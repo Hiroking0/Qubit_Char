@@ -48,6 +48,21 @@ if __name__ == "__main__":
                 with open(nf + f) as file:
                     params = json.load(file)
 
+    fn2 = askopenfilename()
+     
+    nf2 = '\\'.join(fn.split('/')[0:-1]) + "/"
+    
+    for (root, dirs, files) in os.walk(nf2):
+        for f in files:
+            if ".json" in f:
+                with open(nf2 + f) as file:
+                    params = json.load(file)
+    arr2 = np.load(fn2)
+    avgs2 = np.zeros(len(arr2))
+    for i in range(len(arr2)):
+        avgs2[i] = np.average(arr2[i])
+
+
     arr = np.load(fn)
     pop = dp.get_population_v_pattern(arr, params['v_threshold'], flipped = False)
     #first get pattern avgs
@@ -60,15 +75,24 @@ if __name__ == "__main__":
     c = 1/350
     d = np.pi/2
     num_patterns = len(arr)
+    params = params[params['measurement']]
     longest_rabi = params['rabi_pulse_end_duration']
     shortest_rabi = params['rabi_pulse_initial_duration']
     
-    fit_data, a, b, c, d = fit_rabi(pop, a, b, c, d, num_patterns, longest_rabi)
-    print("final parameters:")
+    fit_data, a, b, c, d = fit_rabi(avgs, a, b, c, d, num_patterns, longest_rabi)
+    print("final parameters I:")
     print("offset: ", a)
     print("amplitude: ", b)
     print("frequency: ", c*10**9)
     print("phi", d)
+    
+    fit_data2, a, b, c, d = fit_rabi(avgs2, a, b, c, d, num_patterns, longest_rabi)
+    print("final parameters Q:")
+    print("offset: ", a)
+    print("amplitude: ", b)
+    print("frequency: ", c*10**9)
+    print("phi", d)
+    
     
     
     x = np.linspace(shortest_rabi, longest_rabi, num_patterns)
@@ -80,11 +104,14 @@ if __name__ == "__main__":
         ax.spines[axis].set_linewidth(2.5)
     
     
-    plt.plot(x, pop, 'ko', markersize=10)
+    plt.plot(x, avgs, 'bo', markersize=10)
+    plt.plot(x, avgs2, 'k*', markersize=10)
     plt.plot(x, fit_data, 'r', linewidth=3.5)
+    plt.plot(x, fit_data2, 'r', linewidth=3.5)
     plt.xlabel("$t_{rabi}$ (ns)")
-    plt.ylabel("PE")
-    plt.title("rabi measurement")
+    plt.ylabel("V")
+    plt.legend(["I rotation", "Q rotation"])
+   # plt.title("rabi measurement")
     plt.show()
     
     
