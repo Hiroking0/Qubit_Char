@@ -55,7 +55,9 @@ def init_params(params):
     r_att.set_attenuation(params['set_r_att'])
     twpa_rf.set_power(params['set_p_twpa'])
     twpa_rf.set_freq(params['set_w_twpa'])
-
+    q_rf.enable_out()
+    r_rf.enable_out()
+    
 def run_and_acquire(awg,
                 board,
                 params,

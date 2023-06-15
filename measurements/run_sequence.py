@@ -16,6 +16,7 @@ import yaml
 import tkinter.filedialog as filedialog
 import json
 import numpy as np
+from datetime import datetime
 
 if __name__ == "__main__":
     
@@ -66,7 +67,6 @@ if __name__ == "__main__":
     else:
         save_raw = False
     
-    
     chA_avgs_sub, chB_avgs_sub, chA_avgs_nosub, chB_avgs_nosub, mag_sub, mag_nosub = run_funcs.run_and_acquire(
                 awg,
                 board,
@@ -79,7 +79,8 @@ if __name__ == "__main__":
     j_file = open(path+"json.json", 'w')
     json.dump(params, j_file, indent = 4)
     j_file.close()
-    
+    now = datetime.now()
+    Date = now.strftime("%m%d_%H%M%S")
     np.save(path + "chA_sub", chA_avgs_sub)
     np.save(path + "chB_sub", chB_avgs_sub)
     np.save(path + "chA_nosub", chA_avgs_nosub)
@@ -87,12 +88,23 @@ if __name__ == "__main__":
     np.save(path + "mag_sub", mag_sub)
     np.save(path + "mag_nosub", mag_nosub)
     
+    '''
+    np.save(path + "chA_sub" + Date, chA_avgs_sub)
+    np.save(path + "chB_sub" + Date, chB_avgs_sub)
+    np.save(path + "chA_nosub" + Date, chA_avgs_nosub)
+    np.save(path + "chB_nosub" + Date, chB_avgs_nosub)
+    np.save(path + "mag_sub" + Date, mag_sub)
+    np.save(path + "mag_nosub" + Date, mag_nosub)
+    '''
     
     if save_raw:
         (chA, chB) = dp.frombin(tot_samples = samples_per_ac, numAcquisitions = num_patterns*pattern_repeat*seq_repeat, channels = 2, name = path + "rawdata.bin")
         dp.plot_all(chA, chB, num_patterns, pattern_repeat, seq_repeat, params['avg_start'], params['avg_length'], large_data_plot = False)
         #dp.plot_np_file(num_patterns, pattern_repeat, seq_repeat, time_step, path)
     else:
+        #if num_patterns < 3:
+        #    time_step=1
+        #else:
         time_step = params[params['measurement']]['step']
         dp.plot_np_file(num_patterns, pattern_repeat, seq_repeat, time_step, path)
         
