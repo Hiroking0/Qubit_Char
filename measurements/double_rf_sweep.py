@@ -110,6 +110,8 @@ if __name__ == "__main__":
     plt.title('mags sub')
     plt.suptitle("pattern 1")
     
+
+    
     if len(f_M_sub[0] == 2):
         
         plt.figure()
@@ -165,8 +167,7 @@ if __name__ == "__main__":
         plt.xlabel(p2)
         plt.ylabel(p1)
         plt.title('difference A')
-        
-        
+
     
     
     plt.show()

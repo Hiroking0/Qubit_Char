@@ -84,6 +84,8 @@ class Pulse:
         c1m1 = np.zeros(length, dtype = np.float32)
         c1m2 = np.zeros(length, dtype = np.float32)
         c2 = np.zeros(length, dtype = np.float32)
+        c3 = np.zeros(length, dtype = np.float32)
+        c4 = np.zeros(length, dtype = np.float32)
         c2m1 = np.zeros(length, dtype = np.float32)
         c2m2 = np.zeros(length, dtype = np.float32)
 
@@ -96,56 +98,60 @@ class Pulse:
         #    c1m1[self.start - PulseGroup.RF_TRIGGER_OFFSET : self.start - PulseGroup.RF_TRIGGER_OFFSET + RF_TRIGGER_LENGTH] += 1          
         c1m1[self.start - PulseGroup.RF_TRIGGER_OFFSET : self.start - PulseGroup.RF_TRIGGER_OFFSET + PulseGroup.RF_TRIGGER_LENGTH] += 1
 
-        return (c1,c1m1,c1m2,c2,c2m1,c2m2)
+        return (c1,c1m1,c2,c2m1,c2m2, c3, c4)
 
 #readout pulse will be on c2m1
 #readout trigger for alazar on c2m2
 class Readout_Pulse(Pulse):
 
-    def __init__(self, start, duration, amplitude, wait_time = 777):
+    def __init__(self, start, duration, amplitude):
         super().__init__(start, duration, amplitude, channel = None)
-        self.wait_time = wait_time
 
     def is_readout(self):
         return True
 
-    def make(self, t_len = 0):
+    def make(self, t_len = None):
         length = self.start + self.duration# + self.wait_time
         c1 = np.zeros(length, dtype = np.float32)
         c1m1 = np.zeros(length, dtype = np.float32)
-        c1m2 = np.zeros(length, dtype = np.float32)
         c2 = np.zeros(length, dtype = np.float32)
-
+        c3 = np.zeros(length, dtype = np.float32)
+        c4 = np.zeros(length, dtype = np.float32)
         c2m1 = np.zeros(length, dtype = np.float32)
-        c2m1[self.start : self.start + self.duration] += self.amplitude
-
         c2m2 = np.zeros(length, dtype = np.float32)
+        
+        c2m1[self.start : self.start + self.duration] += self.amplitude
         c2m2[self.start - PulseGroup.READOUT_TRIGGER_OFFSET : self.start - PulseGroup.READOUT_TRIGGER_OFFSET + PulseGroup.READOUT_TRIGGER_LENGTH] += 1
-
-
-        return (c1,c1m1,c1m2,c2,c2m1,c2m2)
+        return (c1,c1m1,c2,c2m1,c2m2,c3,c4)
 
 
 class Sweep_Pulse(Pulse):
     #sweep_type can be 'amplitude' 'amp', 'duration' 'dur', or 'start'
-    def __init__(self, start, duration, amplitude, sweep_param, sweep_stop, sweep_step, channel = None):
+    def __init__(self, start, duration, amplitude, frequency, sweep_param, sweep_stop, sweep_step, phase = 0, channel = None):
         super().__init__(start, duration, amplitude, channel)
         self.sweep_type = sweep_param
         self.sweep_stop = sweep_stop
         self.sweep_step = sweep_step
+        self.frequency = frequency*1e9
+        self.phase = phase
 
     #assume sweep_stop is NON-inclusive
     def make(self, length = 0):
-
+        
         if self.sweep_type == "duration":
-            
             sweeps = np.arange(self.duration, self.sweep_stop, self.sweep_step)
             num_sweeps = len(sweeps)
             longest_length = max(length, self.start + self.duration)
-            final_arr = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+            final_arr_1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+            final_arr_2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+            
+            #Create the longest arrays, then slice them to get the correct length
+            t_cos_arr1 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i + self.phase) for i in range(self.sweep_stop)]
+            t_cos_arr2 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i + self.phase - np.pi/2) for i in range(self.sweep_stop)]
             for ind, duration in enumerate(sweeps):
                 #self.start + self.duration - duration : self.start + self.duration
-                final_arr[ind][self.start + self.duration - duration : self.start + self.duration] += self.amplitude
+                final_arr_1[ind][self.start + self.duration - duration : self.start + self.duration] = t_cos_arr1[:duration]
+                final_arr_2[ind][self.start + self.duration - duration : self.start + self.duration] = t_cos_arr2[:duration]
 
         elif self.sweep_type == "start":
             sweeps = np.arange(self.start, self.sweep_stop, self.sweep_step)
@@ -153,35 +159,102 @@ class Sweep_Pulse(Pulse):
             longest_length = max(length, max(sweeps) + self.duration)
             
             
-            final_arr = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+            final_arr_1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+            final_arr_2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+            cos_arr1 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i) for i in range(self.duration)]
+            cos_arr2 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i-np.pi/2) for i in range(self.duration)]
             for ind, start in enumerate(sweeps):
-                final_arr[ind][start : start + self.duration] += self.amplitude
-            final_arr = final_arr[::-1]
                 
+                final_arr_1[ind][start : start + self.duration] = cos_arr1
+                final_arr_2[ind][start : start + self.duration] = cos_arr2
+                
+            #reverse array
+            final_arr_1 = final_arr_1[::-1]
+            final_arr_2 = final_arr_2[::-1]
+                
+            
         elif self.sweep_type == "amplitude" or self.sweep_type == 'amp':
             sweeps = np.arange(self.amplitude, self.sweep_stop, self.sweep_step)
             num_sweeps = len(sweeps)
             longest_length = max(length, self.start + self.duration)
 
-            final_arr = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+            final_arr_1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+            final_arr_2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
             for ind, amp in enumerate(sweeps):
-                final_arr[ind][self.start : self.start + self.duration] += amp
+                cos_arr1 = [amp*np.cos((self.frequency/1e9)*np.pi*2*i) for i in range(self.duration)]
+                cos_arr2 = [amp*np.cos((self.frequency/1e9)*np.pi*2*i-np.pi/2) for i in range(self.duration)]
+                
+                final_arr_1[ind][self.start : self.start + self.duration] = cos_arr1
+                final_arr_2[ind][self.start : self.start + self.duration] = cos_arr2
 
 
-        if self.channel == None or self.channel == 1:
-            c1 = final_arr
-            c2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
-        else:
-            c2 = final_arr
-            c1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+        c1 = final_arr_1
+        c2 = final_arr_2
 
         c1m1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
-        c1m2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
         c2m1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
         c2m2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+        c3 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+        c4 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+
+        return c1, c1m1, c2, c2m1, c2m2, c3, c4
 
 
-        return c1, c1m1, c1m2, c2, c2m1, c2m2
+class Sin_Pulse(Pulse):
+    
+    def __init__(self, start: int, duration: int, amplitude: float, frequency: float, channel: int):
+        super().__init__(start, duration, amplitude, channel)
+        self.frequency = frequency*1e9
+        
+        
+    def make(self, pad_length = None):
+        if pad_length == None:
+            length = self.start + self.duration
+        else:
+            length = pad_length
+        c1 = np.zeros(length, dtype = np.float32)
+        c1m1 = np.zeros(length, dtype = np.float32)
+        c2 = np.zeros(length, dtype = np.float32)
+        c2m1 = np.zeros(length, dtype = np.float32)
+        c2m2 = np.zeros(length, dtype = np.float32)
+        c3 = np.zeros(length, dtype = np.float32)
+        c4 = np.zeros(length, dtype = np.float32)
+        cos_arr1 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i) for i in range(self.duration)]
+        cos_arr2 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i-np.pi/2) for i in range(self.duration)]
+        c1[self.start:self.start + self.duration] = cos_arr1
+        c2[self.start:self.start + self.duration] = cos_arr2
+        
+        
+        return c1, c1m1, c2, c2m1, c2m2, c3, c4
+
+class Sin_Readout(Readout_Pulse):
+
+    def __init__(self, start, duration, amplitude, frequency, phase = 0):
+        super().__init__(start, duration, amplitude)
+        self.frequency = frequency*1e9
+        self.phase = phase
+
+    def make(self, t_len = None):
+        length = self.start + self.duration# + self.wait_time
+        c1 = np.zeros(length, dtype = np.float32)
+        c1m1 = np.zeros(length, dtype = np.float32)
+        c2 = np.zeros(length, dtype = np.float32)
+        c2m1 = np.zeros(length, dtype = np.float32)
+        c2m2 = np.zeros(length, dtype = np.float32)
+        c3 = np.zeros(length, dtype = np.float32)
+        c4 = np.zeros(length, dtype = np.float32)
+        
+        cos_arr1 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i + self.phase) for i in range(self.duration)]
+        cos_arr2 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i + self.phase - np.pi/2) for i in range(self.duration)]
+        c3[self.start:self.start + self.duration] = cos_arr1
+        c4[self.start:self.start + self.duration] = cos_arr2
+        
+        c2m2[self.start - PulseGroup.READOUT_TRIGGER_OFFSET : 
+                 self.start - PulseGroup.READOUT_TRIGGER_OFFSET +
+                 PulseGroup.READOUT_TRIGGER_LENGTH] += 1
+
+
+        return c1, c1m1, c2, c2m1, c2m2, c3, c4
 
 
 #TODO: make sweep_pulse class
@@ -216,55 +289,71 @@ class PulseGroup:
         
         c1 = np.zeros((num_sweeps, total_length), dtype = np.float32)
         c1m1 = np.zeros((num_sweeps, total_length), dtype = np.float32)
-        c1m2 = np.zeros((num_sweeps, total_length), dtype = np.float32)
+        #c1m2 = np.zeros((num_sweeps, total_length), dtype = np.float32)
         c2 = np.zeros((num_sweeps, total_length), dtype = np.float32)
         c2m1 = np.zeros((num_sweeps, total_length), dtype = np.float32)
         c2m2 = np.zeros((num_sweeps, total_length), dtype = np.float32)
-        for ind in range(num_sweeps):
-            for pulse in self.pulses:
+        c3 = np.zeros((num_sweeps, total_length), dtype = np.float32)
+        c4 = np.zeros((num_sweeps, total_length), dtype = np.float32)
+        for pulse in self.pulses:
+            (t1, t1m1, t2, t2m1, t2m2, t3, t4) = pulse.make(total_length)
+            for ind in range(num_sweeps):
                 #add each pulse to its corresponding array
-                (t1, t1m1, t1m2, t2, t2m1, t2m2) = pulse.make(total_length)
+                
                 if t1.ndim > 1:
                     c1[ind] = np.add(c1[ind], t1[ind])
                     c1m1[ind] = np.add(c1m1[ind], t1m1[ind])
-                    c1m2[ind] = np.add(c1m2[ind], t1m2[ind])
                     c2[ind] = np.add(c2[ind], t2[ind])
                     c2m1[ind] = np.add(c2m1[ind], t2m1[ind])
                     c2m2[ind] = np.add(c2m2[ind], t2m2[ind])
+                    c3[ind] = np.add(c3[ind], t3[ind])
+                    c4[ind] = np.add(c4[ind], t4[ind])
+                    
                 else:
                     c1[ind] = np.add(c1[ind], t1)
                     c1m1[ind] = np.add(c1m1[ind], t1m1)
-                    c1m2[ind] = np.add(c1m2[ind], t1m2)
                     c2[ind] = np.add(c2[ind], t2)
                     c2m1[ind] = np.add(c2m1[ind], t2m1)
                     c2m2[ind] = np.add(c2m2[ind], t2m2)
+                    c3[ind] = np.add(c3[ind], t3)
+                    c4[ind] = np.add(c4[ind], t4)
+                    
+
         #make all of the pulses in the array.
         #if its a sweep, it will be shape (num_sweeps, length_n)
         #if its not a sweep, it will be just shape (length_n)
         #add all makes together after reshaping them to have the same length.
         
-        return (c1, c1m1, c1m2, c2, c2m1, c2m2)
+        return (c1, c1m1, c2, c2m1, c2m2, c3, c4)
 
     def get_waveforms(self):
-        (c1, c1m1, c1m2, c2, c2m1, c2m2) = self.make()
+        
+        
+        (c1, c1m1, c2, c2m1, c2m2, c3, c4) = self.make()
         c1Waves = []
         c2Waves = []
+        c3Waves = []
+        c4Waves = []
         if c1.ndim == 1:
-            c1Waves.append(tawg.Waveform(c1, c1m1, c1m2))
-            c2Waves.append(tawg.Waveform(c2, c2m1, c2m2))
+            c1Waves.append(tawg.Waveform(c1, c1m1, 0))
+            c2Waves.append(tawg.Waveform(c2, c2m1, 0))
+            c3Waves.append(tawg.Waveform(c3, 0, 0))
+            c4Waves.append(tawg.Waveform(c4, 0, 0))
         else:
             for i in range(len(c1)):
-                c1Waves.append(tawg.Waveform(c1[i], c1m1[i], c1m2[i]))
+                c1Waves.append(tawg.Waveform(c1[i], c1m1[i], 0))
                 c2Waves.append(tawg.Waveform(c2[i], c2m1[i], c2m2[i]))
+                c3Waves.append(tawg.Waveform(c3[i], 0, 0))
+                c4Waves.append(tawg.Waveform(c4[i], 0, 0))
         
-        return (c1Waves, c2Waves)
+        return (c1Waves, c2Waves, c3Waves, c4Waves)
 
     #this function will send waves and sequence them
-    def send_waves_awg(self, awg, name, pattern_repeat, zero_length, zero_multiple, readout_trigger_offset, decimation):
+    def send_waves_awg(self, awg, name, pattern_repeat, zero_length, zero_multiple, readout_trigger_offset, num_channels, decimation):
         PulseGroup.READOUT_TRIGGER_OFFSET = int(readout_trigger_offset/decimation)
         zero_multiple = int(zero_multiple/decimation)
         #First convert all arrays to waveforms, then send
-        (c1Waves, c2Waves) = self.get_waveforms()
+        (c1Waves, c2Waves, c3Waves, c4Waves) = self.get_waveforms()
         
         awg.delete_all_waveforms()
         awg.delete_all_subseq()
@@ -273,12 +362,16 @@ class PulseGroup:
         send_waves(awg, c1Waves, name, channel = 1)
         time.sleep(.1)
         send_waves(awg, c2Waves, name, channel = 2)
+        time.sleep(.1)
+        if num_channels == 4:
+            send_waves(awg, c3Waves, name, channel = 3)
+            time.sleep(.1)
+            send_waves(awg, c4Waves, name, channel = 4)
         
         awg.new_waveform('zero', tawg.Waveform(np.array([0]*zero_length, dtype = np.float32), 0, 0))
         
         time.sleep(.1)
-        #seq_waves(awg, c1Waves, name, pattern_repeat)
-        subseq_waves(awg, c1Waves, name, pattern_repeat, zero_multiple)
+        subseq_waves(awg, c1Waves, name, pattern_repeat, zero_multiple, num_channels)
         
 
 
@@ -290,47 +383,53 @@ class PulseGroup:
     
     def show(self, decimation = 1, subplots = True):
         PulseGroup.READOUT_TRIGGER_OFFSET = int(PulseGroup.READOUT_TRIGGER_OFFSET/decimation)
-        (arr1, a1m1, a1m2, arr2, a2m1, a2m2) = self.make()
+        (arr1, a1m1, arr2, a2m1, a2m2, a3, a4) = self.make()
         x = np.linspace(0, len(arr1[0])*decimation, num = len(arr1[0]), endpoint=False)
         if arr1.ndim == 1:
             arr1 = np.expand_dims(arr1, axis=0)
             a1m1 = np.expand_dims(a1m1, axis=0)
-            a1m2 = np.expand_dims(a1m2, axis=0)
             arr2 = np.expand_dims(arr2, axis=0)
             a2m1 = np.expand_dims(a2m1, axis=0)
             a2m2 = np.expand_dims(a2m2, axis=0)
             
         if subplots:
+            step = 2
             for i in range(len(arr1)):
-                plt.subplot(2,3,1)
-                plt.plot(x, arr1[i]+i)
+                plt.subplot(2,4,1)
+                plt.plot(x, arr1[i]+step*i)
                 plt.title('CH1 (qubit pulse)', fontsize=14)
                 plt.xticks(rotation=45)
 
-                plt.subplot(2,3,2)
-                plt.plot(x, a1m1[i]+i)
-                plt.title('CH1M1 (aux pulse)', fontsize=14)
-                plt.xticks(rotation=45)
-
-                plt.subplot(2,3,3)
-                plt.plot(x, a1m2[i]+i)
-                plt.title('CH1M2 (nothing)', fontsize=14)
-                plt.xticks(rotation=45)
-
-                plt.subplot(2,3,4)
-                plt.plot(x, arr2[i]+i)
+                plt.subplot(2,4,2)
+                plt.plot(x, arr2[i]+step*i)
                 plt.title('CH2 (qubit pulse)', fontsize=14)
+                plt.xticks(rotation=45)
+
+                plt.subplot(2,4,3)
+                plt.plot(x, a1m1[i]+step*i)
+                plt.title('CH1M1 (aux pulse unused)', fontsize=14)
+                plt.xticks(rotation=45)
+
+                plt.subplot(2,4,4)
+                plt.plot(x, a2m2[i]+step*i)
+                plt.title('CH2M2 (alazar trigger)', fontsize=14)
                 plt.xticks(rotation=45)                
 
-                plt.subplot(2,3,5)
-                plt.plot(x, a2m1[i]+i)
-                plt.title('CH2 M1 (readout pulse)', fontsize=14)
+                plt.subplot(2,4,5)
+                plt.plot(x, a3[i]+step*i)
+                plt.title('CH3 (SSB Readout)', fontsize=14)
                 plt.xticks(rotation=45)
                 
-                plt.subplot(2,3,6)
-                plt.plot(x, a2m2[i]+i)
-                plt.title('CH2 M2 (Alazar trigger)', fontsize=14)
+                plt.subplot(2,4,6)
+                plt.plot(x, a4[i]+step*i)
+                plt.title('CH4 (SSB Readout)', fontsize=14)
                 plt.xticks(rotation=45)
+                
+                plt.subplot(2,4,7)
+                plt.plot(x, a2m1[i]+step*i)
+                plt.title('CH2M1 (DC readout)', fontsize=14)
+                plt.xticks(rotation=45)
+                
                 #plt.subplot(2,3,6)
                 #plt.plot(a2m2[i])
 
@@ -380,33 +479,51 @@ def send_waves(awg, arr, name, channel = 1):
     
 """This function is used for waves with long wait times"""
 #wait time in us
-def subseq_waves(awg, arr, name, pattern_repeat, zero_repeat):
-    
-    #zero will be of length 500 us so the number it repeats should be integer division
+def subseq_waves(awg, arr, name, pattern_repeat, zero_repeat, num_channels):
     zero_repeat = max(zero_repeat, 1)
     awg.set_run_mode('seq')
     w_len = len(arr)
     awg.set_seq_length(w_len)
-    
     #create a subsequence for each wave (ch1 ch2) and zero pair
     #first entry should have wait true
     
     #first create all the subequences
-    for i in range(0, w_len):
+    for i in range(w_len):
         print("subsequencing: " + str(i))
         #create new subseq called ex "rabi_0... rabi_i"
         subseq_name = name + "_" + str(i)
         awg.new_subseq(subseq_name, 2)
+        for j in range(num_channels):
+            t_name = name + f"_{j+1}_" + str(i)
+            #set each subsequence element. Channel 1 and 2
+            awg.set_subseq_element(subseq_name, t_name, 1, j+1)
+            awg.set_subseq_element(subseq_name, "zero", 2, j+1)
+            #Set each repeat of zero to correct number
+            awg.set_subseq_repeat(subseq_name, 2, zero_repeat)
+            
+            
+        #finally set the main sequence to have the subsequence entry
+        awg.set_seq_elm_to_subseq(i+1, subseq_name)
+        awg.set_seq_element_loop_cnt(i+1, pattern_repeat)
         
-        #set each subsequence element. Channel 1 and 2
+        
+        
+        '''
         t_name1 = name + "_1_" + str(i)
         t_name2 = name + "_2_" + str(i)
+        t_name3 = name + "_3_" + str(i)
+        t_name4 = name + "_4_" + str(i)
         
         awg.set_subseq_element(subseq_name, t_name1, 1, 1)
         awg.set_subseq_element(subseq_name, t_name2, 1, 2)
+        awg.set_subseq_element(subseq_name, t_name3, 1, 3)
+        awg.set_subseq_element(subseq_name, t_name4, 1, 4)
         
         awg.set_subseq_element(subseq_name, "zero", 2, 1)
         awg.set_subseq_element(subseq_name, "zero", 2, 2)
+        awg.set_subseq_element(subseq_name, "zero", 2, 3)
+        awg.set_subseq_element(subseq_name, "zero", 2, 4)
+        
         time.sleep(.2)
         
         #Set each repeat of zero to correct number
@@ -415,7 +532,7 @@ def subseq_waves(awg, arr, name, pattern_repeat, zero_repeat):
         #finally set the main sequence to have the subsequence entry
         awg.set_seq_elm_to_subseq(i+1, subseq_name)
         awg.set_seq_element_loop_cnt(i+1, pattern_repeat)
-        
+        '''
     #for i in range(1, w_len):
     #    awg.set_seq_element_goto_state(i, 0)
     #awg.set_seq_element_goto_state(w_len, 1)

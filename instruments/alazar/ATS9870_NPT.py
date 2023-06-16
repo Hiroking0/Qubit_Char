@@ -127,6 +127,9 @@ def AcquireData(board, params, num_patterns, path, saveData = True, live_plot = 
     chB_avgs_sub = np.zeros((num_patterns, seq_repeat * pattern_repeat))
     chA_avgs_nosub = np.zeros((num_patterns, seq_repeat * pattern_repeat))
     chB_avgs_nosub = np.zeros((num_patterns, seq_repeat * pattern_repeat))
+    readout_avg_array = np.zeros((num_patterns, samp_per_acq))
+    
+    
     
     plt_avg = np.zeros(num_patterns)
     
@@ -247,7 +250,11 @@ def AcquireData(board, params, num_patterns, path, saveData = True, live_plot = 
             
             
             
-            
+                
+          
+            readout_avg_array[pattern_number]=(chA + readout_avg_array[pattern_number] * buffersCompleted) / (1 + buffersCompleted)
+           
+        
             
             
             if live_plot and pattern_number == 0:
@@ -335,7 +342,6 @@ def AcquireData(board, params, num_patterns, path, saveData = True, live_plot = 
     if live_plot:
         print('closed')
         fig.canvas.close()
-    
     return (chA_avgs_sub, chB_avgs_sub, chA_avgs_nosub, chB_avgs_nosub, mag_sub, mag_nosub)
 
 

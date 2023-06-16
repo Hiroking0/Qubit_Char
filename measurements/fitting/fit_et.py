@@ -51,6 +51,7 @@ if __name__ == "__main__":
                     params = json.load(file)
 
     params = params[params['measurement']]
+    print(params)
     arr = np.load(fn)
     #pop = dp.get_population_v_pattern(arr, params['v_threshold'], flipped = False)
     pop = [np.average(i) for i in arr]
@@ -63,10 +64,10 @@ if __name__ == "__main__":
     a = 223.8
     b = .1
     t2 = 3000
-    f = 1/3800
+    f = 1/262
     phi = 1.57
-    shortest_ramsey = params['ramsey_gap_1_init']
-    longest_ramsey = params['ramsey_gap_1_final']
+    shortest_ramsey = params['rabi_start']
+    longest_ramsey = params['rabi_stop']
     num_patterns = len(arr)
     
     
@@ -87,9 +88,9 @@ if __name__ == "__main__":
     
     plt.plot(x, pop, 'ko', markersize=10)
     plt.plot(x, fit_data, 'r', linewidth=3.5)
-    plt.xlabel("$t_{ramsey}$ (ns)")
+    plt.xlabel("$t_{Rabi}$ (ns)")
     plt.ylabel("V")
-    plt.title("Ramsey measurement")
+    plt.title("ET measurement")
     plt.show()
     
     

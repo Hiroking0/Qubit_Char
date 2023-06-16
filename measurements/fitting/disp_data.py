@@ -29,8 +29,8 @@ def disp_sequence():
     
     arr = np.load(fn)
     #print(np.shape(arr))
-    #ratio = dp.get_population_ratio(arr, params['v_threshold'])
-    #print(ratio)
+    pop = dp.get_population_v_pattern(arr, params['v_threshold'])
+    print(pop)
     dp.plot_histogram(arr)
     x = []
     if "rabi" in nf.lower():
@@ -58,10 +58,10 @@ def disp_sequence():
     hbar = 1.054e-34
     del_E = (-hbar * 2 * np.pi * wq)
     
-    #denom = kb * np.log(pop[1]/(1-pop[1]))
+    denom = kb * np.log((1-pop[1])/(pop[1]))
     
-    #T = -del_E/denom
-    #print("Effective tempurature (mK):", T*(10**3))
+    T = -del_E/denom
+    print("Effective tempurature (mK):", T*(10**3))
     
 
 def disp_single_sweep():
@@ -78,7 +78,7 @@ def disp_single_sweep():
     max_sweep = max(csvFile[sweep_param].to_list())
     print(min_sweep, max_sweep)
     #x = range(num_patterns)
-    x = np.linspace(0, 40000, num = 81)
+    x = np.linspace(0, 2000, num = 51)
     y = np.linspace(min_sweep, max_sweep, num=sweep_num)
     
     plt.subplot(2,3,1)
@@ -232,7 +232,7 @@ def show_sweep_output():
     sweep_num = int(len(csvFile['pattern_num'])/num_patterns)
     shape = (num_patterns, sweep_num)
     x = csvFile[csvFile.columns[-1]].to_list()
-    
+    x = x[:int(len(x)/num_patterns)]
     
     print(np.shape(x))
     mags_nosub = csvFile['mag_nosub'].to_list()
@@ -265,8 +265,10 @@ def show_sweep_output():
     plt.subplot(2,3,2)
     for i in range(num_patterns):
         plt.plot(x, cBp_sub[i])
-    plt.title('channel b')
-    
+    plt.xlabel("$w_{drive}$ (GHz)")
+    plt.ylabel("V")
+    plt.title('Channel B')
+    plt.legend(["no pulse", "pi pulse"])
     
     plt.subplot(2,3,3)
     for j in range(num_patterns):
@@ -281,6 +283,7 @@ def show_sweep_output():
     plt.subplot(2,3,5)
     for i in range(num_patterns):
         plt.plot(x, cBp_nosub[i])
+    
     plt.title('channel b nosub')
     
     plt.subplot(2,3,6)
@@ -290,7 +293,14 @@ def show_sweep_output():
     
     plt.show()
 
+
+def disp_double_sweep():
+    pass
+
+
+
 if __name__ == "__main__":
+    #disp_double_sweep()
     disp_sequence()
     #show_sweep_output()
     #disp_single_sweep()
