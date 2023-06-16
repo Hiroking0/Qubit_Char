@@ -2,7 +2,7 @@
 name: 'npp_180ns'
 
 #ramsey, T1, rabi, npp, readout, echo, echo_1ax, amplitude
-measurement: 'effect_temp'
+measurement: 'gaussian'
 
 #################################################################################################################################################
 #####################################################      writing and sending sequences to AWG      ############################################
@@ -72,6 +72,16 @@ echo:
     echo_pi_pulse: 150 #pi pulse used in y pulse and number/2 used in both x pulses
     step: 12000
     readout_duration: 20000
+
+gaussian:
+    amplitude: 1
+    sigma: 100
+    gap: 200
+    middle point: 1000
+    #step for sigma: 5
+    signal cut off: 5 #in sigmas
+    readout_duration: 20000
+
     
 #This measurement is set up to use a sine wave pulse for the initial pi pulse
 #Then use a square pulse to excite the qubit to the second excited state
