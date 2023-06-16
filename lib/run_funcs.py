@@ -9,7 +9,7 @@ sys.path.append("../")
 from instruments.alazar import ATS9870_NPT as npt
 from instruments import Var_att_interface as ATT
 from instruments import RF_interface as RF
-
+from instruments import ENA_interface as ENA
 import time
 import numpy as np
 from threading import Thread
@@ -55,8 +55,8 @@ def init_params(params):
     r_att.set_attenuation(params['set_r_att'])
     twpa_rf.set_power(params['set_p_twpa'])
     twpa_rf.set_freq(params['set_w_twpa'])
-    q_rf.enable_out()
-    r_rf.enable_out()
+    #q_rf.enable_out()
+    #r_rf.enable_out()
     
 def run_and_acquire(awg,
                 board,
@@ -112,6 +112,7 @@ def single_sweep(name,
     q_atten_addr = "TCPIP0::172.20.1.6::5025::SOCKET"
     r_atten_addr = "TCPIP0::172.20.1.9::5025::SOCKET"
     twpa_addr = "TCPIP0::172.20.1.11::5025::SOCKET"
+    ena_addr = 'TCPIP0::K-E5080B-00202.local::hislip0::INSTR'
 
     addrs = {
         'wr': readout_addr,
@@ -121,23 +122,38 @@ def single_sweep(name,
         'r_att': r_atten_addr,
         'q_att': q_atten_addr,
         'p_twpa': twpa_addr,
-        'w_twpa': twpa_addr
+        'w_twpa': twpa_addr,
+        'w_ena': ena_addr,
+        'p_ena': ena_addr
     }
+
+    att_sweeps = ['q_att', 'r_att']
+    rf_sweeps = ['wq', 'pq', 'wr', 'pr', 'w_twpa', 'p_twpa']
+    ena_sweeps = ['w_ena', 'p_ena']
+    
+    freq_sweeps = ['wq', 'wr', 'w_twpa', 'w_ena']
+    pow_sweeps = ['pq', 'pr', 'p_twpa', 'p_ena']
 
     sweep_param = params['p1']
     start = params['p1start']
     stop = params['p1stop']
     step = params['p1step']
 
-    if sweep_param == 'q_att' or sweep_param == 'r_att':
+
+
+
+
+    if sweep_param in att_sweeps:
         inst = ATT.Atten(rm, addrs[sweep_param])
-    else:
+    elif sweep_param in ena_sweeps:
+        inst = ENA.ENA(rm, addrs[sweep_param])
+    elif sweep_param in rf_sweeps:
         inst = RF.RF_source(rm, addrs[sweep_param])
 
 
-    if sweep_param == 'wq' or sweep_param == 'wr' or sweep_param == 'w_twpa':
+    if sweep_param in freq_sweeps:
         func_call = inst.set_freq
-    elif sweep_param == 'pq' or sweep_param == 'pr' or sweep_param == 'p_twpa':
+    elif sweep_param in pow_sweeps:
         func_call = inst.set_power
     else:
         #attenuator

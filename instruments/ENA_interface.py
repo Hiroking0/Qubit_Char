@@ -52,5 +52,6 @@ class ENA(Instrument):
         self.inst.write('DISPlay:WINDow1:STATE ON')
     
     
-    
+    def set_freq(self, freq):
+        self.inst.write(f'SENS:FREQ:CW {freq} GHz')
     
