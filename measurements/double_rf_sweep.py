@@ -73,44 +73,38 @@ if __name__ == "__main__":
     x = np.arange(params['p2start'], params['p2stop'], params['p2step'])
     
     plt.subplot(2,3,1)
-    for pattern in f_A_nosub:
-        plt.pcolormesh(x, y, pattern)
+    plt.pcolormesh(x, y, f_A_nosub[0])
     plt.xlabel(p2)
     plt.ylabel(p1)
     plt.title('ch A nosub')
     
     plt.subplot(2,3,2)
-    for pattern in f_B_nosub:
-        plt.pcolormesh(x, y, pattern)
+    plt.pcolormesh(x, y, f_B_nosub[0])
     plt.xlabel(p2)
     plt.ylabel(p1)
     plt.title('ch B nosub')
     
     plt.subplot(2,3,3)
-    for pattern in f_M_nosub:
-        plt.pcolormesh(x, y, pattern)
+    plt.pcolormesh(x, y, f_M_nosub[0])
     plt.xlabel(p2)
     plt.ylabel(p1)
     plt.title('mags nosub')
     
 
     plt.subplot(2,3,4)
-    for pattern in f_A_sub:
-        plt.pcolormesh(x, y, pattern)
+    plt.pcolormesh(x, y, f_A_sub[0])
     plt.xlabel(p2)
     plt.ylabel(p1)
     plt.title('ch A sub')
     
     plt.subplot(2,3,5)
-    for pattern in f_B_sub:
-        plt.pcolormesh(x, y, pattern)
+    plt.pcolormesh(x, y, f_B_sub[0])
     plt.xlabel(p2)
     plt.ylabel(p1)
     plt.title('ch B sub')
     
     plt.subplot(2,3,6)
-    for pattern in f_M_sub:
-        plt.pcolormesh(x, y, pattern)
+    plt.pcolormesh(x, y, f_M_sub[0])
     plt.xlabel(p2)
     plt.ylabel(p1)
     plt.title('mags sub')
