@@ -75,8 +75,9 @@ echo:
 
 gaussian:
     amplitude: 1
-    sigma: 500
-    gap: 3000
+    sigma: 100
+    gap: 200
+    frequency: 0.05 #GHz
     readout_duration: 20000
     
 
