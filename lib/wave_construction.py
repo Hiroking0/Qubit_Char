@@ -102,14 +102,13 @@ class Pulse:
     
     
 class gaussian():
-    def __init__(self, start: int, amplitude: float, mu: float,sigma: float,cutoff:float, channel: int):
+    def __init__(self, start: int, amplitude: float, gap: float,sigma: float, channel: int):
         #super().__init__(start, duration, amplitude, channel)
         self.start = int(start)
         self.amplitude = amplitude
-        self.mu = mu
+        self.gap = gap
         self.sigma = sigma
         self.channel = channel
-        self.cutoff = cutoff
 
 
     def make(self, pad_length = None):
@@ -127,15 +126,13 @@ class gaussian():
         c2m2 = np.zeros(length, dtype = np.float32)
         c3 = np.zeros(length, dtype = np.float32)
         c4 = np.zeros(length, dtype = np.float32)
-        gaus = np.random.normal(self.mu, self.sigma, 4*self.sigma)
-        
+        print(self.start - self.gap)
 
-    
-        cos_arr1 = gaussian(np.linspace(self.mu-self.cutoff*self.sigma,self.mu + self.cutoff*self.sigma,self.cutoff*2*self.sigma), self.mu, self.sigma)
+        time_array = np.linspace(self.start - 2*self.gap, self.start , int(2*self.gap))
+        cos_arr1 = gaussian(time_array, self.start - self.gap, self.sigma)
         #print(np.shape(cos_arr1),np.shape(c1),self.start, self.sigma)
-        print(self.start-2*self.sigma)
         #cos_arr2 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i-np.pi/2) for i in range(self.duration)]
-        c1[self.start-self.cutoff*self.sigma:self.start + self.cutoff*self.sigma] = cos_arr1
+        c1[self.start - 2*self.gap: self.start] = cos_arr1
        # c2[self.start:self.start + self.duration] = cos_arr2
         
         

@@ -75,12 +75,10 @@ echo:
 
 gaussian:
     amplitude: 1
-    sigma: 100
-    gap: 200
-    middle point: 1000
-    #step for sigma: 5
-    signal cut off: 5 #in sigmas
+    sigma: 500
+    gap: 3000
     readout_duration: 20000
+    
 
     
 #This measurement is set up to use a sine wave pulse for the initial pi pulse

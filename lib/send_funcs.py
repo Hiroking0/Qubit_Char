@@ -34,13 +34,12 @@ def get_nopi_pi_group(
 
 def get_gaussian_pulse_group(peak ,
                              sigma,
-                             middle_point,
+                             gap,
                              readout_start,
                              readout,
-                             decimation,
-                             cutoff):
+                             decimation):
     ro = be.Readout_Pulse(readout_start, readout, amplitude = 1)
-    p1 = be.gaussian(readout_start,peak,middle_point,sigma,cutoff,channel = 1)
+    p1 = be.gaussian(readout_start,peak,gap,sigma,channel = 1)
     pg = be.PulseGroup([p1, ro])
     return pg
 
@@ -326,14 +325,12 @@ def get_pg(params):
         case 'gaussian':
             peak = params['amplitude']
             sigma = params['sigma']
-            middle_point = params['middle point']
             gap = params['gap']
-            cutoff = params['signal cut off']
-            readout_start = gap + 2*sigma + readout_buffer
+            readout_start = 2*gap + 2*sigma + readout_buffer
             num_patterns = 1
 
-            pg = get_gaussian_pulse_group(peak,sigma,middle_point,
-                                          readout_start,readout,decimation,cutoff)
+            pg = get_gaussian_pulse_group(peak,sigma,gap,
+                                          readout_start,readout,decimation)
 
         case 'T1':
             q_duration = params['T1_q_dur']
