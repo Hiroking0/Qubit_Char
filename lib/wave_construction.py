@@ -132,23 +132,69 @@ class gaussian():
         c4 = np.zeros(length, dtype = np.float32)
 
         time_array = np.linspace(self.start - 2*self.gap, self.start , int(2*self.gap))
-        time2 = np.arange(len(time_array))
-        t_gaussian = gaussian(time_array, self.start - self.gap, self.sigma)
-        #print(np.shape(time2), np.shape(t_gaussian))
-        cos_arr1 = gaussian(time_array, self.start - self.gap, self.sigma)*cos(time2,self.freq,0)
-        cos_arr2 = gaussian(time_array, self.start - self.gap, self.sigma)*cos(time2,self.freq,-np.pi/2)
+        #time2 = np.arange(len(time_array))
+        cos_arr1 = gaussian(time_array, self.start - self.gap, self.sigma)*cos(time_array,self.freq,0)
+        cos_arr2 = gaussian(time_array, self.start - self.gap, self.sigma)*cos(time_array,self.freq,-np.pi/2)
         c1[self.start - 2*self.gap: self.start] = cos_arr1
         c2[self.start - 2*self.gap: self.start] = cos_arr2
         #print(self.freq*1e-9)
-
-        """cos_arr1 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i) for i in range(self.duration)]
-        cos_arr2 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i-np.pi/2) for i in range(self.duration)]
-        c1[self.start:self.start + self.duration] = cos_arr1
-        c2[self.start:self.start + self.duration] = cos_arr2"""
-        
         
         return c1, c1m1, c2, c2m1, c2m2, c3, c4
 
+class sweep_gaussian(gaussian):
+    def __init__(self, start: int, amplitude: float, gap: float,sigma: float,freq: float, 
+                 sweep_param,sweep_stop,sweep_step, channel: int):
+        super().__init__(start, amplitude, gap, sigma, freq, channel)
+        self.sweep_type = sweep_param
+        self.sweep_stop = sweep_stop
+        self.sweep_step = sweep_step
+    def make(self, length = 0):
+        if self.sweep_type == "sigma":
+            sweeps = np.arange(self.sigma, self.sweep_stop, self.sweep_step)
+            num_sweeps = len(sweeps)
+            longest_length = max(length, self.start + self.sigma)
+            
+            # should be the max gap or sigma to make time_array and time2
+            final_arr_1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+            final_arr_2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+            
+            def gaussian(x, mu, sig):
+                normalization = np.max(np.exp(-np.power(x - mu, 2.) / (2 * np.power(sig, 2.))))
+                return self.amplitude*0.5/normalization*np.exp(-np.power(x - mu, 2.) / (2 * np.power(sig, 2.)))
+        
+            def cos(x,freq,shift):
+                return np.cos(2*np.pi*x*freq + shift)
+            
+            time_array = np.linspace(self.start - 2*self.gap, self.start , int(2*self.gap))
+            #time2 = np.arange(len(time_array))
+
+            #Create the longest arrays, then slice them to get the correct length
+            t_cos_arr1 = gaussian(time_array, self.start - self.gap, self.sigma)*cos(time2,self.freq,0)
+            t_cos_arr2 = gaussian(time_array, self.start - self.gap, self.sigma)*cos(time2,self.freq,-np.pi/2)
+            
+            #create the 2d array
+            for ind, sigma in enumerate(sweeps):
+                #self.start + self.duration - duration : self.start + self.duration
+                #final_arr_1[ind][self.start + self.sigma - sigma : self.start + self.sigma] = t_cos_arr1[:sigma]
+                #final_arr_2[ind][self.start + self.sigma - sigma : self.start + self.sigma] = t_cos_arr2[:sigma]
+
+                cos_arr1 = [gaussian(time_array, self.start - self.gap, sigma)*cos(time2,self.freq,0) for i in range(self.sigma)]
+                cos_arr2 = [gaussian(time_array, self.start - self.gap, sigma)*cos(time2,self.freq,-np.pi/2) for i in range(self.sigma)]
+                
+                final_arr_1[ind][self.start : self.start + self.sigma] = cos_arr1
+                final_arr_2[ind][self.start : self.start + self.sigma] = cos_arr2
+       
+        c1 = final_arr_1
+        c2 = final_arr_2
+
+        c1m1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+        c2m1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+        c2m2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+        c3 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+        c4 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+
+        return c1, c1m1, c2, c2m1, c2m2, c3, c4
+    
 
 
 #readout pulse will be on c2m1

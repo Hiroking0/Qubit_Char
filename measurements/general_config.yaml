@@ -2,7 +2,7 @@
 name: 'npp_180ns'
 
 #ramsey, T1, rabi, npp, readout, echo, echo_1ax, amplitude
-measurement: 'gaussian'
+measurement: 'gaussian sweep'
 
 #################################################################################################################################################
 #####################################################      writing and sending sequences to AWG      ############################################
@@ -80,6 +80,14 @@ gaussian:
     frequency: 0.05 #GHz
     readout_duration: 20000
     
+gaussian sweep:
+    amplitude: 1
+    sigma inital: 100
+    sigma final: 120
+    steps: 5 
+    gap: 200
+    frequency: 0.05 #GHz
+    readout_duration: 20000
 
     
 #This measurement is set up to use a sine wave pulse for the initial pi pulse
