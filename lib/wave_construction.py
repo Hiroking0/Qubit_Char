@@ -102,13 +102,13 @@ class Pulse:
     
     
 class gaussian():
-    def __init__(self, start: int, amplitude: float, gap: float,sigma: float, channel: int):
-        #super().__init__(start, duration, amplitude, channel)
+    def __init__(self, start: int, amplitude: float, gap: float,sigma: float,freq: float, channel: int):
         self.start = int(start)
         self.amplitude = amplitude
         self.gap = gap
         self.sigma = sigma
         self.channel = channel
+        self.freq = freq/1e9
 
 
     def make(self, pad_length = None):
@@ -116,9 +116,13 @@ class gaussian():
             length = self.start + 4*self.sigma
         else:
             length = pad_length
+        
         def gaussian(x, mu, sig):
             normalization = np.max(np.exp(-np.power(x - mu, 2.) / (2 * np.power(sig, 2.))))
-            return 1/normalization*np.exp(-np.power(x - mu, 2.) / (2 * np.power(sig, 2.)))
+            return self.amplitude*0.5/normalization*np.exp(-np.power(x - mu, 2.) / (2 * np.power(sig, 2.)))
+        def cos(x,freq,shift):
+            return np.cos(2*np.pi*x*freq + shift)
+        
         c1 = np.zeros(length, dtype = np.float32)
         c1m1 = np.zeros(length, dtype = np.float32)
         c2 = np.zeros(length, dtype = np.float32)
@@ -126,14 +130,21 @@ class gaussian():
         c2m2 = np.zeros(length, dtype = np.float32)
         c3 = np.zeros(length, dtype = np.float32)
         c4 = np.zeros(length, dtype = np.float32)
-        print(self.start - self.gap)
 
         time_array = np.linspace(self.start - 2*self.gap, self.start , int(2*self.gap))
-        cos_arr1 = gaussian(time_array, self.start - self.gap, self.sigma)
-        #print(np.shape(cos_arr1),np.shape(c1),self.start, self.sigma)
-        #cos_arr2 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i-np.pi/2) for i in range(self.duration)]
+        time2 = np.arange(len(time_array))
+        t_gaussian = gaussian(time_array, self.start - self.gap, self.sigma)
+        print(np.shape(time2), np.shape(t_gaussian))
+        cos_arr1 = gaussian(time_array, self.start - self.gap, self.sigma)*cos(time2,self.freq,0)
+        cos_arr2 = gaussian(time_array, self.start - self.gap, self.sigma)*cos(time2,self.freq,-np.pi/2)
         c1[self.start - 2*self.gap: self.start] = cos_arr1
-       # c2[self.start:self.start + self.duration] = cos_arr2
+        c2[self.start - 2*self.gap: self.start] = cos_arr2
+        print(self.freq*1e-9)
+
+        """cos_arr1 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i) for i in range(self.duration)]
+        cos_arr2 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i-np.pi/2) for i in range(self.duration)]
+        c1[self.start:self.start + self.duration] = cos_arr1
+        c2[self.start:self.start + self.duration] = cos_arr2"""
         
         
         return c1, c1m1, c2, c2m1, c2m2, c3, c4

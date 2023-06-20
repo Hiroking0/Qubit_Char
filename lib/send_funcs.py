@@ -37,9 +37,10 @@ def get_gaussian_pulse_group(peak ,
                              gap,
                              readout_start,
                              readout,
+                             freq,
                              decimation):
     ro = be.Readout_Pulse(readout_start, readout, amplitude = 1)
-    p1 = be.gaussian(readout_start,peak,gap,sigma,channel = 1)
+    p1 = be.gaussian(readout_start,peak,gap,sigma,freq,channel = 1)
     pg = be.PulseGroup([p1, ro])
     return pg
 
@@ -326,11 +327,12 @@ def get_pg(params):
             peak = params['amplitude']
             sigma = params['sigma']
             gap = params['gap']
+            freq = params['frequency']*1e9
             readout_start = 2*gap + 2*sigma + readout_buffer
             num_patterns = 1
 
             pg = get_gaussian_pulse_group(peak,sigma,gap,
-                                          readout_start,readout,decimation)
+                                          readout_start,readout,freq,decimation)
 
         case 'T1':
             q_duration = params['T1_q_dur']
