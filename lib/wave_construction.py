@@ -134,12 +134,12 @@ class gaussian():
         time_array = np.linspace(self.start - 2*self.gap, self.start , int(2*self.gap))
         time2 = np.arange(len(time_array))
         t_gaussian = gaussian(time_array, self.start - self.gap, self.sigma)
-        print(np.shape(time2), np.shape(t_gaussian))
+        #print(np.shape(time2), np.shape(t_gaussian))
         cos_arr1 = gaussian(time_array, self.start - self.gap, self.sigma)*cos(time2,self.freq,0)
         cos_arr2 = gaussian(time_array, self.start - self.gap, self.sigma)*cos(time2,self.freq,-np.pi/2)
         c1[self.start - 2*self.gap: self.start] = cos_arr1
         c2[self.start - 2*self.gap: self.start] = cos_arr2
-        print(self.freq*1e-9)
+        #print(self.freq*1e-9)
 
         """cos_arr1 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i) for i in range(self.duration)]
         cos_arr2 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i-np.pi/2) for i in range(self.duration)]
