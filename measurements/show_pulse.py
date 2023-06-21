@@ -12,8 +12,12 @@ if __name__ == "__main__":
     decimation = params['decimation']
 
     pg = sf.get_pg(params)
-    subplots = True
-    if params['measurement'] == "echo" or params['measurement'] == "echo_1ax":
-        subplots = False
+
+    no_subplot_measurements = ["echo", "echo_1ax", "gaussian","gaussian sweep" ]
+    subplots = not params['measurement'] in no_subplot_measurements
+
+    #subplots = True
+    #if params['measurement'] == "echo" or params['measurement'] == "echo_1ax":
+    #    subplots = False
 
     pg.show(decimation, subplots)
