@@ -39,8 +39,10 @@ def get_gaussian_pulse_group(peak ,
                              readout,
                              freq,
                              decimation):
+    mu = readout_start - gap
+    duration = 2*gap
     ro = be.Readout_Pulse(readout_start, readout, amplitude = 1)
-    p1 = be.gaussian(readout_start,peak,gap,sigma,freq,channel = 1)
+    p1 = be.gaussian(mu,peak,duration,sigma,freq,channel = 1)
     pg = be.PulseGroup([p1, ro])
     return pg
 
@@ -52,8 +54,6 @@ def get_gaussian_sweep_pulse_group(peak ,
                              freq,
                              sweep_param,sweep_stop,sweep_step,
                              decimation):
-    #mu = readout_start-gap
-    #cutoff = 
     ro = be.Readout_Pulse(readout_start, readout, amplitude = 1)
     p1 = be.sweep_gaussian(readout_start,peak,gap,sigma,freq,
                            sweep_param,sweep_stop,sweep_step, channel = 1)
