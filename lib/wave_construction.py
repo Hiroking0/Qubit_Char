@@ -141,6 +141,16 @@ class gaussian():
         
         return c1, c1m1, c2, c2m1, c2m2, c3, c4
 
+'''
+class sweep_gaussian(gaussian):
+    def __init__(self, amplitude: float, sigma: float, mu: float, freq: float, 
+                 sweep_param,sweep_stop,sweep_step, channel: int):
+        super().__init__(start, amplitude, gap, sigma, freq, channel)
+        self.sweep_type = sweep_param
+        self.sweep_stop = sweep_stop
+        self.sweep_step = sweep_step
+'''
+
 class sweep_gaussian(gaussian):
     def __init__(self, start: int, amplitude: float, gap: float,sigma: float,freq: float, 
                  sweep_param,sweep_stop,sweep_step, channel: int):
@@ -148,12 +158,15 @@ class sweep_gaussian(gaussian):
         self.sweep_type = sweep_param
         self.sweep_stop = sweep_stop
         self.sweep_step = sweep_step
+
+
     def make(self, length = 0):
+        print(length)
         if self.sweep_type == "sigma":
             sweeps = np.arange(self.sigma, self.sweep_stop, self.sweep_step)
             num_sweeps = len(sweeps)
-            longest_length = max(length, self.start + self.sigma)
-            
+            longest_length = max(length,2*self.gap*self.sweep_stop + self.start)
+            print("longest", longest_length)
             # should be the max gap or sigma to make time_array and time2
             final_arr_1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
             final_arr_2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
@@ -165,24 +178,23 @@ class sweep_gaussian(gaussian):
             def cos(x,freq,shift):
                 return np.cos(2*np.pi*x*freq + shift)
             
-            time_array = np.linspace(self.start - 2*self.gap, self.start , int(2*self.gap))
-            #time2 = np.arange(len(time_array))
-
-            #Create the longest arrays, then slice them to get the correct length
-            t_cos_arr1 = gaussian(time_array, self.start - self.gap, self.sigma)*cos(time2,self.freq,0)
-            t_cos_arr2 = gaussian(time_array, self.start - self.gap, self.sigma)*cos(time2,self.freq,-np.pi/2)
             
             #create the 2d array
             for ind, sigma in enumerate(sweeps):
-                #self.start + self.duration - duration : self.start + self.duration
-                #final_arr_1[ind][self.start + self.sigma - sigma : self.start + self.sigma] = t_cos_arr1[:sigma]
-                #final_arr_2[ind][self.start + self.sigma - sigma : self.start + self.sigma] = t_cos_arr2[:sigma]
+                gap = sigma * self.gap
+                time_array = np.linspace(self.start - 2*gap, self.start , int(2*gap))
 
-                cos_arr1 = [gaussian(time_array, self.start - self.gap, sigma)*cos(time2,self.freq,0) for i in range(self.sigma)]
-                cos_arr2 = [gaussian(time_array, self.start - self.gap, sigma)*cos(time2,self.freq,-np.pi/2) for i in range(self.sigma)]
+                cos_arr1 = gaussian(time_array, self.start - gap, sigma)*cos(time_array,self.freq,0)
+                cos_arr2 = gaussian(time_array, self.start - gap, sigma)*cos(time_array,self.freq,-np.pi/2)
                 
-                final_arr_1[ind][self.start : self.start + self.sigma] = cos_arr1
-                final_arr_2[ind][self.start : self.start + self.sigma] = cos_arr2
+                print('input',np.shape(final_arr_1[ind][self.start - 2*gap: self.start]))
+                print("slicing index, start-2gap", ind, self.start - 2*gap, self.start)
+                print('output',np.shape(cos_arr1))
+                print('array length',self.start-(self.start - 2*gap))
+                print('final',np.shape(final_arr_1))
+
+                final_arr_1[ind][self.start - 2*gap: self.start] = cos_arr1
+                final_arr_2[ind][self.start - 2*gap: self.start] = cos_arr2
        
         c1 = final_arr_1
         c2 = final_arr_2
@@ -192,7 +204,7 @@ class sweep_gaussian(gaussian):
         c2m2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
         c3 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
         c4 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
-
+        print("final c1 shape", np.shape(c1))
         return c1, c1m1, c2, c2m1, c2m2, c3, c4
     
 
@@ -373,7 +385,7 @@ class PulseGroup:
         total_length = None
         #go through all pulses and find the readout to see how 
         for pulse in self.pulses:
-            if isinstance(pulse, Sweep_Pulse):
+            if isinstance(pulse, Sweep_Pulse) or isinstance(pulse, sweep_gaussian):
                 sweep_made = pulse.make()
                 num_sweeps = len(sweep_made[0])
                 #break saves some computation, not necessary

@@ -52,6 +52,8 @@ def get_gaussian_sweep_pulse_group(peak ,
                              freq,
                              sweep_param,sweep_stop,sweep_step,
                              decimation):
+    #mu = readout_start-gap
+    #cutoff = 
     ro = be.Readout_Pulse(readout_start, readout, amplitude = 1)
     p1 = be.sweep_gaussian(readout_start,peak,gap,sigma,freq,
                            sweep_param,sweep_stop,sweep_step, channel = 1)
@@ -345,7 +347,8 @@ def get_pg(params):
             gap = params['gap']
             freq = params['frequency']*1e9
             sweep_param = "sigma"
-            readout_start = 2*gap + 2*sigma + readout_buffer
+            gapf=gap*sigmaf
+            readout_start = 2*gapf + 2*sigmaf + readout_buffer
             num_patterns = (sigmaf-sigma)/step
 
             pg = get_gaussian_sweep_pulse_group(peak,sigma,gap,
