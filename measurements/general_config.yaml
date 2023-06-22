@@ -75,18 +75,19 @@ echo:
 
 gaussian:
     amplitude: 1
-    sigma: 100
-    gap: 100
+    #sigma: 100
+    gap: 20
+    duration: 200
     frequency: 0 #GHz
     readout_duration: 20000
     
 gaussian sweep:
     amplitude: 1
-    sigma inital: 1000
-    sigma final: 2000
-    steps:  100
-    gap: 3 #in units of sigma
-    frequency: 0 #GHz
+    gap: 20
+    initial duration: 1000
+    final duration: 2000
+    steps: 100
+    frequency: 0.1 #GHz
     readout_duration: 20000
 
     

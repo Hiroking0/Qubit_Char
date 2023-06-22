@@ -34,31 +34,40 @@ def get_nopi_pi_group(
 
 def get_gaussian_pulse_group(peak ,
                              sigma,
+                             mu,
                              gap,
                              readout_start,
                              readout,
                              freq,
+                             numsig,
                              decimation):
-    mu = readout_start - gap
-    duration = 2*gap
     ro = be.Readout_Pulse(readout_start, readout, amplitude = 1)
-    p1 = be.gaussian(mu,peak,duration,sigma,freq,channel = 1)
+    p1 = be.gaussian(mu,peak,gap,sigma,freq,numsig,channel = 1)
     pg = be.PulseGroup([p1, ro])
     return pg
 
-def get_gaussian_sweep_pulse_group(peak ,
-                             sigma,
-                             gap,
-                             readout_start,
-                             readout,
-                             freq,
-                             sweep_param,sweep_stop,sweep_step,
-                             decimation):
-    mu = readout_start - gap
-    duration = 2*gap
+def get_gaussian_sweep_pulse_group(peak,
+                                   initialstartpoint,
+                                   finalstartpoint,
+                                   initial_duration,
+                                   final_duration,
+                                   step,
+                                   freq,
+                                   totalsig,
+                                   readout_start,
+                                   readout,
+                                   sweep_param,
+                                   decimation):
     ro = be.Readout_Pulse(readout_start, readout, amplitude = 1)
-    p1 = be.sweep_gaussian(mu,peak,duration,sigma,freq,
-                           sweep_param,sweep_stop,sweep_step, channel = 1)
+    p1 = be.sweep_gaussian(peak,
+                           initialstartpoint,
+                           finalstartpoint,
+                           initial_duration,
+                           final_duration,
+                           step,freq,
+                           sweep_param,
+                           totalsig,
+                           channel = 1)
     pg = be.PulseGroup([p1, ro])
     return pg
 
@@ -343,30 +352,40 @@ def get_pg(params):
     match measurement:
         case 'gaussian sweep':
             peak = params['amplitude']
-            sigma = params['sigma inital']
-            sigmaf = params['sigma final']
-            step = params['steps']
             gap = params['gap']
-            freq = params['frequency']*1e9
+            initial_duration = params['initial duration']
+            final_duration = params['final duration']
+            step = params['steps']
+            freq = params['frequency']
+            
+            totalsig=6
             sweep_param = "sigma"
-            gapf=gap*sigmaf
-            readout_start = 2*gapf + 2*sigmaf + readout_buffer
-            num_patterns = (sigmaf-sigma)/step
+            readout_start = final_duration + gap + readout_buffer
+            initialstartpoint = readout_start - gap - initial_duration
+            finalstartpoint = readout_start - gap - final_duration
 
-            pg = get_gaussian_sweep_pulse_group(peak,sigma,gap,
-                                          readout_start,readout,freq,
-                                          sweep_param,sigmaf,step,decimation)
+            sigma0=initial_duration/totalsig
+            sigmaf=final_duration/totalsig
+            num_patterns = (sigmaf-sigma0)/step
+
+            pg = get_gaussian_sweep_pulse_group(peak,initialstartpoint,finalstartpoint,initial_duration,final_duration,
+                                                step,freq,totalsig,readout_start,readout,sweep_param,decimation)
 
         case 'gaussian':
             peak = params['amplitude']
-            sigma = params['sigma']
+            #sigma = params['sigma']
             gap = params['gap']
-            freq = params['frequency']*1e9
-            readout_start = 2*gap + 2*sigma + readout_buffer
+            duration = params['duration']
+            freq = params['frequency']
+            totalsig=6
+            numsig=totalsig/2
+            sigma = duration/(2*numsig)
+            readout_start = duration + gap + readout_buffer
+            mu = readout_start - duration/2 - gap
             num_patterns = 1
 
-            pg = get_gaussian_pulse_group(peak,sigma,gap,
-                                          readout_start,readout,freq,decimation)
+            pg = get_gaussian_pulse_group(peak,sigma,mu,gap,
+                                          readout_start,readout,freq,numsig,decimation)
 
         case 'T1':
             q_duration = params['T1_q_dur']

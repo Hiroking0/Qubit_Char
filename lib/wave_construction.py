@@ -102,18 +102,20 @@ class Pulse:
     
     
 class gaussian():
-    def __init__(self, mu, amplitude: float, duration: int,sigma: float,freq: float, channel: int):
+    def __init__(self, mu, amplitude: float, gap: int,sigma: float,freq: float,numsig, channel: int):
         self.mu = mu
         self.amplitude = amplitude
-        self.duration = duration
+        self.gap = gap
         self.sigma = sigma
         self.channel = channel
-        self.freq = freq/1e9
+        self.freq = freq
+        self.numsig = numsig
+        a=self.numsig*self.sigma
 
 
     def make(self, pad_length = None):
         if pad_length == None:
-            length = self.mu + self.duration/2
+            length = self.mu + self.sigma*self.numsig+self.gap
         else:
             length = pad_length
         
@@ -130,15 +132,21 @@ class gaussian():
         c2m2 = np.zeros(length, dtype = np.float32)
         c3 = np.zeros(length, dtype = np.float32)
         c4 = np.zeros(length, dtype = np.float32)
+        #print('gap',self.gap,'sigma',self.sigma,'mu',self.mu)
+        #print('pulse start',self.mu-self.sigma*self.numsig)
+        #print(int(self.mu-self.sigma*self.numsig))
+        #print('pulse end',self.mu+self.sigma*self.numsig)
+        #print(int(self.mu+self.sigma*self.numsig))
 
-        print(int(self.mu-self.duration/2))
 
-        time_array = np.linspace(self.mu-self.duration/2, self.mu+self.duration/2 , int(self.duration))
+
+
+        time_array = np.linspace(self.mu-self.sigma*self.numsig, self.mu+self.sigma*self.numsig , int(self.sigma*self.numsig*2))
         #time2 = np.arange(len(time_array))
         cos_arr1 = gaussian(time_array, self.mu, self.sigma)*cos(time_array,self.freq,0)
         cos_arr2 = gaussian(time_array, self.mu, self.sigma)*cos(time_array,self.freq,-np.pi/2)
-        c1[int(self.mu-self.duration/2): int(self.mu+self.duration/2)] = cos_arr1
-        c2[int(self.mu-self.duration/2): int(self.mu+self.duration/2)] = cos_arr2
+        c1[int(self.mu-self.sigma*self.numsig): int(self.mu+self.sigma*self.numsig)] = cos_arr1
+        c2[int(self.mu-self.sigma*self.numsig): int(self.mu+self.sigma*self.numsig)] = cos_arr2
         #print(self.freq*1e-9)
         
         return c1, c1m1, c2, c2m1, c2m2, c3, c4
@@ -153,52 +161,67 @@ class sweep_gaussian(gaussian):
         self.sweep_step = sweep_step
 '''
 
-class sweep_gaussian(gaussian):
-    def __init__(self, mu, amplitude: float, duration: int,sigma: float,freq: float,
-                 sweep_param,sweep_stop,sweep_step, channel: int):
-        super().__init__(mu, amplitude, duration, sigma, freq, channel)
-        self.sweep_type = sweep_param
-        self.sweep_stop = sweep_stop
-        self.sweep_step = sweep_step
+class sweep_gaussian():
+    def __init__(self,peak,
+                initialstartpoint,
+                finalstartpoint,
+                initial_duration,
+                final_duration,
+                step,freq,
+                sweep_param, 
+                totalsig, channel = 1):
+        self.amplitude = peak
+        self.initialstartpoint=initialstartpoint
+        self.finalstartpoint = finalstartpoint
+        self.initial_duration = initial_duration
+        self.final_duration = final_duration
+        self.step = step
+        self.freq = freq
+        self.sweep_param = sweep_param
+        self.numsig = totalsig/2
+        self.channel = channel
 
 
     def make(self, length = 0):
-        print(length)
-        if self.sweep_type == "sigma":
-            sweeps = np.arange(self.sigma, self.sweep_stop, self.sweep_step)
+        if self.sweep_param == "sigma":
+            sweeps = np.arange(self.initial_duration, self.final_duration, self.step)
             num_sweeps = len(sweeps)
-            longest_length = max(length,self.duration/2*self.sweep_stop + self.mu)
+            longest_length = max(length,self.final_duration + self.finalstartpoint)
             #print("longest", longest_length)
             # should be the max gap or sigma to make time_array and time2
             final_arr_1 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
             final_arr_2 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
             
             def gaussian(x, mu, sig):
-                normalization = np.max(np.exp(-np.power(x - mu, 2.) / (2 * np.power(sig, 2.))))
-                return self.amplitude*0.5/normalization*np.exp(-np.power(x - mu, 2.) / (2 * np.power(sig, 2.)))
+                return self.amplitude*0.5*np.exp(-np.power(x - mu, 2.) / (2 * np.power(sig, 2.)))
         
             def cos(x,freq,shift):
                 return np.cos(2*np.pi*x*freq + shift)
             
             
             #create the 2d array
-            for ind, sigma in enumerate(sweeps):
-                duration = 2 * sigma * self.duration/2
-                mu = self.mu + self.duration/2 -duration/2
-                time_array = np.linspace(mu-duration/2, mu+duration/2 , int(duration))
+            #print('sweep',len(sweeps))
+            #print(self.numsig)
+            for ind, duration in enumerate(sweeps):
 
-                cos_arr1 = gaussian(time_array, mu, sigma)*cos(time_array,self.freq,0)
-                cos_arr2 = gaussian(time_array, mu, sigma)*cos(time_array,self.freq,-np.pi/2)
-                '''
-                print('input',np.shape(final_arr_1[ind][self.start - 2*gap: self.start]))
-                print("slicing index, start-2gap", ind, self.start - 2*gap, self.start)
-                print('output',np.shape(cos_arr1))
-                print('array length',self.start-(self.start - 2*gap))
-                print('final',np.shape(final_arr_1))
-                '''
+                mu = duration/2
+                sigma = duration/(2*self.numsig)
+                endpoint = self.initialstartpoint + self.initial_duration
+                startpoint = endpoint - duration
 
-                final_arr_1[ind][int(mu-duration/2): int(mu+duration/2) ] = cos_arr1
-                final_arr_2[ind][int(mu-duration/2): int(mu+duration/2) ] = cos_arr2
+                time_array = np.linspace(0,duration , int(duration))
+                time_array2 = np.linspace(0,duration , int(duration))
+                #print('sigma',sigma)
+                #print('duration',duration)
+                #print('index',ind,startpoint,endpoint)
+                #print(ind,'duration',duration==(endpoint-startpoint),duration,endpoint-startpoint)
+                #print(ind,'duration',int(duration)==int(endpoint-startpoint),int(duration),int(endpoint)-int(startpoint))
+                cos_arr1 = gaussian(time_array, mu, sigma)*cos(time_array2,self.freq,0)
+                cos_arr2 = gaussian(time_array, mu, sigma)*cos(time_array2,self.freq,-np.pi/2)
+                #print(np.shape(final_arr_1[ind][int(startpoint): int(endpoint) ]),np.shape(cos_arr1),int(startpoint), int(endpoint))
+                final_arr_1[ind][int(startpoint): int(endpoint) ] = cos_arr1
+                final_arr_2[ind][int(startpoint): int(endpoint) ] = cos_arr2
+
        
         c1 = final_arr_1
         c2 = final_arr_2
@@ -208,7 +231,7 @@ class sweep_gaussian(gaussian):
         c2m2 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
         c3 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
         c4 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
-        print("final c1 shape", np.shape(c1))
+        #print("final c1 shape", np.shape(c1))
         return c1, c1m1, c2, c2m1, c2m2, c3, c4
     
 
