@@ -121,10 +121,10 @@ gaussian sweep (amplitude):
 
 
 gaussian sweep (gap):
-    amplitude: 10
-    initial gap: 20
-    final gap: 100
-    steps: 10
+    amplitude: 1
+    initial gap: 1000
+    final gap: 10000
+    steps: 1000
     duration: 200
     frequency: 0 #GHz
     readout_duration: 20000

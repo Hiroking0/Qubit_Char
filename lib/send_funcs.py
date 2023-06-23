@@ -115,17 +115,13 @@ def get_gaussian_amp_sweep_pulse_group(initial_amp, final_amp, step, duration, f
     pg = be.PulseGroup([p1, ro])
     return pg
 
-def get_gaussian_gap_sweep_pulse_group(amplitude,mu0, muf, step, duration, freq, totalsig,
-                                        readout_start, readout, decimation):
+def get_gaussian_gap_sweep_pulse_group(readout_start,readout,initial_startpoint,duration,amplitude,freq,
+                                       final_startpoint, step, totalsig):
     ro = be.Readout_Pulse(readout_start, readout, amplitude = 1)
-    p1 = be.gap_sweep_gaussian(amplitude,
-                                mu0,
-                                muf,
-                                step,
-                                duration,
-                                freq,
-                                totalsig,
-                                channel = 1)
+    #print(initial_startpoint, final_startpoint, step)
+    p1 = be.gap_sweep_gaussian(initial_startpoint, duration, amplitude, freq, phase = 0, channel = 1, sweep_stop = final_startpoint, sweep_step = step, total_sigma = totalsig )
+    #a = p1.make()
+    #print(np.shape(a[0]))
     pg = be.PulseGroup([p1, ro])
     return pg
 
@@ -517,11 +513,12 @@ def get_pg(params):
 
             totalsig = 6
             readout_start = duration + final_gap + readout_buffer
-            mu0= readout_start - duration/2 - initial_gap
-            muf= readout_start - duration/2 - final_gap
-            num_patterns = (final_amp - initial_amp)/step
-            pg = get_gaussian_gap_sweep_pulse_group(amplitude,mu0, muf, step, duration, freq, totalsig,
-                                                     readout_start, readout, decimation)
+            initial_startpoint = readout_start - initial_gap - duration + step
+            final_startpoint = readout_start - final_gap - duration + step
+            num_patterns = (final_gap - initial_gap)/step
+            pg = get_gaussian_gap_sweep_pulse_group(readout_start,readout,initial_startpoint,
+                                                    duration,amplitude,freq,
+                                                    final_startpoint, step, totalsig)
             
         case 'gaussian sweep (amplitude)':
             initial_amp = params['initial amplitude']
