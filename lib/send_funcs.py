@@ -46,9 +46,8 @@ def get_gaussian_pulse_group(peak ,
     pg = be.PulseGroup([p1, ro])
     return pg
 
-def get_gaussian_sweep_pulse_group(peak,
-                                   initialstartpoint,
-                                   finalstartpoint,
+def get_gaussian_sweep_pulse_group(amplitude,
+                                   initial_start_point,
                                    initial_duration,
                                    final_duration,
                                    step,
@@ -56,18 +55,21 @@ def get_gaussian_sweep_pulse_group(peak,
                                    totalsig,
                                    readout_start,
                                    readout,
-                                   sweep_param,
                                    decimation):
+    
     ro = be.Readout_Pulse(readout_start, readout, amplitude = 1)
-    p1 = be.sweep_gaussian(peak,
-                           initialstartpoint,
-                           finalstartpoint,
-                           initial_duration,
-                           final_duration,
-                           step,freq,
-                           sweep_param,
-                           totalsig,
-                           channel = 1)
+    
+
+    p1 = be.Duration_Sweep_Gaussian(initial_start_point,
+                                    initial_duration,
+                                    amplitude,
+                                    freq,
+                                    phase = 0,
+                                    channel = 1,
+                                    sweep_stop = final_duration,
+                                    sweep_step = step,
+                                    total_sigma = totalsig)
+    
     pg = be.PulseGroup([p1, ro])
     return pg
 
@@ -397,8 +399,8 @@ def get_pg(params):
             sigmaf=final_duration/totalsig
             num_patterns = (sigmaf-sigma0)/step
 
-            pg = get_gaussian_sweep_pulse_group(peak,initialstartpoint,finalstartpoint,initial_duration,final_duration,
-                                                step,freq,totalsig,readout_start,readout,sweep_param,decimation)
+            pg = get_gaussian_sweep_pulse_group(peak,initialstartpoint,initial_duration,final_duration,
+                                                step,freq,totalsig,readout_start,readout,decimation)
 
         case 'gaussian':
             peak = params['amplitude']
@@ -561,6 +563,5 @@ def get_pg(params):
                                         wq_offset,
                                         decimation)
 
-    print(num_patterns)
     return pg
 

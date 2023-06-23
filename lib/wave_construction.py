@@ -152,15 +152,17 @@ class gaussian():
         return c1, c1m1, c2, c2m1, c2m2, c3, c4
 
 class sweep_gaussian():
-    def __init__(self,peak,
-                initialstartpoint,
-                finalstartpoint,
-                initial_duration,
-                final_duration,
-                step,freq,
-                sweep_param, 
-                totalsig, channel = 1):
-        self.amplitude = peak
+    def __init__(self,
+                 amplitude,
+                 initialstartpoint,
+                 finalstartpoint,
+                 initial_duration,
+                 final_duration,
+                 step,freq,
+                 sweep_param,
+                 totalsig, 
+                 channel = 1):
+        self.amplitude = amplitude
         self.initialstartpoint=initialstartpoint
         self.finalstartpoint = finalstartpoint
         self.initial_duration = initial_duration
@@ -223,6 +225,9 @@ class sweep_gaussian():
         c4 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
         #print("final c1 shape", np.shape(c1))
         return c1, c1m1, c2, c2m1, c2m2, c3, c4
+    
+    
+    
     
 class amp_sweep_gaussian():
     def __init__(self,initial_amp,
@@ -303,68 +308,102 @@ class Readout_Pulse(Pulse):
 
 
 class Sweep_Pulse(Pulse):
-    #sweep_type can be 'amplitude' 'amp', 'duration' 'dur', or 'start'
-    def __init__(self, start, duration, amplitude, frequency, sweep_param, sweep_stop, sweep_step, phase = 0, channel = None):
+    def __init__(self, start, duration, amplitude, frequency, phase, channel, sweep_stop, sweep_step):
         super().__init__(start, duration, amplitude, channel)
-        self.sweep_type = sweep_param
         self.sweep_stop = sweep_stop
         self.sweep_step = sweep_step
-        self.frequency = frequency*1e9
+        self.frequency = frequency
         self.phase = phase
-
-    #assume sweep_stop is NON-inclusive
-    def make(self, length = 0):
+    def make(self):
+        raise NotImplementedError("Make function not implemented")
         
-        if self.sweep_type == "duration":
-            sweeps = np.arange(self.duration, self.sweep_stop, self.sweep_step)
-            num_sweeps = len(sweeps)
-            longest_length = max(length, self.start + self.duration)
-            final_arr_1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
-            final_arr_2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+        
+class Duration_Sweep_Gaussian(Sweep_Pulse):
+    def __init__(self, start, duration, amplitude, frequency, phase, channel, sweep_stop, sweep_step, total_sigma = 6):
+        super().__init__(start, duration, amplitude, frequency, phase, channel, sweep_stop, sweep_step)
+        self.numsig = total_sigma #This is the number of sigma that the array will be zero outside of
+        
+        
+    def make(self, length = 0):
+        sweeps = np.arange(self.duration, self.sweep_stop, self.sweep_step)
+        num_sweeps = len(sweeps)
+        longest_length = max(length, self.duration + self.start)
+        
+        # should be the max gap or sigma to make time_array and time2
+        final_arr_1 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
+        final_arr_2 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
             
-            #Create the longest arrays, then slice them to get the correct length
-            t_cos_arr1 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i + self.phase) for i in range(self.sweep_stop)]
-            t_cos_arr2 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i + self.phase - np.pi/2) for i in range(self.sweep_stop)]
-            for ind, duration in enumerate(sweeps):
-                #self.start + self.duration - duration : self.start + self.duration
-                final_arr_1[ind][self.start + self.duration - duration : self.start + self.duration] = t_cos_arr1[:duration]
-                final_arr_2[ind][self.start + self.duration - duration : self.start + self.duration] = t_cos_arr2[:duration]
-
-        elif self.sweep_type == "start":
-            sweeps = np.arange(self.start, self.sweep_stop, self.sweep_step)
-            num_sweeps = len(sweeps)
-            longest_length = max(length, max(sweeps) + self.duration)
+        def gaussian(x, mu, sig):
+            return self.amplitude*0.5*np.exp(-np.power(x - mu, 2.) / (2 * np.power(sig, 2.)))
+        
+        def cos(x,freq,shift):
+            return np.cos(2*np.pi*x*freq + shift)
             
             
-            final_arr_1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
-            final_arr_2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
-            cos_arr1 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i) for i in range(self.duration)]
-            cos_arr2 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i-np.pi/2) for i in range(self.duration)]
-            for ind, start in enumerate(sweeps):
-                
-                final_arr_1[ind][start : start + self.duration] = cos_arr1
-                final_arr_2[ind][start : start + self.duration] = cos_arr2
-                
-            #reverse array
-            final_arr_1 = final_arr_1[::-1]
-            final_arr_2 = final_arr_2[::-1]
-                
+        #create the 2d array
+        for ind, duration in enumerate(sweeps):
+
+            mu = duration/2
+            sigma = duration/(2*self.numsig)
+            endpoint = self.start + self.duration
+            startpoint = endpoint - duration
+
+            time_array = np.linspace(0,duration , int(duration))
+            time_array2 = np.linspace(0,duration , int(duration))
+            cos_arr1 = gaussian(time_array, mu, sigma)*cos(time_array2, self.frequency, self.phase)
+            final_arr_1[ind][int(startpoint): int(endpoint) ] = cos_arr1
             
-        elif self.sweep_type == "amplitude" or self.sweep_type == 'amp':
-            sweeps = np.arange(self.amplitude, self.sweep_stop, self.sweep_step)
-            num_sweeps = len(sweeps)
-            longest_length = max(length, self.start + self.duration)
+        c1m1 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
+        c2m1 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
+        c2m2 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
+        c1 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
+        c2 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
+        c3 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
+        c4 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
+        
+        #command = "c%s = %s" % (self.channel,"final_arr_1")
+        #command = f'c{self.channel} = {final_arr_1}'
+        #print(command)
+        #exec(command)
+        #c1 = final_arr_1
+        match self.channel:
+            case 1:
+                c1 = final_arr_1
+            case 2:
+                c2 = final_arr_1
+            case 3:
+                c3 = final_arr_1
+            case 4:
+                c4 = final_arr_1
+        
+        return c1, c1m1, c2, c2m1, c2m2, c3, c4
+    
+    
+    
+    
+    
+    
 
-            final_arr_1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
-            final_arr_2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
-            for ind, amp in enumerate(sweeps):
-                cos_arr1 = [amp*np.cos((self.frequency/1e9)*np.pi*2*i) for i in range(self.duration)]
-                cos_arr2 = [amp*np.cos((self.frequency/1e9)*np.pi*2*i-np.pi/2) for i in range(self.duration)]
-                
-                final_arr_1[ind][self.start : self.start + self.duration] = cos_arr1
-                final_arr_2[ind][self.start : self.start + self.duration] = cos_arr2
-
-
+        
+        
+class Amp_Sweep_Pulse(Sweep_Pulse):
+    def __init__(self, start, duration, amplitude, frequency, phase, channel, sweep_stop, sweep_step):
+        super().__init__(self, start, duration, amplitude, frequency, phase, channel, sweep_stop, sweep_step)
+        
+    def make(self, length = 0):
+        sweeps = np.arange(self.amplitude, self.sweep_stop, self.sweep_step)
+        num_sweeps = len(sweeps)
+        longest_length = max(length, self.start + self.duration)
+    
+        final_arr_1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+        final_arr_2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+        for ind, amp in enumerate(sweeps):
+            cos_arr1 = [amp*np.cos((self.frequency/1e9)*np.pi*2*i) for i in range(self.duration)]
+            cos_arr2 = [amp*np.cos((self.frequency/1e9)*np.pi*2*i-np.pi/2) for i in range(self.duration)]
+            
+            final_arr_1[ind][self.start : self.start + self.duration] = cos_arr1
+            final_arr_2[ind][self.start : self.start + self.duration] = cos_arr2
+            
         c1 = final_arr_1
         c2 = final_arr_2
 
@@ -373,13 +412,81 @@ class Sweep_Pulse(Pulse):
         c2m2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
         c3 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
         c4 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
-
+        
         return c1, c1m1, c2, c2m1, c2m2, c3, c4
+            
+        
+class Start_Sweep_Pulse(Sweep_Pulse):
+    def __init__(self, start, duration, amplitude, frequency, phase, channel, sweep_stop, sweep_step):
+        super().__init__(self, start, duration, amplitude, frequency, phase, channel, sweep_stop, sweep_step)
+        
+    def make(self, length = 0):
+        sweeps = np.arange(self.start, self.sweep_stop, self.sweep_step)
+        num_sweeps = len(sweeps)
+        longest_length = max(length, max(sweeps) + self.duration)
+        
+        
+        final_arr_1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+        final_arr_2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+        cos_arr1 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i) for i in range(self.duration)]
+        cos_arr2 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i-np.pi/2) for i in range(self.duration)]
+        for ind, start in enumerate(sweeps):
+            
+            final_arr_1[ind][start : start + self.duration] = cos_arr1
+            final_arr_2[ind][start : start + self.duration] = cos_arr2
+            
+        #reverse array
+        final_arr_1 = final_arr_1[::-1]
+        final_arr_2 = final_arr_2[::-1]
+        
+        c1 = final_arr_1
+        c2 = final_arr_2
+
+        c1m1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+        c2m1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+        c2m2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+        c3 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+        c4 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+        
+        return c1, c1m1, c2, c2m1, c2m2, c3, c4
+    
+    
+class Duration_Sweep_Pulse(Sweep_Pulse):
+    def __init__(self, start, duration, amplitude, frequency, phase, channel, sweep_stop, sweep_step):
+        super().__init__(self, start, duration, amplitude, frequency, phase, channel, sweep_stop, sweep_step)
+        
+    def make(self, length = 0):
+        sweeps = np.arange(self.duration, self.sweep_stop, self.sweep_step)
+        num_sweeps = len(sweeps)
+        longest_length = max(length, self.start + self.duration)
+        final_arr_1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+        final_arr_2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+        
+        #Create the longest arrays, then slice them to get the correct length
+        t_cos_arr1 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i + self.phase) for i in range(self.sweep_stop)]
+        t_cos_arr2 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i + self.phase - np.pi/2) for i in range(self.sweep_stop)]
+        for ind, duration in enumerate(sweeps):
+            #self.start + self.duration - duration : self.start + self.duration
+            final_arr_1[ind][self.start + self.duration - duration : self.start + self.duration] = t_cos_arr1[:duration]
+            final_arr_2[ind][self.start + self.duration - duration : self.start + self.duration] = t_cos_arr2[:duration]
+        
+        c1 = final_arr_1
+        c2 = final_arr_2
+
+        c1m1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+        c2m1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+        c2m2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+        c3 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+        c4 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+        
+        return c1, c1m1, c2, c2m1, c2m2, c3, c4
+
+
 
 
 class Sin_Pulse(Pulse):
     
-    def __init__(self, start: int, duration: int, amplitude: float, frequency: float, channel: int):
+    def __init__(self, start, duration, amplitude, frequency, channel):
         super().__init__(start, duration, amplitude, channel)
         self.frequency = frequency*1e9
         
@@ -453,7 +560,7 @@ class PulseGroup:
         total_length = None
         #go through all pulses and find the readout to see how 
         for pulse in self.pulses:
-            if isinstance(pulse, Sweep_Pulse) or isinstance(pulse, sweep_gaussian) or isinstance(pulse, amp_sweep_gaussian):
+            if isinstance(pulse, Sweep_Pulse):
                 sweep_made = pulse.make()
                 num_sweeps = len(sweep_made[0])
                 #break saves some computation, not necessary
