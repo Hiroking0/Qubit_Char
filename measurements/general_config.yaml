@@ -2,7 +2,7 @@
 name: 'npp_180ns'
 
 #ramsey, T1, rabi, npp, readout, echo, echo_1ax, amplitude
-measurement: 'gaussian sweep'
+measurement: 'gaussian sweep (amplitude)'
 
 #################################################################################################################################################
 #####################################################      writing and sending sequences to AWG      ############################################
@@ -81,15 +81,23 @@ gaussian:
     frequency: 0 #GHz
     readout_duration: 20000
     
-gaussian sweep:
+gaussian sweep (sigma):
     amplitude: 1
     gap: 20
     initial duration: 1000
     final duration: 2000
     steps: 100
-    frequency: 0.1 #GHz
+    frequency: .004 #GHz
     readout_duration: 20000
 
+gaussian sweep (amplitude):
+    initial amplitude: 1
+    final amplitude: 10
+    steps: 1
+    gap: 20
+    duration: 200
+    frequency: 0 #GHz
+    readout_duration: 20000
     
 #This measurement is set up to use a sine wave pulse for the initial pi pulse
 #Then use a square pulse to excite the qubit to the second excited state

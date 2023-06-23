@@ -71,6 +71,20 @@ def get_gaussian_sweep_pulse_group(peak,
     pg = be.PulseGroup([p1, ro])
     return pg
 
+def get_gaussian_amp_sweep_pulse_group(initial_amp, final_amp, step, duration, freq, totalsig, mu,
+                                       readout_start, readout, decimation):
+    ro = be.Readout_Pulse(readout_start, readout, amplitude = 1)
+    p1 = be.amp_sweep_gaussian(initial_amp,
+                                   final_amp,
+                                   step,
+                                   duration,
+                                   freq,
+                                   totalsig,
+                                   mu,
+                                   channel = 1)
+    pg = be.PulseGroup([p1, ro])
+    return pg
+
 def get_readout_group(
                 readout_start, #readout
                 readout, #readout duration
@@ -350,7 +364,22 @@ def get_pg(params):
     readout = params['readout_duration']
 
     match measurement:
-        case 'gaussian sweep':
+        case 'gaussian sweep (amplitude)':
+            initial_amp = params['initial amplitude']
+            final_amp = params['final amplitude']
+            step = params['steps']
+            gap = params['gap']
+            duration = params['duration']
+            freq = params['frequency']
+
+            totalsig = 6
+            readout_start = duration + gap + readout_buffer
+            mu = readout_start - duration/2 - gap
+            num_patterns = (final_amp - initial_amp)/step
+            pg = get_gaussian_amp_sweep_pulse_group(initial_amp, final_amp, step, duration, freq, totalsig, mu,
+                                                     readout_start, readout, decimation)
+
+        case 'gaussian sweep (sigma)':
             peak = params['amplitude']
             gap = params['gap']
             initial_duration = params['initial duration']

@@ -151,16 +151,6 @@ class gaussian():
         
         return c1, c1m1, c2, c2m1, c2m2, c3, c4
 
-'''
-class sweep_gaussian(gaussian):
-    def __init__(self, amplitude: float, sigma: float, mu: float, freq: float, 
-                 sweep_param,sweep_stop,sweep_step, channel: int):
-        super().__init__(start, amplitude, gap, sigma, freq, channel)
-        self.sweep_type = sweep_param
-        self.sweep_stop = sweep_stop
-        self.sweep_step = sweep_step
-'''
-
 class sweep_gaussian():
     def __init__(self,peak,
                 initialstartpoint,
@@ -234,7 +224,58 @@ class sweep_gaussian():
         #print("final c1 shape", np.shape(c1))
         return c1, c1m1, c2, c2m1, c2m2, c3, c4
     
+class amp_sweep_gaussian():
+    def __init__(self,initial_amp,
+                final_amp,
+                step,
+                duration,
+                freq,
+                totalsig,
+                mu,
+                channel = 1):
+        self.initial_amp = initial_amp
+        self.final_amp = final_amp
+        self.step = step
+        self.duration = duration
+        self.freq = freq
+        self.numsig = totalsig/2
+        self.mu = mu
+        self.channel = channel
+    def make(self, length = 0):
+        sweeps = np.arange(self.initial_amp, self.final_amp, self.step)
+        num_sweeps = len(sweeps)
+        longest_length = max(length,self.mu + self.duration/2)
+        final_arr_1 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
+        final_arr_2 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
+        def gaussian(x, mu, sig,amp):
+            return amp*0.5*np.exp(-np.power(x - mu, 2.) / (2 * np.power(sig, 2.)))
+    
+        def cos(x,freq,shift):
+            return np.cos(2*np.pi*x*freq + shift)
+        
+        time_array = np.linspace(self.mu - self.duration/2 ,self.mu + self.duration/2 , int(self.duration))
+        time_array2 = np.linspace(0,self.duration , int(self.duration))
+        sigma = self.duration/(2*self.numsig)
+        startpoint = self.mu - self.duration/2 
+        endpoint = self.mu + self.duration/2
 
+        for ind, amp in enumerate(sweeps):
+            print(amp)
+            cos_arr1 = gaussian(time_array, self.mu, sigma,amp)*cos(time_array2,self.freq,0)
+            cos_arr2 = gaussian(time_array, self.mu, sigma,amp)*cos(time_array2,self.freq,-np.pi/2)
+            final_arr_1[ind][int(startpoint): int(endpoint) ] = cos_arr1
+            final_arr_2[ind][int(startpoint): int(endpoint) ] = cos_arr2
+        c1 = final_arr_1
+        c2 = final_arr_2
+
+        #print(np.shape(final_arr_1))
+        print('c1 shape:',np.shape(c1), 'c2 shape;',np.shape(c2))
+        c1m1 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
+        c2m1 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
+        c2m2 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
+        c3 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
+        c4 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
+        return c1, c1m1, c2, c2m1, c2m2, c3, c4
 
 #readout pulse will be on c2m1
 #readout trigger for alazar on c2m2
@@ -412,7 +453,7 @@ class PulseGroup:
         total_length = None
         #go through all pulses and find the readout to see how 
         for pulse in self.pulses:
-            if isinstance(pulse, Sweep_Pulse) or isinstance(pulse, sweep_gaussian):
+            if isinstance(pulse, Sweep_Pulse) or isinstance(pulse, sweep_gaussian) or isinstance(pulse, amp_sweep_gaussian):
                 sweep_made = pulse.make()
                 num_sweeps = len(sweep_made[0])
                 #break saves some computation, not necessary
