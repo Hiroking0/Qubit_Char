@@ -310,7 +310,6 @@ def get_pg(params):
     #wr_offset = params['set_wr_offset']
     params = params[measurement]
     readout = params['readout_duration']
-    readout_buffer = 900
     match measurement:
         case 'T1':
             q_duration = params['T1_q_dur']

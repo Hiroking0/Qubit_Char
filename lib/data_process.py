@@ -164,7 +164,7 @@ def plot_np_file(num_patterns, pattern_reps, seq_reps, time_step, path):
         mags_sub[i] = np.average(np.sqrt(chB_sub[i] ** 2 + chA_sub[i] ** 2))
         
     x = [i*time_step for i in range(num_patterns)]
-    font_size = 5
+    font_size = 10
     #x = np.arange(num_patterns)
     plt.rc('xtick', labelsize=font_size)
     plt.rc('ytick', labelsize=font_size)
@@ -175,6 +175,7 @@ def plot_np_file(num_patterns, pattern_reps, seq_reps, time_step, path):
     plt.xlabel('time (ns)', fontsize=font_size)
     plt.ylabel('Voltage (V)', fontsize=font_size)
     
+    print(pattern_avgs_cB)
     plt.subplot(2,3,2)
     plt.plot(x, pattern_avgs_cB)
     plt.title("chB nosub", fontsize=font_size)

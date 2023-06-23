@@ -32,6 +32,7 @@ def disp_sequence():
     pop = dp.get_population_v_pattern(arr, params['v_threshold'])
     print(pop)
     dp.plot_histogram(arr)
+    params = params[params['measurement']]
     x = []
     if "rabi" in nf.lower():
         x = np.linspace(params['rabi_pulse_initial_duration'], params['rabi_pulse_end_duration'], num = len(arr))
