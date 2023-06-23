@@ -2,7 +2,7 @@
 name: 'npp_180ns'
 
 #ramsey, T1, rabi, npp, readout, echo, echo_1ax, amplitude
-measurement: 'gaussian sweep (sigma)'
+measurement: 'effect_temp'
 
 #################################################################################################################################################
 #####################################################      writing and sending sequences to AWG      ############################################
@@ -27,12 +27,14 @@ readout_trigger_offset: 800 #number of samples before readout starts that the al
 
 readout:
     readout_duration: 10000
+    
 
 npp:
     nop_p_q_gap: 20 #samples between end of qubit pulse and beginning of readout
     nop_p_q_dur: 10000
     readout_duration: 20000
-
+    
+    
 amplitude:
     amp_start: 0
     amp_stop: 2
@@ -40,6 +42,8 @@ amplitude:
     amp_q_gap: 20
     step: .1
     readout_duration: 20000
+    ssb_freq: 0
+    ssb_phase: 90
     
 rabi:
     rabi_pulse_gap: 20 #samples between readout pulse and end of qubit pulse. Does NOT change between patterns
@@ -47,13 +51,17 @@ rabi:
     rabi_pulse_end_duration: 800 # Rabi length, final duration of qubit pulse (should be larger than initial)
     step: 16
     readout_duration: 20000
+    ssb_freq: 0
+    ssb_phase: 90
 
 T1:
     T1_init_gap: 20 #samples between beginning of readout pulse and initial T1 pulse
-    T1_final_gap: 1500020 #samples between beginning of readout pulse and final T1 pulse
+    T1_final_gap: 1000 #samples between beginning of readout pulse and final T1 pulse
     T1_q_dur: 200 #pulse width of qubit pulse. Does not change between patterns
-    step: 30000
+    step: 20
     readout_duration: 20000
+    ssb_freq: 0
+    ssb_phase: 90
 
 ramsey:
     ramsey_gap_2: 20 #unchanging gap between end of second qubit pulse and beginning of readout
@@ -62,16 +70,20 @@ ramsey:
     ramsey_q_dur: 85 #size of each individual pulse (i.e. pi/2 pulse)
     step: 400
     readout_duration: 20000
+    ssb_freq: 0
+    ssb_phase: 90
 
 echo:
     echo_gap_2: 20 #gap between last qubit pulse and readout pulse. Does not change by pattern
     
     #initial should be smaller than final. Gap increases
     echo_initial_t: 20 #inital t gap between first x pulse and y pulse. Or between y pulse and second x pulse
-    echo_final_t: 600020 #final t gap
+    echo_final_t: 1020 #final t gap
     echo_pi_pulse: 150 #pi pulse used in y pulse and number/2 used in both x pulses
-    step: 12000
+    step: 50
     readout_duration: 20000
+    ssb_freq: 0
+    ssb_phase: 90
 
 gaussian:
     amplitude: 1
@@ -80,6 +92,8 @@ gaussian:
     duration: 200
     frequency: 0 #GHz
     readout_duration: 20000
+    ssb_freq: 0
+    ssb_phase: 90
     
 gaussian sweep (sigma):
     amplitude: 1
@@ -89,6 +103,8 @@ gaussian sweep (sigma):
     steps: 100
     frequency: .01 #GHz
     readout_duration: 20000
+    ssb_freq: 0
+    ssb_phase: 90
 
 gaussian sweep (amplitude):
     initial amplitude: 1
@@ -98,6 +114,8 @@ gaussian sweep (amplitude):
     duration: 200
     frequency: 0 #GHz
     readout_duration: 20000
+    ssb_freq: 0
+    ssb_phase: 90
     
 #This measurement is set up to use a sine wave pulse for the initial pi pulse
 #Then use a square pulse to excite the qubit to the second excited state
@@ -112,6 +130,8 @@ effect_temp:
     gap_2: 20 #constant gap between third pulse and readout
     gap_1: 20 #constant gap between both (first and second pulse) and (second and third pulse).
     readout_duration: 20000
+    ssb_freq: 0
+    ssb_phase: 90
     
     
     
