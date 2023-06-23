@@ -69,8 +69,17 @@ def get_gaussian_sweep_pulse_group(amplitude,
                                     sweep_stop = final_duration,
                                     sweep_step = step,
                                     total_sigma = totalsig)
+    p2 = be.Duration_Sweep_Gaussian(initial_start_point,
+                                initial_duration,
+                                amplitude,
+                                freq,
+                                phase = np.pi/2,
+                                channel = 2,
+                                sweep_stop = final_duration,
+                                sweep_step = step,
+                                total_sigma = totalsig)
     
-    pg = be.PulseGroup([p1, ro])
+    pg = be.PulseGroup([p1,p2, ro])
     return pg
 
 def get_gaussian_amp_sweep_pulse_group(initial_amp, final_amp, step, duration, freq, totalsig, mu,
