@@ -49,8 +49,6 @@ class Wave_Arrs():
         self.c4 = np.zeros(shape, dtype = np.float32)
         self.c2m1 = np.zeros(shape, dtype = np.float32)
         self.c2m2 = np.zeros(shape, dtype = np.float32)
-    def set_channel(self, ch, arr):
-        setattr(self, ch, arr)
         
     def get_return_vals(self):
         return (self.c1, self.c1m1, self.c2, self.c2m1, self.c2m2, self.c3, self.c4)
@@ -99,25 +97,19 @@ class Pulse:
             length = self.start + self.duration
         else:
             length = pad_length
-        c1 = np.zeros(length, dtype = np.float32)
+        final_arr = np.zeros(length, dtype = np.float32)
         c1m1 = np.zeros(length, dtype = np.float32)
-        c1m2 = np.zeros(length, dtype = np.float32)
-        c2 = np.zeros(length, dtype = np.float32)
-        c3 = np.zeros(length, dtype = np.float32)
-        c4 = np.zeros(length, dtype = np.float32)
-        c2m1 = np.zeros(length, dtype = np.float32)
-        c2m2 = np.zeros(length, dtype = np.float32)
+        
+        wave_set = Wave_Arrs(length)
 
         if self.channel == 1:
-            c1[self.start : self.duration + self.start] += self.amplitude
-        else:
-            c2[self.start : self.duration + self.start] += self.amplitude
+            final_arr[self.start : self.duration + self.start] += self.amplitude
         
-        #if self.trigger_before_pulse:
-        #    c1m1[self.start - PulseGroup.RF_TRIGGER_OFFSET : self.start - PulseGroup.RF_TRIGGER_OFFSET + RF_TRIGGER_LENGTH] += 1          
         c1m1[self.start - PulseGroup.RF_TRIGGER_OFFSET : self.start - PulseGroup.RF_TRIGGER_OFFSET + PulseGroup.RF_TRIGGER_LENGTH] += 1
+        setattr(wave_set, 'c'+str(self.channel), final_arr)
+        wave_set.c1m1 = c1m1
 
-        return (c1,c1m1,c2,c2m1,c2m2, c3, c4)
+        return wave_set.get_return_vals()
     
     
 class gaussian():
@@ -144,31 +136,18 @@ class gaussian():
         def cos(x,freq,shift):
             return np.cos(2*np.pi*x*freq + shift)
         
-        c1 = np.zeros(length, dtype = np.float32)
-        c1m1 = np.zeros(length, dtype = np.float32)
-        c2 = np.zeros(length, dtype = np.float32)
-        c2m1 = np.zeros(length, dtype = np.float32)
-        c2m2 = np.zeros(length, dtype = np.float32)
-        c3 = np.zeros(length, dtype = np.float32)
-        c4 = np.zeros(length, dtype = np.float32)
-        #print('gap',self.gap,'sigma',self.sigma,'mu',self.mu)
-        #print('pulse start',self.mu-self.sigma*self.numsig)
-        #print(int(self.mu-self.sigma*self.numsig))
-        #print('pulse end',self.mu+self.sigma*self.numsig)
-        #print(int(self.mu+self.sigma*self.numsig))
-
-
-
-
+        final_arr = np.zeros(length, dtype = np.float32)
+        
         time_array = np.linspace(self.mu-self.sigma*self.numsig, self.mu+self.sigma*self.numsig , int(self.sigma*self.numsig*2))
-        #time2 = np.arange(len(time_array))
         cos_arr1 = gaussian(time_array, self.mu, self.sigma)*cos(time_array,self.freq,0)
-        cos_arr2 = gaussian(time_array, self.mu, self.sigma)*cos(time_array,self.freq,-np.pi/2)
-        c1[int(self.mu-self.sigma*self.numsig): int(self.mu+self.sigma*self.numsig)] = cos_arr1
-        c2[int(self.mu-self.sigma*self.numsig): int(self.mu+self.sigma*self.numsig)] = cos_arr2
+        final_arr[int(self.mu-self.sigma*self.numsig): int(self.mu+self.sigma*self.numsig)] = cos_arr1
         #print(self.freq*1e-9)
         
-        return c1, c1m1, c2, c2m1, c2m2, c3, c4
+        wave_set = Wave_Arrs(length)
+        
+        setattr(wave_set, 'c'+str(self.channel), final_arr)
+        return wave_set.get_return_vals()
+        
 
     
 class Amp_Sweep_Gaussian():
@@ -236,17 +215,20 @@ class Readout_Pulse(Pulse):
 
     def make(self, t_len = None):
         length = self.start + self.duration# + self.wait_time
-        c1 = np.zeros(length, dtype = np.float32)
-        c1m1 = np.zeros(length, dtype = np.float32)
-        c2 = np.zeros(length, dtype = np.float32)
-        c3 = np.zeros(length, dtype = np.float32)
-        c4 = np.zeros(length, dtype = np.float32)
+        
+        wave_set = Wave_Arrs(length)
+        
         c2m1 = np.zeros(length, dtype = np.float32)
         c2m2 = np.zeros(length, dtype = np.float32)
         
         c2m1[self.start : self.start + self.duration] += self.amplitude
         c2m2[self.start - PulseGroup.READOUT_TRIGGER_OFFSET : self.start - PulseGroup.READOUT_TRIGGER_OFFSET + PulseGroup.READOUT_TRIGGER_LENGTH] += 1
-        return (c1,c1m1,c2,c2m1,c2m2,c3,c4)
+    
+        setattr(wave_set, 'c2m1', c2m1)
+        setattr(wave_set, 'c2m2', c2m2)
+        
+        
+        return wave_set.get_return_vals()
 
 
 class Sweep_Pulse(Pulse):
@@ -265,15 +247,13 @@ class Duration_Sweep_Gaussian(Sweep_Pulse):
         super().__init__(start, duration, amplitude, frequency, phase, channel, sweep_stop, sweep_step)
         self.numsig = total_sigma #This is the number of sigma that the array will be zero outside of
         
-        
     def make(self, length = 0):
         sweeps = np.arange(self.duration, self.sweep_stop, self.sweep_step)
         num_sweeps = len(sweeps)
         longest_length = max(length, self.duration + self.start)
-        
+        shape = (num_sweeps, int(longest_length))
         # should be the max gap or sigma to make time_array and time2
-        final_arr_1 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
-        final_arr_2 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
+        final_arr_1 = np.zeros(shape, dtype = np.float32)
             
         def gaussian(x, mu, sig):
             return self.amplitude*0.5*np.exp(-np.power(x - mu, 2.) / (2 * np.power(sig, 2.)))
@@ -295,30 +275,11 @@ class Duration_Sweep_Gaussian(Sweep_Pulse):
             cos_arr1 = gaussian(time_array, mu, sigma)*cos(time_array2, self.frequency, self.phase)
             final_arr_1[ind][int(startpoint): int(endpoint) ] = cos_arr1
             
-        c1m1 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
-        c2m1 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
-        c2m2 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
-        c1 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
-        c2 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
-        c3 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
-        c4 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
+            
+        wave_set = Wave_Arrs(shape)
+        setattr(wave_set, 'c'+str(self.channel), final_arr_1)
         
-        #command = "c%s = %s" % (self.channel,"final_arr_1")
-        #command = f'c{self.channel} = {final_arr_1}'
-        #print(command)
-        #exec(command)
-        #c1 = final_arr_1
-        match self.channel:
-            case 1:
-                c1 = final_arr_1
-            case 2:
-                c2 = final_arr_1
-            case 3:
-                c3 = final_arr_1
-            case 4:
-                c4 = final_arr_1
-        
-        return c1, c1m1, c2, c2m1, c2m2, c3, c4
+        return wave_set.get_return_vals()
     
 class gap_sweep_gaussian(Sweep_Pulse):
     def __init__(self, initial_startpoint, duration, amplitude, freq, phase, channel, sweep_stop, sweep_step, total_sigma):
@@ -328,6 +289,7 @@ class gap_sweep_gaussian(Sweep_Pulse):
         sweeps = np.arange(self.sweep_stop,self.start, self.sweep_step)
         num_sweeps = len(sweeps)
         longest_length = max(length, self.start + self.duration)
+        shape = (num_sweeps, longest_length)
         final_arr_1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
         
         def gaussian(x, mu, sig):
@@ -339,37 +301,17 @@ class gap_sweep_gaussian(Sweep_Pulse):
         time_array2 = np.linspace(0,self.duration , int(self.duration))
         mu = self.duration/2
         sigma = self.duration/(2*self.numsig)
-        print(sweeps)
 
         for ind, startpoint in enumerate(sweeps):
             cos_arr1 = gaussian(time_array, mu,sigma)*cos(time_array2,self.frequency,self.phase)
             final_arr_1[ind][int(startpoint): int(startpoint + self.duration) ] = cos_arr1
-            print(startpoint,startpoint + self.duration,self.duration)
             
-        c1m1 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
-        c2m1 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
-        c2m2 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
-        c1 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
-        c2 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
-        c3 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
-        c4 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
         final_arr_1 = final_arr_1[::-1]
-        #command = "c%s = %s" % (self.channel,"final_arr_1")
-        #command = f'c{self.channel} = {final_arr_1}'
-        #print(command)
-        #exec(command)
-        #c1 = final_arr_1
-        match self.channel:
-            case 1:
-                c1 = final_arr_1
-            case 2:
-                c2 = final_arr_1
-            case 3:
-                c3 = final_arr_1
-            case 4:
-                c4 = final_arr_1
+            
+        wave_set = Wave_Arrs(shape)
+        setattr(wave_set, 'c'+str(self.channel), final_arr_1)
         
-        return c1, c1m1, c2, c2m1, c2m2, c3, c4
+        return wave_set.get_return_vals()
 
 
 
@@ -382,32 +324,16 @@ class Amp_Sweep_Pulse(Sweep_Pulse):
         sweeps = np.arange(self.amplitude, self.sweep_stop, self.sweep_step)
         num_sweeps = len(sweeps)
         longest_length = max(length, self.start + self.duration)
-        final_arr_1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
-        final_arr_2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+        shape = (num_sweeps, longest_length)
+        final_arr_1 = np.zeros(shape, dtype = np.float32)
         for ind, amp in enumerate(sweeps):
             cos_arr1 = [amp*np.cos((self.frequency/1e9)*np.pi*2*i + self.phase) for i in range(self.duration)]
             final_arr_1[ind][self.start : self.start + self.duration] = cos_arr1
             
-
-        c1m1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
-        c2m1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
-        c2m2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
-        c1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
-        c2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
-        c3 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
-        c4 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+        wave_set = Wave_Arrs(shape)
+        setattr(wave_set, 'c'+str(self.channel), final_arr_1)
         
-        match self.channel:
-            case 1:
-                c1 = final_arr_1
-            case 2:
-                c2 = final_arr_1
-            case 3:
-                c3 = final_arr_1
-            case 4:
-                c4 = final_arr_1
-                
-        return c1, c1m1, c2, c2m1, c2m2, c3, c4
+        return wave_set.get_return_vals()
             
         
 class Start_Sweep_Pulse(Sweep_Pulse):
@@ -418,8 +344,9 @@ class Start_Sweep_Pulse(Sweep_Pulse):
         sweeps = np.arange(self.start, self.sweep_stop, self.sweep_step)
         num_sweeps = len(sweeps)
         longest_length = max(length, max(sweeps) + self.duration)
+        shape = (num_sweeps, longest_length)
+        final_arr_1 = np.zeros(shape, dtype = np.float32)
         
-        final_arr_1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
         cos_arr1 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i + self.phase) for i in range(self.duration)]
         for ind, start in enumerate(sweeps):
             final_arr_1[ind][start : start + self.duration] = cos_arr1
@@ -427,27 +354,10 @@ class Start_Sweep_Pulse(Sweep_Pulse):
         #reverse array
         final_arr_1 = final_arr_1[::-1]
         
-
-        c1m1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
-        c2m1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
-        c2m2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
-        c1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
-        c2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
-        c3 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
-        c4 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+        wave_set = Wave_Arrs(shape)
+        setattr(wave_set, 'c'+str(self.channel), final_arr_1)
         
-        match self.channel:
-            case 1:
-                c1 = final_arr_1
-            case 2:
-                c2 = final_arr_1
-            case 3:
-                c3 = final_arr_1
-            case 4:
-                c4 = final_arr_1
-        
-        
-        return c1, c1m1, c2, c2m1, c2m2, c3, c4
+        return wave_set.get_return_vals()
     
     
 class Duration_Sweep_Pulse(Sweep_Pulse):
@@ -458,34 +368,18 @@ class Duration_Sweep_Pulse(Sweep_Pulse):
         sweeps = np.arange(self.duration, self.sweep_stop, self.sweep_step)
         num_sweeps = len(sweeps)
         longest_length = max(length, self.start + self.duration)
-        final_arr_1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
-        final_arr_2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+        shape = (num_sweeps, longest_length)
+        final_arr_1 = np.zeros(shape, dtype = np.float32)
         
         #Create the longest arrays, then slice them to get the correct length
         t_cos_arr1 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i + self.phase) for i in range(self.sweep_stop)]
         for ind, duration in enumerate(sweeps):
-            #self.start + self.duration - duration : self.start + self.duration
             final_arr_1[ind][self.start + self.duration - duration : self.start + self.duration] = t_cos_arr1[:duration]
 
-        c1m1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
-        c2m1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
-        c2m2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
-        c1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
-        c2 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
-        c3 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
-        c4 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
+        wave_set = Wave_Arrs(shape)
+        setattr(wave_set, 'c'+str(self.channel), final_arr_1)
         
-        match self.channel:
-            case 1:
-                c1 = final_arr_1
-            case 2:
-                c2 = final_arr_1
-            case 3:
-                c3 = final_arr_1
-            case 4:
-                c4 = final_arr_1
-        
-        return c1, c1m1, c2, c2m1, c2m2, c3, c4
+        return wave_set.get_return_vals()
 
 
 class Sin_Pulse(Pulse):
@@ -500,58 +394,15 @@ class Sin_Pulse(Pulse):
             length = self.start + self.duration
         else:
             length = pad_length
-        c1 = np.zeros(length, dtype = np.float32)
-        c1m1 = np.zeros(length, dtype = np.float32)
-        c2 = np.zeros(length, dtype = np.float32)
-        c2m1 = np.zeros(length, dtype = np.float32)
-        c2m2 = np.zeros(length, dtype = np.float32)
-        c3 = np.zeros(length, dtype = np.float32)
-        c4 = np.zeros(length, dtype = np.float32)
+
         
         final_arr_1 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i + self.phase) for i in range(self.duration)]
         
-        match self.channel:
-            case 1:
-                c1[self.start:self.start + self.duration] = final_arr_1
-            case 2:
-                c2[self.start:self.start + self.duration] = final_arr_1
-            case 3:
-                c3[self.start:self.start + self.duration] = final_arr_1
-            case 4:
-                c4[self.start:self.start + self.duration] = final_arr_1
+        wave_set = Wave_Arrs(shape)
+        setattr(wave_set, 'c'+str(self.channel), final_arr_1)
+
+        return wave_set.get_return_vals()
         
-        
-        return c1, c1m1, c2, c2m1, c2m2, c3, c4
-
-class Sin_Readout(Readout_Pulse):
-
-    def __init__(self, start, duration, amplitude, frequency, phase = 0):
-        super().__init__(start, duration, amplitude)
-        self.frequency = frequency*1e9
-        self.phase = phase
-
-    def make(self, t_len = None):
-        length = self.start + self.duration# + self.wait_time
-        c1 = np.zeros(length, dtype = np.float32)
-        c1m1 = np.zeros(length, dtype = np.float32)
-        c2 = np.zeros(length, dtype = np.float32)
-        c2m1 = np.zeros(length, dtype = np.float32)
-        c2m2 = np.zeros(length, dtype = np.float32)
-        c3 = np.zeros(length, dtype = np.float32)
-        c4 = np.zeros(length, dtype = np.float32)
-        
-        cos_arr1 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i + self.phase) for i in range(self.duration)]
-        cos_arr2 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i + self.phase - np.pi/2) for i in range(self.duration)]
-        c3[self.start:self.start + self.duration] = cos_arr1
-        c4[self.start:self.start + self.duration] = cos_arr2
-        
-        c2m2[self.start - PulseGroup.READOUT_TRIGGER_OFFSET : 
-                 self.start - PulseGroup.READOUT_TRIGGER_OFFSET +
-                 PulseGroup.READOUT_TRIGGER_LENGTH] += 1
-
-
-        return c1, c1m1, c2, c2m1, c2m2, c3, c4
-
 
 #TODO: make sweep_pulse class
 #make "make" function for each of those classes that return 2d array [pattern#][pulse]
