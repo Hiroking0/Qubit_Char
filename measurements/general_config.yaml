@@ -2,7 +2,7 @@
 name: 'npp_180ns'
 
 #ramsey, T1, rabi, npp, readout, echo, echo_1ax, amplitude
-measurement: 'effect_temp'
+measurement: 'npp'
 
 #################################################################################################################################################
 #####################################################      writing and sending sequences to AWG      ############################################
@@ -33,6 +33,8 @@ npp:
     nop_p_q_gap: 20 #samples between end of qubit pulse and beginning of readout
     nop_p_q_dur: 10000
     readout_duration: 20000
+    ssb_freq: 0
+    ssb_phase: 90
     
     
 amplitude:
