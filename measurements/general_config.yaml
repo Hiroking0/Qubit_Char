@@ -98,7 +98,15 @@ gaussian sweep (amplitude):
     duration: 200
     frequency: 0 #GHz
     readout_duration: 20000
-    
+
+gaussian sweep (gap):
+    amplitude: 10
+    initial gap: 20
+    final gap: 100
+    steps: 10
+    duration: 200
+    frequency: 0 #GHz
+    readout_duration: 20000
 #This measurement is set up to use a sine wave pulse for the initial pi pulse
 #Then use a square pulse to excite the qubit to the second excited state
 #So SSB modulation is only used for the first pi pulse

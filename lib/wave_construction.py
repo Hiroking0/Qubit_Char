@@ -453,7 +453,7 @@ class PulseGroup:
         total_length = None
         #go through all pulses and find the readout to see how 
         for pulse in self.pulses:
-            if isinstance(pulse, Sweep_Pulse) or isinstance(pulse, sweep_gaussian) or isinstance(pulse, amp_sweep_gaussian):
+            if isinstance(pulse, Sweep_Pulse) or isinstance(pulse, sweep_gaussian) or isinstance(pulse, amp_sweep_gaussian) or isinstance(pulse, gap_sweep_gaussian) :
                 sweep_made = pulse.make()
                 num_sweeps = len(sweep_made[0])
                 #break saves some computation, not necessary

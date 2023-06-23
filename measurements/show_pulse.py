@@ -13,7 +13,7 @@ if __name__ == "__main__":
 
     pg = sf.get_pg(params)
 
-    no_subplot_measurements = ["echo", "echo_1ax", "gaussian","gaussian sweep (sigma)","gaussian sweep (amplitude)" ]
+    no_subplot_measurements = ["echo", "echo_1ax", "gaussian","gaussian sweep (sigma)","gaussian sweep (amplitude)",'gaussian sweep (gap)' ]
     subplots = not params['measurement'] in no_subplot_measurements
 
     #subplots = True
