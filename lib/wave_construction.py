@@ -121,7 +121,6 @@ class gaussian():
         self.channel = channel
         self.freq = freq
         self.numsig = numsig
-        a=self.numsig*self.sigma
 
 
     def make(self, pad_length = None):
