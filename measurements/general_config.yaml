@@ -2,7 +2,7 @@
 name: 'npp_180ns'
 
 #ramsey, T1, rabi, npp, readout, echo, echo_1ax, amplitude
-measurement: 'gaussian sweep (sigma)'
+measurement: 'gaussian sweep (gap)'
 
 #################################################################################################################################################
 #####################################################      writing and sending sequences to AWG      ############################################
@@ -100,10 +100,10 @@ gaussian sweep (amplitude):
     readout_duration: 20000
 
 gaussian sweep (gap):
-    amplitude: 10
-    initial gap: 20
-    final gap: 100
-    steps: 10
+    amplitude: 1
+    initial gap: 1000
+    final gap: 10000
+    steps: 1000
     duration: 200
     frequency: 0 #GHz
     readout_duration: 20000
