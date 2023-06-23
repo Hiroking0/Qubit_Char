@@ -387,6 +387,7 @@ class Amp_Sweep_Pulse(Sweep_Pulse):
                 c3 = final_arr_1
             case 4:
                 c4 = final_arr_1
+                
         return c1, c1m1, c2, c2m1, c2m2, c3, c4
             
         
