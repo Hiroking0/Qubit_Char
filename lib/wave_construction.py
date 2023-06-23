@@ -149,58 +149,6 @@ class gaussian():
         
 
     
-class Amp_Sweep_Gaussian():
-    def __init__(self,
-                initial_amp,
-                final_amp,
-                step,
-                duration,
-                freq,
-                totalsig,
-                mu,
-                channel = 1):
-        self.initial_amp = initial_amp
-        self.final_amp = final_amp
-        self.step = step
-        self.duration = duration
-        self.freq = freq
-        self.numsig = totalsig/2
-        self.mu = mu
-        self.channel = channel
-    def make(self, length = 0):
-        sweeps = np.arange(self.initial_amp, self.final_amp, self.step)
-        num_sweeps = len(sweeps)
-        longest_length = max(length,self.mu + self.duration/2)
-        final_arr_1 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
-        final_arr_2 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
-        def gaussian(x, mu, sig,amp):
-            return amp*0.5*np.exp(-np.power(x - mu, 2.) / (2 * np.power(sig, 2.)))
-    
-        def cos(x,freq,shift):
-            return np.cos(2*np.pi*x*freq + shift)
-        
-        time_array = np.linspace(self.mu - self.duration/2 ,self.mu + self.duration/2 , int(self.duration))
-        time_array2 = np.linspace(0,self.duration , int(self.duration))
-        sigma = self.duration/(2*self.numsig)
-        startpoint = self.mu - self.duration/2 
-        endpoint = self.mu + self.duration/2
-
-        for ind, amp in enumerate(sweeps):
-            cos_arr1 = gaussian(time_array, self.mu, sigma,amp)*cos(time_array2,self.freq,0)
-            cos_arr2 = gaussian(time_array, self.mu, sigma,amp)*cos(time_array2,self.freq,-np.pi/2)
-            final_arr_1[ind][int(startpoint): int(endpoint) ] = cos_arr1
-            final_arr_2[ind][int(startpoint): int(endpoint) ] = cos_arr2
-        c1 = final_arr_1
-        c2 = final_arr_2
-
-        #print(np.shape(final_arr_1))
-        print('c1 shape:',np.shape(c1), 'c2 shape;',np.shape(c2))
-        c1m1 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
-        c2m1 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
-        c2m2 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
-        c3 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
-        c4 = np.zeros((num_sweeps, int(longest_length)), dtype = np.float32)
-        return c1, c1m1, c2, c2m1, c2m2, c3, c4
 
 #readout pulse will be on c2m1
 #readout trigger for alazar on c2m2
@@ -235,10 +183,45 @@ class Sweep_Pulse(Pulse):
         super().__init__(start, duration, amplitude, channel)
         self.sweep_stop = sweep_stop
         self.sweep_step = sweep_step
-        self.frequency = frequency*1e9
+        self.frequency = frequency
         self.phase = phase
     def make(self):
         raise NotImplementedError("Make function not implemented")
+        
+        
+        
+class Amp_Sweep_Gaussian(Sweep_Pulse):
+    def __init__(self, start, duration, amplitude, frequency, phase, channel, sweep_stop, sweep_step, total_sigma = 6):
+        super().__init__(start, duration, amplitude, frequency, phase, channel, sweep_stop, sweep_step)
+        self.numsig = total_sigma #This is the number of sigma that the array will be zero outside of
+        
+    def make(self, length = 0):
+        sweeps = np.arange(self.amplitude, self.sweep_stop, self.sweep_step)
+        num_sweeps = len(sweeps)
+        longest_length = max(length,self.start + self.duration)
+        shape = (num_sweeps, int(longest_length))
+        final_arr_1 = np.zeros(shape, dtype = np.float32)
+        
+        
+        def gaussian(x, mu, sig,amp):
+            return amp*0.5*np.exp(-np.power(x - mu, 2.) / (2 * np.power(sig, 2.)))
+    
+        def cos(x,freq,shift):
+            return np.cos(2*np.pi*x*freq + shift)
+        
+        time_array = np.linspace(self.start ,self.start + self.duration , int(self.duration))
+        time_array2 = np.linspace(0,self.duration , int(self.duration))
+        sigma = self.duration/(2*self.numsig)
+        
+
+        for ind, amp in enumerate(sweeps):
+            cos_arr1 = gaussian(time_array, self.start + self.duration/2, sigma,amp)*cos(time_array2,self.frequency,0)
+            final_arr_1[ind][self.start: self.start + self.duration ] = cos_arr1
+        wave_set = Wave_Arrs(shape)
+        
+        setattr(wave_set, 'c'+str(self.channel), final_arr_1)
+        return wave_set.get_return_vals()
+
         
         
 class Duration_Sweep_Gaussian(Sweep_Pulse):
@@ -326,7 +309,7 @@ class Amp_Sweep_Pulse(Sweep_Pulse):
         shape = (num_sweeps, longest_length)
         final_arr_1 = np.zeros(shape, dtype = np.float32)
         for ind, amp in enumerate(sweeps):
-            cos_arr1 = [amp*np.cos((self.frequency/1e9)*np.pi*2*i + self.phase) for i in range(self.duration)]
+            cos_arr1 = [amp*np.cos((self.frequency)*np.pi*2*i + self.phase) for i in range(self.duration)]
             final_arr_1[ind][self.start : self.start + self.duration] = cos_arr1
             
         wave_set = Wave_Arrs(shape)
@@ -346,7 +329,7 @@ class Start_Sweep_Pulse(Sweep_Pulse):
         shape = (num_sweeps, longest_length)
         final_arr_1 = np.zeros(shape, dtype = np.float32)
         
-        cos_arr1 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i + self.phase) for i in range(self.duration)]
+        cos_arr1 = [self.amplitude*np.cos((self.frequency)*np.pi*2*i + self.phase) for i in range(self.duration)]
         for ind, start in enumerate(sweeps):
             final_arr_1[ind][start : start + self.duration] = cos_arr1
             
@@ -371,7 +354,7 @@ class Duration_Sweep_Pulse(Sweep_Pulse):
         final_arr_1 = np.zeros(shape, dtype = np.float32)
         
         #Create the longest arrays, then slice them to get the correct length
-        t_cos_arr1 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i + self.phase) for i in range(self.sweep_stop)]
+        t_cos_arr1 = [self.amplitude*np.cos((self.frequency)*np.pi*2*i + self.phase) for i in range(self.sweep_stop)]
         for ind, duration in enumerate(sweeps):
             final_arr_1[ind][self.start + self.duration - duration : self.start + self.duration] = t_cos_arr1[:duration]
 
@@ -395,7 +378,7 @@ class Sin_Pulse(Pulse):
             length = pad_length
 
         
-        final_arr_1 = [self.amplitude*np.cos((self.frequency/1e9)*np.pi*2*i + self.phase) for i in range(self.duration)]
+        final_arr_1 = [self.amplitude*np.cos((self.frequency)*np.pi*2*i + self.phase) for i in range(self.duration)]
         
         wave_set = Wave_Arrs(shape)
         setattr(wave_set, 'c'+str(self.channel), final_arr_1)
@@ -651,40 +634,6 @@ def subseq_waves(awg, arr, name, pattern_repeat, zero_repeat, num_channels):
         #finally set the main sequence to have the subsequence entry
         awg.set_seq_elm_to_subseq(i+1, subseq_name)
         awg.set_seq_element_loop_cnt(i+1, pattern_repeat)
-        
-        
-        
-        '''
-        t_name1 = name + "_1_" + str(i)
-        t_name2 = name + "_2_" + str(i)
-        t_name3 = name + "_3_" + str(i)
-        t_name4 = name + "_4_" + str(i)
-        
-        awg.set_subseq_element(subseq_name, t_name1, 1, 1)
-        awg.set_subseq_element(subseq_name, t_name2, 1, 2)
-        awg.set_subseq_element(subseq_name, t_name3, 1, 3)
-        awg.set_subseq_element(subseq_name, t_name4, 1, 4)
-        
-        awg.set_subseq_element(subseq_name, "zero", 2, 1)
-        awg.set_subseq_element(subseq_name, "zero", 2, 2)
-        awg.set_subseq_element(subseq_name, "zero", 2, 3)
-        awg.set_subseq_element(subseq_name, "zero", 2, 4)
-        
-        time.sleep(.2)
-        
-        #Set each repeat of zero to correct number
-        awg.set_subseq_repeat(subseq_name, 2, zero_repeat)
-        
-        #finally set the main sequence to have the subsequence entry
-        awg.set_seq_elm_to_subseq(i+1, subseq_name)
-        awg.set_seq_element_loop_cnt(i+1, pattern_repeat)
-        '''
-    #for i in range(1, w_len):
-    #    awg.set_seq_element_goto_state(i, 0)
-    #awg.set_seq_element_goto_state(w_len, 1)
-    #time.sleep(.2)
-    #awg.set_seq_element_wait(1, 1)
-        
     
 def seq_waves(awg, arr, name, pattern_repeat):
     
