@@ -37,6 +37,25 @@ def init_awg(awg, num_patterns, pattern_repeat):
 
 #It should have show, make functions
 
+
+
+class Wave_Arrs():
+    def __init__(self, shape):
+        self.c1 = np.zeros(shape, dtype = np.float32)
+        self.c1m1 = np.zeros(shape, dtype = np.float32)
+        self.c1m2 = np.zeros(shape, dtype = np.float32)
+        self.c2 = np.zeros(shape, dtype = np.float32)
+        self.c3 = np.zeros(shape, dtype = np.float32)
+        self.c4 = np.zeros(shape, dtype = np.float32)
+        self.c2m1 = np.zeros(shape, dtype = np.float32)
+        self.c2m2 = np.zeros(shape, dtype = np.float32)
+    def set_channel(self, ch, arr):
+        setattr(self, ch, arr)
+        
+    def get_return_vals(self):
+        return (self.c1, self.c1m1, self.c2, self.c2m1, self.c2m2, self.c3, self.c4)
+
+
 class Pulse:
     #I think for now, assume everything is in samples
     #duration is length of high signal. So the signal will be
