@@ -1,2 +1,1 @@
 live plot for sweeps and single run
-save image of plot in folder

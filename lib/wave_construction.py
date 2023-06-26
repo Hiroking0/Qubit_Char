@@ -476,7 +476,7 @@ class PulseGroup:
         if np.all(c3Waves[-1].channel < 1e-10):
             num_channels = 2
         else:
-            num_channels
+            num_channels = 4
         
         awg.delete_all_waveforms()
         awg.delete_all_subseq()
