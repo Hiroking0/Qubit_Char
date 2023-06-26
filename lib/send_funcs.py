@@ -18,7 +18,8 @@ def get_nopi_pi_group(
                 frequency,
                 phase,
                 #ro_freq,
-                decimation):
+                decimation,
+                shape):
     
     start_time = int(start_time/decimation)
     q_duration = int(q_duration/decimation)
@@ -26,10 +27,9 @@ def get_nopi_pi_group(
     readout = int(readout/decimation)
     frequency *= decimation
     
-    #start, duration, amplitude, channel, sweep_type, sweep_end, sweep_step, readout
-    #p1 = be.Sweep_Pulse(start_time, q_duration, amplitude = 0, frequency=frequency, channel = 1, sweep_param = 'amplitude', sweep_stop = 1.1, sweep_step = 1)
+    pulse_class = getattr(be, f'Amp_Sweep_{shape}')
     
-    p1 = be.Amp_Sweep_Pulse(start_time,
+    p1 = pulse_class(start_time,
                             q_duration,
                             amplitude = 0,
                             frequency = frequency,
@@ -38,7 +38,7 @@ def get_nopi_pi_group(
                             sweep_stop = 2,
                             sweep_step = 1)
     
-    p2 = be.Amp_Sweep_Pulse(start_time,
+    p2 = pulse_class(start_time,
                             q_duration,
                             amplitude = 0,
                             frequency = frequency,
@@ -301,7 +301,8 @@ def get_rabi_pulse_group(start_time, #pulse start time
                 readout, #readout duration
                 frequency,
                 phase,
-                decimation = 1):
+                decimation,
+                shape):
     
     start_time = int(start_time/decimation)
     q_dur_start = int(q_dur_start/decimation)
@@ -311,18 +312,21 @@ def get_rabi_pulse_group(start_time, #pulse start time
     readout = int(readout/decimation)
     frequency *= decimation
     
+    
+    pulse_class = getattr(be, f'Duration_Sweep_{shape}')
+    
     #_(self, start, duration, amplitude, frequency, phase, channel, sweep_stop, sweep_step):
-    p1 = be.Duration_Sweep_Pulse(start_time,
+    p1 = pulse_class(start_time,
                                  q_dur_start,
-                                 amplitude = 1,
+                                 amplitude = 2,
                                  frequency = frequency,
                                  phase = 0,
                                  channel = 1,
                                  sweep_stop = q_dur_stop,
                                  sweep_step = q_dur_step)
-    p2 = be.Duration_Sweep_Pulse(start_time,
+    p2 = pulse_class(start_time,
                                  q_dur_start,
-                                 amplitude = 1,
+                                 amplitude =2,
                                  frequency = frequency,
                                  phase = np.radians(phase),
                                  channel = 2,
@@ -496,7 +500,7 @@ def get_pg(params):
     readout_trigger_offset = params['readout_trigger_offset']
     
     params = params[measurement] if (measurement != 'echo_1ax') else params['echo']
-    
+    shape = params['shape']
     readout = params['readout_duration']
     if measurement != 'readout':
         wq_offset = params['ssb_freq']
@@ -596,7 +600,7 @@ def get_pg(params):
             
             start_time = readout_start - gap - q_dur_start
             num_patterns = int((q_dur_stop - q_dur_start)/step)
-            pg = get_rabi_pulse_group(start_time, q_dur_start, q_dur_stop, step, readout_start, readout, wq_offset, phase, decimation)
+            pg = get_rabi_pulse_group(start_time, q_dur_start, q_dur_stop, step, readout_start, readout, wq_offset, phase, decimation, shape)
 
         case 'ramsey':
             gap2 = params['ramsey_gap_2']
@@ -642,7 +646,8 @@ def get_pg(params):
                                     frequency = wq_offset,
                                     phase = phase,
                                     #ro_freq = wr_offset,
-                                    decimation = decimation)
+                                    decimation = decimation,
+                                    shape = shape)
 
         case 'readout':
             num_patterns = 1
