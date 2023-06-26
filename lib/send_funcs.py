@@ -38,6 +38,8 @@ def get_nopi_pi_group(
                             sweep_stop = 2,
                             sweep_step = 1)
     
+
+    
     p2 = pulse_class(start_time,
                             q_duration,
                             amplitude = 0,
@@ -46,6 +48,8 @@ def get_nopi_pi_group(
                             channel = 2,
                             sweep_stop = 2,
                             sweep_step = 1)
+    
+
     
     ro = be.Readout_Pulse(readout_start, readout, amplitude = 1)
     pg = be.PulseGroup([p1, p2, ro])
@@ -173,6 +177,9 @@ def get_echo_pulse_group(pi_dur,
                                      sweep_step = int(t_step/2))
 
     ro = be.Readout_Pulse(readout_start, readout, amplitude = 1)
+    
+    
+    
     
     pg = be.PulseGroup([x_pulse_1, y_pulse, x_pulse_2, ro])
     return pg
@@ -415,34 +422,50 @@ def get_et_pulse_group(ge_first_duration,
     pulse1 = start_sweep_class(p1_start_final,
                                   ge_first_duration,
                                   amplitude = 1,
-                                  frequency = 0,
+                                  frequency = frequency,
                                   phase = 0,
                                   channel = 1,
                                   sweep_stop = p1_start_init,
                                   sweep_step = rabi_step)
     
+    p1c2 = start_sweep_class(p1_start_final,
+                                  ge_first_duration,
+                                  amplitude = 1,
+                                  frequency = frequency,
+                                  phase = np.radians(phase),
+                                  channel = 2,
+                                  sweep_stop = p1_start_init,
+                                  sweep_step = rabi_step)
     
     p2_start_init = readout_start - gap_2 - rabi_start - gap_1 - ge_second_duration
-    
+
     pulse2 = duration_sweep_class(p2_start_init,
                                      rabi_start,
                                      amplitude = 1,
-                                     frequency = 0,
+                                     frequency = frequency,
                                      phase = 0,
-                                     channel = 2,
+                                     channel = 3,
                                      sweep_stop = rabi_stop,
                                      sweep_step = rabi_step)
     
+    p2c2 = duration_sweep_class(p2_start_init,
+                                     rabi_start,
+                                     amplitude = 1,
+                                     frequency = frequency,
+                                     phase = np.radians(phase),
+                                     channel = 4,
+                                     sweep_stop = rabi_stop,
+                                     sweep_step = rabi_step)
     
     #self, start: int, duration: int, amplitude: float, frequency: float, channel: int
     p3_start = readout_start - gap_2 - ge_second_duration
     
-    pulse3 = single_class(p3_start, ge_second_duration, amplitude = 1, frequency = 0, phase = 0, channel = 1)
-    
+    pulse3 = single_class(p3_start, ge_second_duration, amplitude = 1, frequency = frequency, phase = 0, channel = 1)
+    p3c2 = single_class(p3_start, ge_second_duration, amplitude = 1, frequency = frequency, phase = np.radians(phase), channel = 2)
     
     
     ro = be.Readout_Pulse(readout_start, readout_dur, 1)
-    pg = be.PulseGroup([pulse1, pulse2, pulse3, ro])
+    pg = be.PulseGroup([pulse1, p1c2, pulse2, p2c2, pulse3, p3c2, ro])
     
     return pg
 

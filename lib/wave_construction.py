@@ -97,7 +97,7 @@ class Sin_Gaussian(Pulse):
         
     def __init__(self, start, duration, amplitude, frequency, phase, channel, numsig=6):
         super().__init__(start, duration, amplitude, channel)
-        self.frequency = frequency*1e9
+        self.frequency = frequency
         self.phase = phase
         self.numsig=numsig
     
@@ -354,7 +354,7 @@ class Sin_Pulse(Pulse):
     
     def __init__(self, start, duration, amplitude, frequency, phase, channel):
         super().__init__(start, duration, amplitude, channel)
-        self.frequency = frequency*1e9
+        self.frequency = frequency
         self.phase = phase
         
     def make(self, pad_length = None):
@@ -557,10 +557,14 @@ class PulseGroup:
                 #plt.plot(arr2[0])
                 plt.plot(x, a2m1[i]+i*1.1, 'r')
                 plt.plot(x, arr2[i]+i*1.1, 'g')
+                plt.plot(x, a3[i]+i*1.1, 'k')
+                plt.plot(x, a4[i]+i*1.1, 'b')
                 #plt.plot(a2m2[i])
                 #plt.legend(["ch1", "ch2m1", "ch2"])
                 plt.xticks(rotation=45)
+                
                 #plt.tight_layout()
+            plt.legend(['ch1', 'ch2m1', 'ch2', 'ch3', 'ch4'], loc = 'upper right')
                 
         plt.show()
         

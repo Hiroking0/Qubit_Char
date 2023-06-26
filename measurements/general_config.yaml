@@ -2,7 +2,7 @@
 name: 'npp_180ns'
 
 #ramsey, T1, rabi, npp, readout, echo, echo_1ax, amplitude
-measurement: 'amplitude'
+measurement: 'effect_temp'
 
 #################################################################################################################################################
 #####################################################      writing and sending sequences to AWG      ############################################
@@ -109,7 +109,7 @@ effect_temp:
     gap_2: 20 #constant gap between third pulse and readout
     gap_1: 20 #constant gap between both (first and second pulse) and (second and third pulse).
     readout_duration: 20000
-    ssb_freq: 0
+    ssb_freq: .1
     ssb_phase: 90
     shape: 'Gaussian'
     
