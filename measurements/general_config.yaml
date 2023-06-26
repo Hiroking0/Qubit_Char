@@ -2,7 +2,7 @@
 name: 'npp_180ns'
 
 #ramsey, T1, rabi, npp, readout, echo, echo_1ax, amplitude
-measurement: 'npp'
+measurement: 'gaussian sweep (gap)'
 
 #################################################################################################################################################
 #####################################################      writing and sending sequences to AWG      ############################################
@@ -123,13 +123,15 @@ gaussian sweep (amplitude):
 
 
 gaussian sweep (gap):
-    amplitude: 1
+    amplitude: 2
     initial gap: 1000
     final gap: 10000
     steps: 1000
     duration: 200
     frequency: 0 #GHz
     readout_duration: 20000
+    ssb_freq: 0
+    ssb_phase: 90
 #This measurement is set up to use a sine wave pulse for the initial pi pulse
 #Then use a square pulse to excite the qubit to the second excited state
 #So SSB modulation is only used for the first pi pulse
