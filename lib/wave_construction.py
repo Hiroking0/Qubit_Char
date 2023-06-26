@@ -283,10 +283,12 @@ class gap_sweep_gaussian(Sweep_Pulse):
         time_array2 = np.linspace(0,self.duration , int(self.duration))
         mu = self.duration/2
         sigma = self.duration/(2*self.numsig)
+        #print(sweeps)
 
         for ind, startpoint in enumerate(sweeps):
             cos_arr1 = gaussian(time_array, mu,sigma)*cos(time_array2,self.frequency,self.phase)
             final_arr_1[ind][int(startpoint): int(startpoint + self.duration) ] = cos_arr1
+            #print(startpoint,startpoint + self.duration,self.duration)
             
         final_arr_1 = final_arr_1[::-1]
             

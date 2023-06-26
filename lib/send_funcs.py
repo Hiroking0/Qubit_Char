@@ -104,7 +104,7 @@ def get_gaussian_sweep_pulse_group(amplitude,
 def get_gaussian_amp_sweep_pulse_group(initial_amp, final_amp, step, duration, freq, totalsig, mu,
                                        readout_start, readout, decimation):
     ro = be.Readout_Pulse(readout_start, readout, amplitude = 1)
-    p1 = be.amp_sweep_gaussian(initial_amp,
+    p1 = be.Amp_Sweep_Gaussian(initial_amp,
                                    final_amp,
                                    step,
                                    duration,
