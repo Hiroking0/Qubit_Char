@@ -122,7 +122,8 @@ def get_echo_pulse_group(pi_dur,
                 t_step,
                 readout_start, #readout
                 readout, #readout duration
-                decimation):
+                decimation,
+                shape):
     pi_dur = int(pi_dur/decimation)
     gap_2 = int(gap_2/decimation)
     t_start = int(t_start/decimation)
@@ -132,13 +133,20 @@ def get_echo_pulse_group(pi_dur,
     readout = int(readout/decimation)
     #frequency *= decimation
     
-    x_pulse_2 = be.Pulse(readout_start - gap_2 - int(pi_dur/2) , int(pi_dur/2), 1, 1)
+    
+    pulse_class = getattr(be, f'Sin_{shape}')
+    #self, start, duration, amplitude, frequency, phase, channel, numsig=6)
+    x_pulse_2 = pulse_class(readout_start - gap_2 - int(pi_dur/2) , int(pi_dur/2), 1, 0, 0, 1)
     
     
     first_pulse_start = readout_start - gap_2 - (t_stop) - (2*pi_dur)# - t_step
     first_pulse_end = readout_start - gap_2 - (t_start) - (2*pi_dur) + t_step
     
-    x_pulse_1 = be.Start_Sweep_Pulse(first_pulse_start,
+    
+    
+    start_sweep_class = getattr(be, f'Start_Sweep_{shape}')
+    
+    x_pulse_1 = start_sweep_class(first_pulse_start,
                                      int(pi_dur/2),
                                      amplitude = 1,
                                      frequency = 0,
@@ -155,7 +163,7 @@ def get_echo_pulse_group(pi_dur,
     #p2_end += half_t_step
     
     
-    y_pulse = be.Start_Sweep_Pulse(p2_start,
+    y_pulse = start_sweep_class(p2_start,
                                      pi_dur,
                                      amplitude = 1,
                                      frequency = 0,
@@ -177,7 +185,8 @@ def get_echo1_pulse_group(pi_dur,
                 t_step,
                 readout_start, #readout
                 readout, #readout duration
-                decimation):
+                decimation,
+                shape):
     pi_dur = int(pi_dur/decimation)
     gap_2 = int(gap_2/decimation)
     t_start = int(t_start/decimation)
@@ -186,13 +195,17 @@ def get_echo1_pulse_group(pi_dur,
     readout_start = int(readout_start/decimation)
     readout = int(readout/decimation)
     
-    x_pulse_2 = be.Pulse(readout_start - gap_2 - int(pi_dur/2) , int(pi_dur/2), 1, 1)
+    
+    pulse_class = getattr(be, f'Sin_{shape}')
+    start_sweep_class = getattr(be, f'Start_Sweep_{shape}')
+    #self, start, duration, amplitude, frequency, phase, channel, numsig=6)
+    x_pulse_2 = pulse_class(readout_start - gap_2 - int(pi_dur/2) , int(pi_dur/2), 1, 0, 0, 1)
     
     
     first_pulse_start = readout_start - gap_2 - (t_stop) - (2*pi_dur)# - t_step
     first_pulse_end = readout_start - gap_2 - (t_start) - (2*pi_dur) + t_step
     
-    x_pulse_1 = be.Start_Sweep_Pulse(first_pulse_start,
+    x_pulse_1 = start_sweep_class(first_pulse_start,
                                      int(pi_dur/2),
                                      amplitude = 1,
                                      frequency = 0,
@@ -206,7 +219,7 @@ def get_echo1_pulse_group(pi_dur,
     p2_end = readout_start - gap_2 - int(t_start/2) - int(3*pi_dur/2) + int(t_step/2)
     #p2_end += half_t_step
     
-    y_pulse = be.Start_Sweep_Pulse(p2_start,
+    y_pulse = start_sweep_class(p2_start,
                                      pi_dur,
                                      amplitude = 1,
                                      frequency = 0,
@@ -339,7 +352,11 @@ def get_amp_pg(q_duration,
                readout,
                frequency,
                phase,
-               decimation = 1):
+               decimation,
+               shape):
+    
+    
+    sweep_class = getattr(be, f'Amp_Sweep_{shape}')
     
     #get_amp_pg(q_duration, q_gap, a_start, a_stop, step, readout_start, readout, wq_offset, phase, readout)
     
@@ -352,8 +369,8 @@ def get_amp_pg(q_duration,
     
     
     #self, start, duration, amplitude, frequency, phase, channel, sweep_stop, sweep_step
-    p1 = be.Amp_Sweep_Pulse(q_start, q_duration, amp_start, frequency, phase = 0, channel = 1, sweep_stop = amp_stop, sweep_step = amp_step)
-    p2 = be.Amp_Sweep_Pulse(q_start, q_duration, amp_start, frequency, phase = np.radians(phase), channel = 2, sweep_stop = amp_stop, sweep_step = amp_step)
+    p1 = sweep_class(q_start, q_duration, amp_start, frequency, phase = 0, channel = 1, sweep_stop = amp_stop, sweep_step = amp_step)
+    p2 = sweep_class(q_start, q_duration, amp_start, frequency, phase = np.radians(phase), channel = 2, sweep_stop = amp_stop, sweep_step = amp_step)
     
     
     
@@ -378,6 +395,11 @@ def get_et_pulse_group(ge_first_duration,
                        shape):
     
     
+    start_sweep_class = getattr(be, f'Start_Sweep_{shape}')
+    duration_sweep_class = getattr(be, f'Duration_Sweep_{shape}')
+    single_class = getattr(be, f'Sin_{shape}')
+    
+    
     p1_start_init = readout_start - gap_2 - rabi_start - gap_1 - ge_first_duration - gap_1 - ge_second_duration
     p1_start_final = readout_start - gap_2 - rabi_stop - gap_1 - ge_first_duration  - gap_1 - ge_second_duration
     
@@ -390,7 +412,7 @@ def get_et_pulse_group(ge_first_duration,
     
     #self, start, duration, amplitude, frequency, sweep_param, sweep_stop, sweep_step, channel = None):
     
-    pulse1 = be.Start_Sweep_Pulse(p1_start_final,
+    pulse1 = start_sweep_class(p1_start_final,
                                   ge_first_duration,
                                   amplitude = 1,
                                   frequency = 0,
@@ -402,7 +424,7 @@ def get_et_pulse_group(ge_first_duration,
     
     p2_start_init = readout_start - gap_2 - rabi_start - gap_1 - ge_second_duration
     
-    pulse2 = be.Duration_Sweep_Pulse(p2_start_init,
+    pulse2 = duration_sweep_class(p2_start_init,
                                      rabi_start,
                                      amplitude = 1,
                                      frequency = 0,
@@ -415,10 +437,12 @@ def get_et_pulse_group(ge_first_duration,
     #self, start: int, duration: int, amplitude: float, frequency: float, channel: int
     p3_start = readout_start - gap_2 - ge_second_duration
     
-    pulse3 = be.Sin_Pulse(p3_start, ge_second_duration, amplitude = 1, frequency = 0, phase = 0, channel = 1)
+    pulse3 = single_class(p3_start, ge_second_duration, amplitude = 1, frequency = 0, phase = 0, channel = 1)
+    
+    
+    
     ro = be.Readout_Pulse(readout_start, readout_dur, 1)
     pg = be.PulseGroup([pulse1, pulse2, pulse3, ro])
-    #pg = be.PulseGroup([pulse2, pulse3, ro])
     
     return pg
 
@@ -537,7 +561,7 @@ def get_pg(params):
             readout_start = decimation * math.ceil(readout_start/decimation)
             
             num_patterns = int((t_final - t_initial)/step)
-            pg = get_echo_pulse_group(pi_dur, gap_2, t_initial, t_final, step, readout_start, readout, decimation)
+            pg = get_echo_pulse_group(pi_dur, gap_2, t_initial, t_final, step, readout_start, readout, decimation, shape)
 
         case 'echo_1ax':
             gap_2 = params['echo_gap_2']
@@ -549,7 +573,7 @@ def get_pg(params):
             readout_start = decimation * math.ceil(readout_start/decimation)
             
             num_patterns = int((t_final - t_initial)/step)
-            pg = get_echo1_pulse_group(pi_dur, gap_2, t_initial, t_final, step, readout_start, readout, decimation)
+            pg = get_echo1_pulse_group(pi_dur, gap_2, t_initial, t_final, step, readout_start, readout, decimation, shape)
             
         case 'amplitude':
             q_duration = params['amp_q_dur']
@@ -564,7 +588,7 @@ def get_pg(params):
             
         
             
-            pg = get_amp_pg(q_duration, q_gap, a_start, a_stop, step, readout_start, readout, wq_offset, phase, decimation)
+            pg = get_amp_pg(q_duration, q_gap, a_start, a_stop, step, readout_start, readout, wq_offset, phase, decimation, shape)
 
             
         case 'effect_temp':
@@ -595,7 +619,8 @@ def get_pg(params):
                                         readout, #readout duration
                                         wq_offset,
                                         phase,
-                                        decimation)
+                                        decimation,
+                                        shape)
     print(num_patterns)
     return pg
 

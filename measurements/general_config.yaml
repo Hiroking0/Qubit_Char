@@ -2,7 +2,7 @@
 name: 'npp_180ns'
 
 #ramsey, T1, rabi, npp, readout, echo, echo_1ax, amplitude
-measurement: 'ramsey'
+measurement: 'amplitude'
 
 #################################################################################################################################################
 #####################################################      writing and sending sequences to AWG      ############################################
@@ -49,7 +49,7 @@ amplitude:
     readout_duration: 20000
     ssb_freq: 0
     ssb_phase: 90
-    shape: 'Pulse'
+    shape: 'Gaussian'
     
 rabi:
     rabi_pulse_gap: 20 #samples between readout pulse and end of qubit pulse. Does NOT change between patterns
@@ -93,7 +93,7 @@ echo:
     readout_duration: 20000
     ssb_freq: 0
     ssb_phase: 90
-    shape: 'Pulse'
+    shape: 'Gaussian'
 
     
 #This measurement is set up to use a sine wave pulse for the initial pi pulse
@@ -111,6 +111,7 @@ effect_temp:
     readout_duration: 20000
     ssb_freq: 0
     ssb_phase: 90
+    shape: 'Gaussian'
     
     
     
