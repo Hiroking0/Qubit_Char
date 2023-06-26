@@ -465,11 +465,18 @@ class PulseGroup:
         return (c1Waves, c2Waves, c3Waves, c4Waves)
 
     #this function will send waves and sequence them
-    def send_waves_awg(self, awg, name, pattern_repeat, zero_length, zero_multiple, readout_trigger_offset, num_channels, decimation):
+    def send_waves_awg(self, awg, name, pattern_repeat, zero_length, zero_multiple, readout_trigger_offset, decimation):
+        
+        
         PulseGroup.READOUT_TRIGGER_OFFSET = int(readout_trigger_offset/decimation)
         zero_multiple = int(zero_multiple/decimation)
         #First convert all arrays to waveforms, then send
         (c1Waves, c2Waves, c3Waves, c4Waves) = self.get_waveforms()
+        
+        if np.all(c3Waves[-1].channel < 1e-10):
+            num_channels = 2
+        else:
+            num_channels
         
         awg.delete_all_waveforms()
         awg.delete_all_subseq()
@@ -546,24 +553,16 @@ class PulseGroup:
                 plt.title('CH2M1 (DC readout)', fontsize=14)
                 plt.xticks(rotation=45)
                 
-                #plt.subplot(2,3,6)
-                #plt.plot(a2m2[i])
 
         else:
             for i in range(len(arr1)):
                 plt.plot(x, arr1[i]+i*1.1, 'b')
-                #plt.plot(a1m1[0])
-                #plt.plot(a1m2[0])
-                #plt.plot(arr2[0])
                 plt.plot(x, a2m1[i]+i*1.1, 'r')
                 plt.plot(x, arr2[i]+i*1.1, 'g')
-                plt.plot(x, a3[i]+i*1.1, 'k')
-                plt.plot(x, a4[i]+i*1.1, 'b')
-                #plt.plot(a2m2[i])
-                #plt.legend(["ch1", "ch2m1", "ch2"])
+                plt.plot(x, a3[i]+i*1.1, 'b')
+                plt.plot(x, a4[i]+i*1.1, 'k')
                 plt.xticks(rotation=45)
                 
-                #plt.tight_layout()
             plt.legend(['ch1', 'ch2m1', 'ch2', 'ch3', 'ch4'], loc = 'upper right')
                 
         plt.show()
