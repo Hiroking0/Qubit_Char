@@ -509,9 +509,9 @@ class PulseGroup:
             arr2 = np.expand_dims(arr2, axis=0)
             a2m1 = np.expand_dims(a2m1, axis=0)
             a2m2 = np.expand_dims(a2m2, axis=0)
-            
+        
+        step = 2
         if subplots:
-            step = 2
             for i in range(len(arr1)):
                 plt.subplot(2,4,1)
                 plt.plot(x, arr1[i]+step*i)
@@ -551,11 +551,11 @@ class PulseGroup:
 
         else:
             for i in range(len(arr1)):
-                plt.plot(x, arr1[i]+i*1.1, 'b')
-                plt.plot(x, a2m1[i]+i*1.1, 'r')
-                plt.plot(x, arr2[i]+i*1.1, 'g')
-                plt.plot(x, a3[i]+i*1.1, 'b')
-                plt.plot(x, a4[i]+i*1.1, 'k')
+                plt.plot(x, arr1[i]+i*step, 'b')
+                plt.plot(x, a2m1[i]+i*step, 'r')
+                plt.plot(x, arr2[i]+i*step, 'g')
+                plt.plot(x, a3[i]+i*step, 'b')
+                plt.plot(x, a4[i]+i*step, 'k')
                 plt.xticks(rotation=45)
                 
             plt.legend(['ch1', 'ch2m1', 'ch2', 'ch3', 'ch4'], loc = 'upper right')
