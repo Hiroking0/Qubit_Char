@@ -554,7 +554,7 @@ class PulseGroup:
                 plt.plot(x, arr1[i]+i*step, 'b')
                 plt.plot(x, a2m1[i]+i*step, 'r')
                 plt.plot(x, arr2[i]+i*step, 'g')
-                plt.plot(x, a3[i]+i*step, 'b')
+                plt.plot(x, a3[i]+i*step, 'm')
                 plt.plot(x, a4[i]+i*step, 'k')
                 plt.xticks(rotation=45)
                 
