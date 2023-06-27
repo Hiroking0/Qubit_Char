@@ -113,7 +113,7 @@ class Sin_Gaussian(Pulse):
         final_arr_1 = np.zeros(length, dtype = np.float32)
         
         def gaussian(x, mu, sig):
-            return self.amplitude*0.5*np.exp(-np.power(x - mu, 2.) / (2 * np.power(sig, 2.)))
+            return self.amplitude*np.exp(-np.power(x - mu, 2.) / (2 * np.power(sig, 2.)))
         
         def cos(x,freq,shift):
             return np.cos(2*np.pi*x*freq + shift)
@@ -188,7 +188,7 @@ class Amp_Sweep_Gaussian(Sweep_Pulse):
         
         
         def gaussian(x, mu, sig,amp):
-            return amp*0.5*np.exp(-np.power(x - mu, 2.) / (2 * np.power(sig, 2.)))
+            return amp*np.exp(-np.power(x - mu, 2.) / (2 * np.power(sig, 2.)))
     
         def cos(x,freq,shift):
             return np.cos(2*np.pi*x*freq + shift)
@@ -222,7 +222,7 @@ class Duration_Sweep_Gaussian(Sweep_Pulse):
         final_arr_1 = np.zeros(shape, dtype = np.float32)
             
         def gaussian(x, mu, sig):
-            return self.amplitude*0.5*np.exp(-np.power(x - mu, 2.) / (2 * np.power(sig, 2.)))
+            return self.amplitude*np.exp(-np.power(x - mu, 2.) / (2 * np.power(sig, 2.)))
         
         def cos(x,freq,shift):
             return np.cos(2*np.pi*x*freq + shift)
@@ -259,7 +259,7 @@ class Start_Sweep_Gaussian(Sweep_Pulse):
         final_arr_1 = np.zeros((num_sweeps, longest_length), dtype = np.float32)
         
         def gaussian(x, mu, sig):
-            return self.amplitude*0.5*np.exp(-np.power(x - mu, 2.) / (2 * np.power(sig, 2.)))
+            return self.amplitude*np.exp(-np.power(x - mu, 2.) / (2 * np.power(sig, 2.)))
         
         def cos(x,freq,shift):
             return np.cos(2*np.pi*x*freq + shift)
@@ -280,8 +280,6 @@ class Start_Sweep_Gaussian(Sweep_Pulse):
         setattr(wave_set, 'c'+str(self.channel), final_arr_1)
         
         return wave_set.get_return_vals()
-
-
 
         
 class Amp_Sweep_Pulse(Sweep_Pulse):
@@ -496,9 +494,6 @@ class PulseGroup:
         time.sleep(.1)
         subseq_waves(awg, c1Waves, name, pattern_repeat, zero_multiple, num_channels)
         
-
-
-
     #This function will add one column of a pulse. All params should be Pulse objects
     def add_pulse(self, pulse):
         self.pulses.append(pulse)
