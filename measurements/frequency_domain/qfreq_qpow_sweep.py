@@ -38,11 +38,11 @@ VNA = PNABase(name = 'test',
               max_power = 20,
               nports = 2
               )
-VNA.set('power', -65)
+VNA.set('power', -55)
 VNA.set('points',51)
 VNA.set('timeout',None)
 VNA.set('if_bandwidth',200)
-VNA.set('cw', 7.20263e9)
+VNA.set('cw', 7.22244e9)
 VNA.set('trace','S21')
 VNA.set('sweep_type', 'CW')
 VNA.set('averages_enabled', False)
@@ -50,13 +50,13 @@ VNA.set('averages_enabled', False)
 station = qc.Station()
 station.add_component(rf)
 station.add_component(VNA)
-pow_start = 12
-pow_stop = 15
-pow_step = 1
+pow_start = -30
+pow_stop = 0
+pow_step = 5
 
-freq_start = 3.345
-freq_stop = 3.355
-freq_step = .0004
+freq_start = 3.5
+freq_stop = 3.625
+freq_step = .0015
 
 initialise_or_create_database_at("./databases/wq_pq_sweep.db")
 

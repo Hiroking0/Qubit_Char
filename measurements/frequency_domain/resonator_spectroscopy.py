@@ -30,12 +30,12 @@ VNA = PNABase(name = 'test',
               nports = 2
               )
 
-VNA.set('start',7.2e9)
-VNA.set('stop',7.2045e9)
+VNA.set('start',7.22e9)
+VNA.set('stop',7.224e9)
 VNA.set('points',1001)
 VNA.set('timeout',None)
 VNA.set('if_bandwidth',300)
-VNA.set('averages_enabled', True)
+VNA.set('averages_enabled', False)
 VNA.set('averages', 1) #Only works for sweep mode averaging
 VNA.set('trace','S21')
 VNA.set('sweep_type', 'LOG')
@@ -46,7 +46,7 @@ station.add_component(rf)
 station.add_component(VNA)
 
 sweep_start = -65
-sweep_stop = -20
+sweep_stop = -10
 sweep_step = 1
 
 initialise_or_create_database_at("./databases/resonator_spectro.db")
