@@ -9,6 +9,7 @@ sys.path.append("../")
 from instruments.alazar import ATS9870_NPT as npt
 from instruments import Var_att_interface as ATT
 from instruments import RF_interface as RF
+from instruments.TekAwg import tek_awg as tawg
 
 import time
 import numpy as np
@@ -102,6 +103,7 @@ def get_func_call(rm, sweep_param):
     q_atten_addr = "TCPIP0::172.20.1.6::5025::SOCKET"
     r_atten_addr = "TCPIP0::172.20.1.9::5025::SOCKET"
     twpa_addr = "TCPIP0::172.20.1.11::5025::SOCKET"
+    #amp_addr = "TCPIP::129.2.108.72::hislip0,4880::INSTR"
     
     addr_table = {
         'wr': readout_addr,
@@ -111,7 +113,8 @@ def get_func_call(rm, sweep_param):
         'r_att': r_atten_addr,
         'q_att': q_atten_addr,
         'p_twpa': twpa_addr,
-        'w_twpa': twpa_addr
+        'w_twpa': twpa_addr,
+        #'amp':amp_addr
     }
     
     inst_table = {
@@ -121,22 +124,27 @@ def get_func_call(rm, sweep_param):
         'pr': RF.RF_source,
         'r_att': ATT.Atten,
         'q_att': ATT.Atten,
+        'amp': tawg.connect_raw_visa_socket,
         }
-    inst_class = inst_table[sweep_param]
-    address = addr_table[sweep_param]
-    
-    inst = inst_class(rm, address)
-    
+    if sweep_param == "amp":
+        inst = tawg.connect_raw_visa_socket('172.20.1.5',5000)
+    else:
+        inst_class = inst_table[sweep_param]
+        address = addr_table[sweep_param]
+        inst = inst_class(rm, address)
+
     func_table = {
         'wq': 'set_freq',
         'wr': 'set_freq',
         'pr': 'set_power',
         'pq': 'set_power',
         'r_att': 'set_attenuation',
-        'q_att': 'set_attenuation'
+        'q_att': 'set_attenuation',
+        'amp' : "set_amplitude"
         }
     
     func_call = getattr(inst, func_table[sweep_param])
+    
 
     return func_call
 
