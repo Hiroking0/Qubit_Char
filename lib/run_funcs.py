@@ -97,7 +97,7 @@ def run_and_acquire(awg,
 
 
 
-def get_func_call(rm, sweep_param):
+def get_func_call(rm, sweep_param, awg):
     qubit_addr = "TCPIP0::172.20.1.7::5025::SOCKET"
     readout_addr = "TCPIP0::172.20.1.8::5025::SOCKET"
     q_atten_addr = "TCPIP0::172.20.1.6::5025::SOCKET"
@@ -124,10 +124,10 @@ def get_func_call(rm, sweep_param):
         'pr': RF.RF_source,
         'r_att': ATT.Atten,
         'q_att': ATT.Atten,
-        'amp': tawg.connect_raw_visa_socket,
+        #'amp': tawg.connect_raw_visa_socket,
         }
     if sweep_param == "amp":
-        inst = tawg.connect_raw_visa_socket('172.20.1.5',5000)
+        inst = awg
     else:
         inst_class = inst_table[sweep_param]
         address = addr_table[sweep_param]
@@ -168,7 +168,7 @@ def single_sweep(name,
     step = params['p1step']
     
     rm = visa.ResourceManager()
-    func_call = get_func_call(rm, sweep_param)
+    func_call = get_func_call(rm, sweep_param, awg)
 
     avgsA_sub = np.zeros((num_patterns, len(np.arange(start,stop,step))))
     avgsB_sub = np.zeros((num_patterns, len(np.arange(start,stop,step))))
