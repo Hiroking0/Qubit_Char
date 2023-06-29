@@ -4,7 +4,7 @@ Created on Tue Apr 11 11:44:38 2023
 
 @author: lqc
 """
-from tkinter.filedialog import askopenfilename
+from tkinter.filedialog import askopenfilename, askopenfilenames
 import numpy as np
 import sys
 sys.path.append("../../")
@@ -140,9 +140,6 @@ def disp_single_sweep():
     
     plt.show()
 
-
-def disp_double_sweep():
-    pass
 
 def disp_3_chevrons():
     fn = askopenfilename()
@@ -295,13 +292,34 @@ def show_sweep_output():
 
 
 def disp_double_sweep():
-    pass
+    
+    fns = askopenfilenames()
+    
+    nf = '\\'.join(fns[0].split('/')[0:-1]) + "/"
 
-
+    for (root, dirs, files) in os.walk(nf):
+        for f in files:
+            if ".json" in f:
+                with open(nf + f) as file:
+                    params = json.load(file)
+    
+    y = np.arange(params['p1start'], params['p1stop'], params['p1step'])
+    x = np.arange(params['p2start'], params['p2stop'], params['p2step'])
+    z = np.zeros((len(y), len(x)))
+    #index 4 is b nosub
+    for f in fns:
+        csvFile = pandas.read_csv(f, sep = ',', engine = 'python')
+        temp_z = csvFile['chB_nosub'].to_list()
+        temp_x = csvFile[csvFile.columns[-1]][0]
+        temp_x = np.where(x == temp_x)[0][0]
+        z[:, temp_x] = temp_z
+        
+    plt.pcolormesh(x, y, z)
+    plt.show()
 
 if __name__ == "__main__":
-    #disp_double_sweep()
-    disp_sequence()
+    disp_double_sweep()
+    #disp_sequence()
     #show_sweep_output()
     #disp_single_sweep()
     #disp_3_chevrons()
