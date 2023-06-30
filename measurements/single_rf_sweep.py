@@ -120,5 +120,11 @@ if __name__ == "__main__":
        plt.plot(x, mags_nosub[i])
     plt.title('Magnitude nosub')
     
+    
+    
+    #plt.figure()
+    #diff = cBp_nosub[0] - cBp_nosub[1]
+    #plt.plot(x, diff)
+    
     plt.show()
     

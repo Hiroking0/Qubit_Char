@@ -285,7 +285,7 @@ def double_sweep(name,
     #inner loop is p2, outer loop is p1
 
     rm = visa.ResourceManager()
-    func_call = get_func_call(rm, param2)
+    func_call = get_func_call(rm, param2, awg)
 
     ylen = len(np.arange(p1start, p1stop, p1step))
     xlen = len(np.arange(p2start, p2stop, p2step))
