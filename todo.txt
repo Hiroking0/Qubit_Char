@@ -1,1 +1,2 @@
 live plot for sweeps and single run
+add eval statements for evaluating math in yaml file
