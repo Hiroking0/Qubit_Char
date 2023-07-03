@@ -62,7 +62,7 @@ class Data_Arrs:
         yield self.b_sub
         yield self.mags_nosub
         yield self.mags_sub
-        
+
         
 
 
@@ -102,7 +102,7 @@ def run_and_acquire(awg,
                 board,
                 params,
                 num_patterns,
-                path):
+                path) -> Data_Arrs:
     """
     runs sequence on AWG once. params should be dictionary of YAML file.
     """
@@ -241,22 +241,25 @@ def single_sweep(name,
         #print(func_call)
         time.sleep(.05)
         
-        (chA_sub, chB_sub, chA_nosub, chB_nosub, mag_sub, mag_nosub) = run_and_acquire(awg,
-                                                                                       board,
-                                                                                       params,
-                                                                                       num_patterns,
-                                                                                       save_raw = False,
-                                                                                       path = name)
+        data = run_and_acquire(awg,
+                                board,
+                                params,
+                                num_patterns,
+                                save_raw = False,
+                                path = name)
         
         #avgsA should be array of shape(num_patterns, sweep_num, x)
+        (t_an, t_as, t_bn, t_bs, m_ns, m_s, ra, rb) = data.get_avgs()
+
+
+
         
-        for i in range(num_patterns):
-            avgsA_sub[i][sweep_num] = np.average(chA_sub[i])
-            avgsB_sub[i][sweep_num] = np.average(chB_sub[i])
-            avgsA_nosub[i][sweep_num] = np.average(chA_nosub[i])
-            avgsB_nosub[i][sweep_num] = np.average(chB_nosub[i])
-            mags_sub[i][sweep_num] = np.average(mag_sub[i])
-            mags_nosub[i][sweep_num] = np.average(mag_nosub[i])
+        avgsA_sub[:, sweep_num] = t_as
+        avgsB_sub[:, sweep_num] = t_bs
+        avgsA_nosub[:, sweep_num] = t_an
+        avgsB_nosub[:, sweep_num] = t_bn
+        mags_sub[:, sweep_num] = m_s
+        mags_nosub[:, sweep_num] = m_ns
         #Here avgs[:][0:sweep_num] should be correct. the rest of avgs[:][sweep_num:] should be 0
         
         if live_plot and sweep_num > 0:
@@ -299,6 +302,7 @@ def single_sweep(name,
                     t_row.append(extra_column[1])
                 
                 wr.writerow(t_row)
+                
     return (avgsA_sub, avgsB_sub, avgsA_nosub, avgsB_nosub, mags_sub, mags_nosub)
     
     
