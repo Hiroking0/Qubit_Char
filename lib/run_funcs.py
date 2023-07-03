@@ -18,13 +18,26 @@ import pyvisa as visa
 import csv
 import matplotlib.pyplot as plt
 import queue
-#board should be acquired by running ats.Board(systemId = 1, boardId = 1)
-#then npt.ConfigureBoard(board)
-#awg by running be.get_awg()
+from datetime import datetime
+import pickle as pkl
 
-def get_func_call_and_param(params):
-    pass
+class Data_Arrs:
+    def __init__(self, *args): #a_nosub, a_sub, b_nosub, b_sub, mags_nosub, mags_sub):
+        self.a_nosub = args[0]
+        self.a_sub = args[1]
+        self.b_nosub = args[2]
+        self.b_sub = args[3]
+        self.mags_nosub = args[4]
+        self.mags_sub = args[5]
 
+    def save(self, path, name):
+        now = datetime.now()
+        date = now.strftime("%m%d_%H%M%S")
+        with open(name + "_" + date, 'wb') as pickle_file:
+            pkl.dump(self, pickle_file)
+
+    def get_data_arrs(self):
+        return (self.a_nosub, self.a_sub, self.b_nosub, self.b_sub, self.mags_nosub, self.mags_sub)
 
 
 #wave length should be wait_time + readout_start + readout+duration
@@ -63,30 +76,28 @@ def run_and_acquire(awg,
                 board,
                 params,
                 num_patterns,
-                save_raw,
                 path):
     """
     runs sequence on AWG once. params should be dictionary of YAML file.
     """
-    #samples_per_ac = params['acq_multiples']*256
-    #pattern_repeat = params['pattern_repeat']
-    #seq_repeat = params['seq_repeat']
-    
+
+    save_raw = False
+    live_plot = False
     que = queue.Queue()
+
     acproc = Thread(target = lambda q, board, params, num_patterns, path, raw, live:
                             q.put(npt.AcquireData(board, params, num_patterns, path, raw, live)), 
-                            args = (que, board, params, num_patterns, path, save_raw, False))
-    #acproc = Thread(target = npt.AcquireData, args = (board, params, num_patterns, path, save_raw, False))
-    
+                            args = (que, board, params, num_patterns, path, save_raw, live_plot))
+
     acproc.start()
     time.sleep(.3)
     awg.run()
     acproc.join()
     awg.stop()
     
-    (chA_avgs_sub, chB_avgs_sub, chA_avgs_nosub, chB_avgs_nosub, mag_sub, mag_nosub) = que.get()
-    
-    return (chA_avgs_sub, chB_avgs_sub, chA_avgs_nosub, chB_avgs_nosub, mag_sub, mag_nosub)
+    data_arrs = Data_Arrs(que.get())
+
+    return data_arrs
     
     
 #this function will take one of the do_all functions as a parameter

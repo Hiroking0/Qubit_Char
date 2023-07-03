@@ -342,7 +342,7 @@ def AcquireData(board, params, num_patterns, path, saveData = True, live_plot = 
     if live_plot:
         print('closed')
         fig.canvas.close()
-    return (chA_avgs_sub, chB_avgs_sub, chA_avgs_nosub, chB_avgs_nosub, mag_sub, mag_nosub)
+    return (chA_avgs_nosub, chA_avgs_sub, chB_avgs_nosub, chB_avgs_sub, mag_nosub, mag_sub)
 
 
 if __name__ == "__main__":

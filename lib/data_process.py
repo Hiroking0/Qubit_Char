@@ -8,6 +8,7 @@ Created on Thu Oct 13 14:37:25 2022
 import numpy as np
 import matplotlib.pyplot as plt
 import time
+from run_funcs import Data_Arrs
 
 def get_population_v_pattern(arr, thresh, flipped = False):
     plt_arr = np.zeros(len(arr))
@@ -116,15 +117,10 @@ def parse_np_file(arr, num_patterns, pattern_reps, seq_reps, measurement = None)
         final_arr[i] = np.squeeze(tarr)
     return final_arr
 
-def plot_np_file(num_patterns, pattern_reps, seq_reps, time_step, path):
-    chA_sub = np.load(path + "chA_sub.npy")
-    chB_sub = np.load(path + "chB_sub.npy")
-    chA_nosub = np.load(path + "chA_nosub.npy")
-    chB_nosub = np.load(path + "chB_nosub.npy")
-    
-    
-    #chA = parse_np_file(chA, num_patterns, pattern_reps, seq_reps)
-    #hB = parse_np_file(chB, num_patterns, pattern_reps, seq_reps)
+def plot_np_file(data: Data_Arrs, num_patterns, pattern_reps, seq_reps, time_step, path):
+
+    (chA_nosub, chA_sub, chB_nosub, chB_sub, mags_nosub, mags_sub) = data.get_data_arrs()
+
     num_bins = 500
 
     
@@ -153,16 +149,21 @@ def plot_np_file(num_patterns, pattern_reps, seq_reps, time_step, path):
     pattern_avgs_cB_sub = np.zeros(num_patterns)
     mags = np.zeros(num_patterns)
     mags_sub = np.zeros(num_patterns)
-    #print(np.shape(chA_nosub))
+
+
+    
     for i in range(num_patterns):
         pattern_avgs_cA[i] = np.average(chA_nosub[i])
         pattern_avgs_cB[i] = np.average(chB_nosub[i])
-        mags[i] = np.average(np.sqrt(chB_nosub[i] ** 2 + chA_nosub[i] ** 2))
+        mags[i] = np.average(mags_nosub[i])
+        #mags[i] = np.average(np.sqrt(chB_nosub[i] ** 2 + chA_nosub[i] ** 2))
         
         pattern_avgs_cA_sub[i] = np.average(chA_sub[i])
         pattern_avgs_cB_sub[i] = np.average(chB_sub[i])
-        mags_sub[i] = np.average(np.sqrt(chB_sub[i] ** 2 + chA_sub[i] ** 2))
-        
+        mags_sub[i] = np.average(mags_sub[i])
+        #mags_sub[i] = np.average(np.sqrt(chB_sub[i] ** 2 + chA_sub[i] ** 2))
+    
+
     x = [i*time_step for i in range(num_patterns)]
     font_size = 10
     #x = np.arange(num_patterns)

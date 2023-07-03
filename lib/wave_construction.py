@@ -39,7 +39,7 @@ def init_awg(awg, num_patterns, pattern_repeat):
 
 
 
-class Wave_Arrs():
+class Wave_Arrs:
     def __init__(self, shape):
         self.c1 = np.zeros(shape, dtype = np.float32)
         self.c1m1 = np.zeros(shape, dtype = np.float32)
