@@ -142,7 +142,7 @@ def plot_pattern_vs_volt(ax, x, y, title, font_size):
     ax.ylabel('Voltage (V)', fontsize=font_size)
     
 
-def plot_np_file(data: Data_Arrs, num_patterns, time_step, path):
+def plot_np_file(data: Data_Arrs, num_patterns, time_step, path = None):
 
     (chA_nosub, chA_sub, chB_nosub, chB_sub, mags_nosub, mags_sub, readout_a, readout_b) = data.get_data_arrs()
 
@@ -189,7 +189,8 @@ def plot_np_file(data: Data_Arrs, num_patterns, time_step, path):
 
     #plt.get_current_fig_manager().window.showMaximized()
     #plt.tight_layout()
-    #plt.savefig(path + "_pic", dpi= 300, pad_inches = 0, bbox_inches = 'tight')
+    if path:
+        plt.savefig(path + "_pic", dpi= 300, pad_inches = 0, bbox_inches = 'tight')
     plt.show()
 
 
