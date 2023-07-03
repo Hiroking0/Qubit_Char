@@ -1,2 +1,4 @@
 live plot for sweeps and single run
 add eval statements for evaluating math in yaml file
+add date timestamps for saving files
+add saving plot images to sweeps
