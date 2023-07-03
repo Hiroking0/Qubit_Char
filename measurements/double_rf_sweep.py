@@ -17,7 +17,8 @@ from instruments.alazar import atsapi as ats
 import tkinter.filedialog as tkf
 import yaml
 import json
-
+def int_eval(data):
+    return eval(str(data))
 if __name__ == "__main__":
     
     f = open('general_config.yaml','r')
@@ -33,14 +34,14 @@ if __name__ == "__main__":
     
     #start_time is the time between triggering the AWG and start of the qubit pulse
     
-    pattern_repeat = params['pattern_repeat']
-    seq_repeat = params['seq_repeat']
+    pattern_repeat = int_eval(params['pattern_repeat'])
+    seq_repeat = int_eval(params['seq_repeat'])
     
     p1 = params['p1']
     p2 = params['p2']
 
     #sweep power J7201B
-    decimation = params['decimation']
+    decimation = int_eval(params['decimation'])
     
     awg = be.get_awg()
     
@@ -69,8 +70,8 @@ if __name__ == "__main__":
     
     plt.figure()
     
-    y = np.arange(params['p1start'], params['p1stop'], params['p1step'])
-    x = np.arange(params['p2start'], params['p2stop'], params['p2step'])
+    y = np.arange(int_eval(params['p1start']), int_eval(params['p1stop']), int_eval(params['p1step']))
+    x = np.arange(int_eval(params['p2start']), int_eval(params['p2stop']), int_eval(params['p2step']))
     
     plt.subplot(2,3,1)
     for pattern in f_A_nosub:

@@ -4,12 +4,13 @@ sys.path.append("../")
 from lib import send_funcs as sf
 #import npp_funcs as nppf
 import yaml
-
+def int_eval(data):
+    return eval(str(data))
 if __name__ == "__main__":
     f = open('./general_config.yaml','r')
     params = yaml.safe_load(f)
     f.close()
-    decimation = params['decimation']
+    decimation = int_eval(params['decimation'])
 
     pg = sf.get_pg(params)
 

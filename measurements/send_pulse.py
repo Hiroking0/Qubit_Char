@@ -7,17 +7,18 @@ from lib import wave_construction as be
 from lib import send_funcs as sf
 import yaml
 from lib import run_funcs
-
+def int_eval(data):
+    return eval(str(data))
 if __name__ == "__main__":
     f = open('./general_config.yaml','r')
     params = yaml.safe_load(f)
     f.close()
     name = params['name']
-    decimation = params['decimation']
-    pattern_repeat = params['pattern_repeat']
-    zero_length = params['zero_length']
-    zero_multiple = params['zero_multiple']
-    readout_trigger_offset = params['readout_trigger_offset']
+    decimation = int_eval(params['decimation'])
+    pattern_repeat = int_eval(params['pattern_repeat'])
+    zero_length = int_eval(params['zero_length'])
+    zero_multiple = int_eval(params['zero_multiple'])
+    readout_trigger_offset = int_eval(params['readout_trigger_offset'])
     #num_channels = 2
 
 

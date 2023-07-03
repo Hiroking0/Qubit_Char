@@ -17,7 +17,8 @@ import yaml
 import time
 import tkinter.filedialog as tkf
 import json
-
+def int_eval(data):
+    return eval(str(data))
 if __name__ == "__main__":
     
     f = open('general_config.yaml','r')
@@ -36,17 +37,16 @@ if __name__ == "__main__":
     json.dump(params, j_file, indent = 4)
     j_file.close()
 
-    zero_length = params['zero_length']
-    zero_multiple = params['zero_multiple']
+    zero_length = int_eval(params['zero_length'])
+    zero_multiple = int_eval(params['zero_multiple'])
     wait_time = zero_length * zero_multiple
     
-    pattern_repeat = params['pattern_repeat']
-    seq_repeat = params['seq_repeat']
+    pattern_repeat = int_eval(params['pattern_repeat'])
+    seq_repeat = int_eval(params['seq_repeat'])
     
-    p1start = params['p1start']
-    p1stop = params['p1stop']
-    p1step = params['p1step']
-
+    p1start = int_eval(params['p1start'])
+    p1stop = int_eval(params['p1stop'])
+    p1step = int_eval(params['p1step'])
 
     p1 = params['p1']
     '''
