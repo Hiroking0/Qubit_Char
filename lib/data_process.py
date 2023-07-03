@@ -117,164 +117,82 @@ def parse_np_file(arr, num_patterns, pattern_reps, seq_reps, measurement = None)
         final_arr[i] = np.squeeze(tarr)
     return final_arr
 
-def plot_np_file(data: Data_Arrs, num_patterns, pattern_reps, seq_reps, time_step, path):
+def plot_hist(ax, dat, num_bins, title):
+    #add check for multiple dimensions
+    ln, = ax.hist(dat, bins = num_bins, histtype = 'step', alpha = .5)
+    ax.title(title)
+    return ln
 
-    (chA_nosub, chA_sub, chB_nosub, chB_sub, mags_nosub, mags_sub) = data.get_data_arrs()
+def plot_iq(ax, I, Q, title):
+    #add check for multiple dimensions
+    for i in range(len(I)):
+        ax.scatter(I[i], Q[i], alpha = .3)
+    ax.title(title)
+
+
+def plot_subaxis(ax, y, title):
+    for i in range(len(y)):
+        ax.plot(y[i], alpha = .8)
+    ax.title(title)
+
+def plot_pattern_vs_volt(ax, x, y, title, font_size):
+    ax.plot(x, y)
+    ax.title(title)
+    ax.xlabel('time (ns)', fontsize=font_size)
+    ax.ylabel('Voltage (V)', fontsize=font_size)
+    
+
+def plot_np_file(data: Data_Arrs, num_patterns, time_step, path):
+
+    (chA_nosub, chA_sub, chB_nosub, chB_sub, mags_nosub, mags_sub, readout_a, readout_b) = data.get_data_arrs()
 
     num_bins = 500
 
-    
-    plt.subplot(2,2,1)
-    plt.hist(chA_nosub.flatten(), bins = num_bins, histtype = 'step')
-    plt.title("chA no subtraction")
-    
-    plt.subplot(2,2,2)
-    plt.hist(chB_nosub.flatten(), bins = num_bins, histtype = 'step')
-    plt.title("chB no subtraction")
-    
-    
-    plt.subplot(2,2,3)
-    plt.hist(chA_sub.flatten(), bins = num_bins, histtype = 'step')
-    plt.title("chA with subtraction")
-    
-    plt.subplot(2,2,4)
-    plt.hist(chB_sub.flatten(), bins = num_bins, histtype = 'step')
-    plt.title("chB with subtraction")
-    
-    plt.figure()
+    fig, ax_array = plt.subplots(3,4)
 
-    pattern_avgs_cA = np.zeros(num_patterns)
-    pattern_avgs_cB = np.zeros(num_patterns)
-    pattern_avgs_cA_sub = np.zeros(num_patterns)
-    pattern_avgs_cB_sub = np.zeros(num_patterns)
-    mags = np.zeros(num_patterns)
-    mags_sub = np.zeros(num_patterns)
-
+    plot_subaxis(ax_array[0], readout_a, "ChA readout")
+    plot_subaxis(ax_array[1], readout_b, "ChB readout")
+    plot_iq(ax_array[2], chA_nosub, chB_nosub, "I vs Q nosub")
+    plot_iq(ax_array[3], chA_sub, chB_sub, "I vs Q sub")
+    plot_hist(ax_array[4], chA_nosub, num_bins, "chA_nosub")
+    plot_hist(ax_array[5], chB_nosub, num_bins, "chB_nosub")
+    plot_hist(ax_array[6], mags_nosub, num_bins, "mags_nosub")
+    plot_hist(ax_array[8], chA_sub, num_bins, "chA_sub")
+    plot_hist(ax_array[9], chB_sub, num_bins, "chB_sub")
+    plot_hist(ax_array[10], mags_sub, num_bins, "mags_sub")
 
     
-    for i in range(num_patterns):
-        pattern_avgs_cA[i] = np.average(chA_nosub[i])
-        pattern_avgs_cB[i] = np.average(chB_nosub[i])
-        mags[i] = np.average(mags_nosub[i])
-        #mags[i] = np.average(np.sqrt(chB_nosub[i] ** 2 + chA_nosub[i] ** 2))
-        
-        pattern_avgs_cA_sub[i] = np.average(chA_sub[i])
-        pattern_avgs_cB_sub[i] = np.average(chB_sub[i])
-        mags_sub[i] = np.average(mags_sub[i])
-        #mags_sub[i] = np.average(np.sqrt(chB_sub[i] ** 2 + chA_sub[i] ** 2))
-    
+
+    (pattern_avgs_cA, pattern_avgs_cA_sub, pattern_avgs_cB, pattern_avgs_cB_sub, mags, mags_sub) = data.get_avgs()
+
 
     x = [i*time_step for i in range(num_patterns)]
-    font_size = 10
+
+    #plt.figure()
+    fig2, ax_array = plt.subplots(2,3)
+
+
+    font_size = 5
     #x = np.arange(num_patterns)
-    plt.rc('xtick', labelsize=font_size)
-    plt.rc('ytick', labelsize=font_size)
+    #plt.rc('xtick', labelsize=font_size)
+    #plt.rc('ytick', labelsize=font_size)
     
-    plt.subplot(2,3,1)
-    plt.plot(x, pattern_avgs_cA)
-    plt.title("chA nosub", fontsize=font_size)
-    plt.xlabel('time (ns)', fontsize=font_size)
-    plt.ylabel('Voltage (V)', fontsize=font_size)
+
+    plot_pattern_vs_volt(ax_array[0], x, pattern_avgs_cA, "ChA nosub", font_size)
+    plot_pattern_vs_volt(ax_array[1], x, pattern_avgs_cB, "ChB nosub", font_size)
+    plot_pattern_vs_volt(ax_array[2], x, pattern_avgs_cA_sub, "ChA sub", font_size)
+    plot_pattern_vs_volt(ax_array[3], x, pattern_avgs_cB_sub, "ChB sub", font_size)
+    plot_pattern_vs_volt(ax_array[4], x, mags, "mags nosub", font_size)
+    plot_pattern_vs_volt(ax_array[5], x, mags_sub, "mags sub", font_size)
+
     
-    print(pattern_avgs_cB)
-    plt.subplot(2,3,2)
-    plt.plot(x, pattern_avgs_cB)
-    plt.title("chB nosub", fontsize=font_size)
-    plt.xlabel('time (ns)', fontsize=font_size)
-    plt.ylabel('Voltage (V)', fontsize=font_size)
-    
-    plt.subplot(2,3,3)
-    plt.plot(x, mags)
-    plt.title("mag nosub", fontsize=font_size)
-    plt.xlabel('time (ns)', fontsize=font_size)
-    plt.ylabel('Voltage (V)', fontsize=font_size)
-    
-    plt.subplot(2,3,4)
-    plt.plot(x, pattern_avgs_cA_sub)
-    plt.title("chA sub", fontsize=font_size)
-    plt.xlabel('time (ns)', fontsize=font_size)
-    plt.ylabel('Voltage (V)', fontsize=font_size)
-    
-    plt.subplot(2,3,5)
-    plt.plot(x, pattern_avgs_cB_sub)
-    
-    plt.title("chB sub", fontsize=font_size)
-    plt.xlabel('time (ns)', fontsize=font_size)
-    plt.ylabel('Voltage (V)', fontsize=font_size)
-    
-    plt.subplot(2,3,6)
-    plt.plot(x, mags_sub)
-    plt.title("mag sub", fontsize=font_size)
-    plt.xlabel('time (ns)', fontsize=font_size)
-    plt.ylabel('Voltage (V)', fontsize=font_size)
-    
-    plt.get_current_fig_manager().window.showMaximized()
+
+    #plt.get_current_fig_manager().window.showMaximized()
     #plt.tight_layout()
-    plt.savefig(path + "_pic", dpi= 300, pad_inches = 0, bbox_inches = 'tight')
+    #plt.savefig(path + "_pic", dpi= 300, pad_inches = 0, bbox_inches = 'tight')
     plt.show()
 
 
-def plot_colors(cAp1, cBp1):
-    ind = 0
-    for i in range(0, len(cAp1), pattern_reps):
-        plt.subplot(seq_reps, 4, (4*ind)+1)
-        plt.pcolormesh(cAp1[i:i+pattern_reps])
-        
-        plt.subplot(seq_reps, 4, (4*ind)+2)
-        #plt.pcolormesh(cAp2[i:i+pattern_reps])
-        
-        plt.subplot(seq_reps, 4, (4*ind)+3)
-        plt.pcolormesh(cBp1[i:i+pattern_reps])
-        
-        plt.subplot(seq_reps, 4, (4*ind)+4)
-        #plt.pcolormesh(cBp2[i:i+pattern_reps])
-        ind += 1
-    plt.show()
-
-def plot_average_iterations(cAp1, cBp1):
-    #overlaying averages here
-    plt.subplot(2,1,1)
-    plt.plot(average_all_iterations(cAp1))
-    #plt.plot(average_all_iterations(cAp2))
-    plt.title('channel A average p1 p2')
-    
-    plt.subplot(2,1,2)
-    plt.plot(average_all_iterations(cBp1))
-    #plt.plot(average_all_iterations(cBp2))
-    plt.title('channel B average p1 p2')
-    
-def plot_iq(cAp, cBp):
-    #iq here
-    cAp1av = get_avgs(cAp)
-    #cAp2av = get_avgs(cAp2)
-
-    cBp1av = get_avgs(cBp)
-    #cBp2av = get_avgs(cBp2)
-
-    plt.scatter(cAp1av, cBp1av)
-    #plt.scatter(cAp2av, cBp2av)
-    plt.legend(['pattern 1', 'pattern 2'])
-    plt.show()
-
-def plot_histogram(arr):
-    #histogram here
-    num_patterns = len(arr)
-    
-    plt.rcParams.update({'font.size': 22})
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    
-    for axis in ['top', 'bottom', 'left', 'right']:
-        ax.spines[axis].set_linewidth(2.5)
-    for i in range(num_patterns):
-        plt.hist(arr[i], bins = 100, alpha = .7)
-    #plt.title("chA no subtraction")
-    #cAp1av = get_avgs(cAp)
-    #cBp1av = get_avgs(cBp)
-    plt.legend(["no pulse", "pulse"], loc = 'upper center')
-    plt.xlabel("V")
-    plt.ylabel("count")
-    plt.show()
 
 
 

@@ -29,6 +29,8 @@ class Data_Arrs:
         self.b_sub = args[3]
         self.mags_nosub = args[4]
         self.mags_sub = args[5]
+        self.readout_A = args[6]
+        self.readout_B = args[7]
 
     def save(self, path, name):
         now = datetime.now()
@@ -37,16 +39,40 @@ class Data_Arrs:
             pkl.dump(self, pickle_file)
 
     def get_data_arrs(self):
-        return (self.a_nosub, self.a_sub, self.b_nosub, self.b_sub, self.mags_nosub, self.mags_sub)
-
-
-#wave length should be wait_time + readout_start + readout+duration
-def initialize_awg(awg, num_patterns, pattern_repeat, decimation):
-    awg.set_chan_state(1, [1,2,3,4])
+        return (self.a_nosub, self.a_sub, self.b_nosub, self.b_sub, self.mags_nosub, self.mags_sub, self.readout_A, self.readout_B)
     
+    def get_avgs(self):
+        pass
+        '''
+        for i in range(num_patterns):
+        pattern_avgs_cA[i] = np.average(chA_nosub[i])
+        pattern_avgs_cB[i] = np.average(chB_nosub[i])
+        mags[i] = np.average(mags_nosub[i])
+        #mags[i] = np.average(np.sqrt(chB_nosub[i] ** 2 + chA_nosub[i] ** 2))
+        
+        pattern_avgs_cA_sub[i] = np.average(chA_sub[i])
+        pattern_avgs_cB_sub[i] = np.average(chB_sub[i])
+        mags_sub[i] = np.average(mags_sub[i])
+        #mags_sub[i] = np.average(np.sqrt(chB_sub[i] ** 2 + chA_sub[i] ** 2))
+        '''
+    def gen_data_arrs(self):
+        yield self.a_nosub
+        yield self.a_sub
+        yield self.b_nosub
+        yield self.b_sub
+        yield self.mags_nosub
+        yield self.mags_sub
+        
+        
+
+
+
+def initialize_awg(awg, num_patterns, pattern_repeat, decimation):
+    awg.set_chan_state(1, [1,2,3,4])    
     
     for i in range(1, num_patterns):
         awg.set_seq_element_goto_state(i, 0)
+        awg.set_seq_element_loop_cnt(i, pattern_repeat)
     awg.set_seq_element_goto_state(num_patterns, 1)
     #set sampling rate
     new_freq = 1/decimation
@@ -155,8 +181,6 @@ def get_func_call(rm, sweep_param, awg):
         }
     
     func_call = getattr(inst, func_table[sweep_param])
-    
-
     return func_call
 
 

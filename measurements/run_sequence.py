@@ -16,7 +16,6 @@ import yaml
 import tkinter.filedialog as filedialog
 import json
 import numpy as np
-from datetime import datetime
 
 def int_eval(data):
     return eval(str(data))
@@ -57,12 +56,6 @@ if __name__ == "__main__":
     wait_time += .3
     print(f'estimated wait time is {wait_time} seconds')
 
-    
-    
-    
-    for i in range(num_patterns):
-        awg.set_seq_element_loop_cnt(i+1, params['pattern_repeat'])
-
     board = ats.Board(systemId = 1, boardId = 1)
     npt.ConfigureBoard(board)
     
@@ -90,7 +83,6 @@ if __name__ == "__main__":
         time_step = None
     else:
         time_step = params[params['measurement']]['step']
-    
 
 
-    dp.plot_np_file(data, num_patterns, pattern_repeat, seq_repeat, time_step, path)
+    dp.plot_np_file(data, num_patterns, time_step, path)
