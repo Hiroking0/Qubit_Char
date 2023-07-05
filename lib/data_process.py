@@ -123,11 +123,20 @@ def plot_hist(ax, dat, num_bins, title):
     ax.set_title(title)
 
 def plot_iq(ax, I, Q, title):
+    bins = 500
+    H, xedges, yedges = np.histogram2d(I.flatten(), Q.flatten(), bins=(bins, bins))
+    H = H.T
+    X, Y = np.meshgrid(xedges, yedges)
+    
+    ax.imshow(H, interpolation='nearest',)
+    #ax.pcolormesh(X, Y, H)
+    
+    '''
     #add check for multiple dimensions
     for i in range(len(I)):
         ax.scatter(I[i], Q[i], alpha = .3)
     ax.set_title(title)
-
+    '''
 
 def plot_subaxis(ax, y, title):
     for i in range(len(y)):
@@ -141,9 +150,10 @@ def plot_pattern_vs_volt(ax, x, y, title, font_size):
     ax.set_ylabel('Voltage (V)', fontsize=font_size)
     
 
-def plot_np_file(data: Data_Arrs, num_patterns, time_step, path = None):
+def plot_np_file(data: Data_Arrs, time_step, path = None):
 
     (chA_nosub, chA_sub, chB_nosub, chB_sub, mags_nosub, mags_sub, readout_a, readout_b) = data.get_data_arrs()
+    num_patterns = 1 if np.ndim(chA_nosub) == 1 else len(chA_nosub)
 
     num_bins = 500
 

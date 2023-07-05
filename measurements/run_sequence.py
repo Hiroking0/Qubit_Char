@@ -64,7 +64,7 @@ if __name__ == "__main__":
     raw_path = filedialog.askdirectory()
     now = datetime.now()
     date = now.strftime("%m%d_%H%M%S")
-    path = raw_path + "/" + name + "_" + date + "_"
+    path = raw_path + "/" + name + "_" + date# + "_"
     data = run_funcs.run_and_acquire(awg,
                                     board,
                                     params,
@@ -73,7 +73,7 @@ if __name__ == "__main__":
 
     
     
-    j_file = open(path+"json.json", 'w')
+    j_file = open(path+"_json.json", 'w')
     json.dump(params, j_file, indent = 4)
     j_file.close()
     data.save(path)
@@ -84,4 +84,4 @@ if __name__ == "__main__":
         time_step = params[params['measurement']]['step']
 
 
-    dp.plot_np_file(data, num_patterns, time_step, path)
+    dp.plot_np_file(data, time_step, path)

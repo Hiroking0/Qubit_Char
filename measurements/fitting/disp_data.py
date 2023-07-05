@@ -20,17 +20,17 @@ from lib.run_funcs import Data_Arrs
 
 def disp_sequence():
     fn = askopenfilename()
-    timestamp = fn[-3:]
     nf = '\\'.join(fn.split('/')[0:-1]) + "/" #Gets the path of the file and adds a /
+    no_ext_file = ''.join(fn.split('/')[-1])[:-4]
+    
+    
     plt.rcParams.update({'font.size': 18})
 
     for (root, dirs, files) in os.walk(nf):
         for f in files:
-            print(f)
-            if ".json" in f and timestamp in f:
+            if ".json" in f and no_ext_file in f:
                 with open(nf + f) as file:
                     params = json.load(file)
-    print(params)
 
     with open(fn, 'rb') as pickled_file:
         data = pkl.load(pickled_file)
@@ -39,10 +39,10 @@ def disp_sequence():
     if params['measurement'] == 'readout' or params['measurement'] == 'npp':
         timestep = 1
     else:
-        timestep = params['measurement']['step']
+        timestep = params[params['measurement']]['step']
 
 
-    dp.plot_np_file(data, len(data[0]), timestep)
+    dp.plot_np_file(data, timestep)
 
 
     '''
