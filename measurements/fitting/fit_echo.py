@@ -13,8 +13,6 @@ from scipy.optimize import curve_fit
 import sys
 sys.path.append("../../")
 sys.path.append("../")
-from lib.run_funcs import Data_Arrs
-from lib import data_process as dp
 import os
 import json
 import pickle as pkl
