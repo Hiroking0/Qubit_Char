@@ -17,13 +17,28 @@ import tkinter.filedialog as filedialog
 import json
 import numpy as np
 from datetime import datetime
+
 def int_eval(data):
     return eval(str(data))
+
+def eval_yaml(yaml):
+    string_params = ['p1']
+    #for each key, val pair
+        #if key is not in string_params:
+            #yaml[key] = int_eval(val)
+    
+    
+    return yaml
+
+
+
 if __name__ == "__main__":
     
     f = open('./general_config.yaml','r')
     params = yaml.safe_load(f)
     f.close()
+    params = eval_yaml(params)
+
     name = params['name']
     decimation = int_eval(params['decimation'])
     
