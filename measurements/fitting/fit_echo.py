@@ -102,15 +102,13 @@ def fit_subax(ax, x, exp, fit_data, title):
     
     
 def new_fit():
-    fn = askopenfilename()
+    fn = askopenfilename(filetypes=[("Pickles", "*.pkl")])
     
     with open(fn, 'rb') as pickled_file:
         data = pkl.load(pickled_file)
     
     nf = '\\'.join(fn.split('/')[0:-1]) + "/"
     no_ext_file = ''.join(fn.split('/')[-1])[:-4]
-    print("NO EXT", no_ext_file)
-    
     
     for (root, dirs, files) in os.walk(nf):
         for f in files:

@@ -19,7 +19,7 @@ from lib.run_funcs import Data_Arrs
 
 
 def disp_sequence():
-    fn = askopenfilename()
+    fn = askopenfilename(filetypes=[("Pickles", "*.pkl")])
     nf = '\\'.join(fn.split('/')[0:-1]) + "/" #Gets the path of the file and adds a /
     no_ext_file = ''.join(fn.split('/')[-1])[:-4]
     
