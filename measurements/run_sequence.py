@@ -64,7 +64,7 @@ if __name__ == "__main__":
     raw_path = filedialog.askdirectory()
     now = datetime.now()
     date = now.strftime("%m%d_%H%M%S")
-    path = raw_path + "/" + name + "_" + date# + "_"
+    path = raw_path + "/" + name + "_" + date
     data = run_funcs.run_and_acquire(awg,
                                     board,
                                     params,
