@@ -9,7 +9,7 @@ sys.path.append("../")
 from instruments.alazar import ATS9870_NPT as npt
 from instruments import Var_att_interface as ATT
 from instruments import RF_interface as RF
-from instruments.TekAwg import tek_awg as tawg
+#from instruments.TekAwg import tek_awg as tawg
 
 import time
 import numpy as np
@@ -18,11 +18,12 @@ import pyvisa as visa
 import csv
 import matplotlib.pyplot as plt
 import queue
-from datetime import datetime
+
 import pickle as pkl
 
 class Data_Arrs:
     def __init__(self, *args): #a_nosub, a_sub, b_nosub, b_sub, mags_nosub, mags_sub):
+        #print("in func", len(args))
         self.a_nosub = args[0]
         self.a_sub = args[1]
         self.b_nosub = args[2]
@@ -32,29 +33,35 @@ class Data_Arrs:
         self.readout_A = args[6]
         self.readout_B = args[7]
 
-    def save(self, path, name):
-        now = datetime.now()
-        date = now.strftime("%m%d_%H%M%S")
-        with open(name + "_" + date, 'wb') as pickle_file:
+    def save(self, name):
+        
+        with open(name + '.pkl', 'wb') as pickle_file:
             pkl.dump(self, pickle_file)
 
     def get_data_arrs(self):
         return (self.a_nosub, self.a_sub, self.b_nosub, self.b_sub, self.mags_nosub, self.mags_sub, self.readout_A, self.readout_B)
     
     def get_avgs(self):
-        pass
-        '''
-        for i in range(num_patterns):
-        pattern_avgs_cA[i] = np.average(chA_nosub[i])
-        pattern_avgs_cB[i] = np.average(chB_nosub[i])
-        mags[i] = np.average(mags_nosub[i])
-        #mags[i] = np.average(np.sqrt(chB_nosub[i] ** 2 + chA_nosub[i] ** 2))
+        length = len(self.a_nosub)
         
-        pattern_avgs_cA_sub[i] = np.average(chA_sub[i])
-        pattern_avgs_cB_sub[i] = np.average(chB_sub[i])
-        mags_sub[i] = np.average(mags_sub[i])
-        #mags_sub[i] = np.average(np.sqrt(chB_sub[i] ** 2 + chA_sub[i] ** 2))
-        '''
+        pattern_avgs_cA = np.zeros(length)
+        pattern_avgs_cB = np.zeros(length)
+        mags = np.zeros(length)
+        
+        pattern_avgs_cA_sub = np.zeros(length)
+        pattern_avgs_cB_sub = np.zeros(length)
+        mags_sub = np.zeros(length)
+        
+        for i in range(len(mags)):
+            pattern_avgs_cA[i] = np.average(self.a_nosub[i])
+            pattern_avgs_cB[i] = np.average(self.b_nosub[i])
+            mags[i] = np.average(self.mags_nosub[i])
+            
+            pattern_avgs_cA_sub[i] = np.average(self.a_sub[i])
+            pattern_avgs_cB_sub[i] = np.average(self.b_sub[i])
+            mags_sub[i] = np.average(self.mags_sub[i])
+        return (pattern_avgs_cA, pattern_avgs_cB, mags, pattern_avgs_cA_sub, pattern_avgs_cB_sub, mags_sub)
+        
     def gen_data_arrs(self):
         yield self.a_nosub
         yield self.a_sub
@@ -120,8 +127,8 @@ def run_and_acquire(awg,
     awg.run()
     acproc.join()
     awg.stop()
-    
-    data_arrs = Data_Arrs(que.get())
+    arrs = que.get()
+    data_arrs = Data_Arrs(*arrs)
 
     return data_arrs
     

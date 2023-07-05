@@ -8,7 +8,7 @@ Created on Thu Oct 13 14:37:25 2022
 import numpy as np
 import matplotlib.pyplot as plt
 import time
-from run_funcs import Data_Arrs
+from .run_funcs import Data_Arrs
 
 def get_population_v_pattern(arr, thresh, flipped = False):
     plt_arr = np.zeros(len(arr))
@@ -119,27 +119,26 @@ def parse_np_file(arr, num_patterns, pattern_reps, seq_reps, measurement = None)
 
 def plot_hist(ax, dat, num_bins, title):
     #add check for multiple dimensions
-    ln, = ax.hist(dat, bins = num_bins, histtype = 'step', alpha = .5)
-    ax.title(title)
-    return ln
+    ax.hist(dat, bins = num_bins, histtype = 'step', alpha = .5)
+    ax.set_title(title)
 
 def plot_iq(ax, I, Q, title):
     #add check for multiple dimensions
     for i in range(len(I)):
         ax.scatter(I[i], Q[i], alpha = .3)
-    ax.title(title)
+    ax.set_title(title)
 
 
 def plot_subaxis(ax, y, title):
     for i in range(len(y)):
         ax.plot(y[i], alpha = .8)
-    ax.title(title)
+    ax.set_title(title)
 
 def plot_pattern_vs_volt(ax, x, y, title, font_size):
     ax.plot(x, y)
-    ax.title(title)
-    ax.xlabel('time (ns)', fontsize=font_size)
-    ax.ylabel('Voltage (V)', fontsize=font_size)
+    ax.set_title(title)
+    ax.set_xlabel('time (ns)', fontsize=font_size)
+    ax.set_ylabel('Voltage (V)', fontsize=font_size)
     
 
 def plot_np_file(data: Data_Arrs, num_patterns, time_step, path = None):
@@ -150,22 +149,26 @@ def plot_np_file(data: Data_Arrs, num_patterns, time_step, path = None):
 
     fig, ax_array = plt.subplots(3,4)
 
-    plot_subaxis(ax_array[0], readout_a, "ChA readout")
-    plot_subaxis(ax_array[1], readout_b, "ChB readout")
-    plot_iq(ax_array[2], chA_nosub, chB_nosub, "I vs Q nosub")
-    plot_iq(ax_array[3], chA_sub, chB_sub, "I vs Q sub")
-    plot_hist(ax_array[4], chA_nosub, num_bins, "chA_nosub")
-    plot_hist(ax_array[5], chB_nosub, num_bins, "chB_nosub")
-    plot_hist(ax_array[6], mags_nosub, num_bins, "mags_nosub")
-    plot_hist(ax_array[8], chA_sub, num_bins, "chA_sub")
-    plot_hist(ax_array[9], chB_sub, num_bins, "chB_sub")
-    plot_hist(ax_array[10], mags_sub, num_bins, "mags_sub")
-
+    plot_subaxis(ax_array[0,0], readout_a, "ChA readout")
+    plot_subaxis(ax_array[0,1], readout_b, "ChB readout")
+    plot_iq(ax_array[0,2], chA_nosub, chB_nosub, "I vs Q nosub")
+    plot_iq(ax_array[0,3], chA_sub, chB_sub, "I vs Q sub")
+    plot_hist(ax_array[1,0], chA_nosub, num_bins, "chA_nosub")
+    plot_hist(ax_array[1,1], chB_nosub, num_bins, "chB_nosub")
+    plot_hist(ax_array[1,2], mags_nosub, num_bins, "mags_nosub")
+    plot_hist(ax_array[2,0], chA_sub, num_bins, "chA_sub")
+    plot_hist(ax_array[2,1], chB_sub, num_bins, "chB_sub")
+    plot_hist(ax_array[2,2], mags_sub, num_bins, "mags_sub")
+    fig.delaxes(ax_array[1,3])
+    fig.delaxes(ax_array[2,3])
+    #plt.show()
+    
+    
     
 
     (pattern_avgs_cA, pattern_avgs_cA_sub, pattern_avgs_cB, pattern_avgs_cB_sub, mags, mags_sub) = data.get_avgs()
 
-
+    
     x = [i*time_step for i in range(num_patterns)]
 
     #plt.figure()
@@ -178,12 +181,12 @@ def plot_np_file(data: Data_Arrs, num_patterns, time_step, path = None):
     #plt.rc('ytick', labelsize=font_size)
     
 
-    plot_pattern_vs_volt(ax_array[0], x, pattern_avgs_cA, "ChA nosub", font_size)
-    plot_pattern_vs_volt(ax_array[1], x, pattern_avgs_cB, "ChB nosub", font_size)
-    plot_pattern_vs_volt(ax_array[2], x, pattern_avgs_cA_sub, "ChA sub", font_size)
-    plot_pattern_vs_volt(ax_array[3], x, pattern_avgs_cB_sub, "ChB sub", font_size)
-    plot_pattern_vs_volt(ax_array[4], x, mags, "mags nosub", font_size)
-    plot_pattern_vs_volt(ax_array[5], x, mags_sub, "mags sub", font_size)
+    plot_pattern_vs_volt(ax_array[0,0], x, pattern_avgs_cA, "ChA nosub", font_size)
+    plot_pattern_vs_volt(ax_array[0,1], x, pattern_avgs_cB, "ChB nosub", font_size)
+    plot_pattern_vs_volt(ax_array[0,2], x, pattern_avgs_cA_sub, "ChA sub", font_size)
+    plot_pattern_vs_volt(ax_array[1,0], x, pattern_avgs_cB_sub, "ChB sub", font_size)
+    plot_pattern_vs_volt(ax_array[1,1], x, mags, "mags nosub", font_size)
+    plot_pattern_vs_volt(ax_array[1,2], x, mags_sub, "mags sub", font_size)
 
     
 
@@ -192,7 +195,6 @@ def plot_np_file(data: Data_Arrs, num_patterns, time_step, path = None):
     if path:
         plt.savefig(path + "_pic", dpi= 300, pad_inches = 0, bbox_inches = 'tight')
     plt.show()
-
 
 
 

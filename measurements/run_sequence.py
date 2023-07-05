@@ -15,7 +15,7 @@ from instruments.alazar import atsapi as ats
 import yaml
 import tkinter.filedialog as filedialog
 import json
-import numpy as np
+from datetime import datetime
 
 def int_eval(data):
     return eval(str(data))
@@ -61,8 +61,10 @@ if __name__ == "__main__":
     
     run_funcs.initialize_awg(awg, num_patterns, pattern_repeat, decimation)
     run_funcs.init_params(params)
-        
-    path = filedialog.askdirectory() + "/" + name + "_"
+    raw_path = filedialog.askdirectory()
+    now = datetime.now()
+    date = now.strftime("%m%d_%H%M%S")
+    path = raw_path + "/" + name + "_" + date + "_"
     data = run_funcs.run_and_acquire(awg,
                                     board,
                                     params,
@@ -70,17 +72,14 @@ if __name__ == "__main__":
                                     path)
 
     
+    
     j_file = open(path+"json.json", 'w')
     json.dump(params, j_file, indent = 4)
     j_file.close()
-    data.save(path, name)
+    data.save(path)
     
-
-    #(chA, chB) = dp.frombin(tot_samples = samples_per_ac, numAcquisitions = num_patterns*pattern_repeat*seq_repeat, channels = 2, name = path + "rawdata.bin")
-    #dp.plot_all(chA, chB, num_patterns, pattern_repeat, seq_repeat, params['avg_start'], params['avg_length'], large_data_plot = False)
-
     if params['measurement'] == 'readout' or params['measurement'] == 'npp':
-        time_step = None
+        time_step = 1
     else:
         time_step = params[params['measurement']]['step']
 

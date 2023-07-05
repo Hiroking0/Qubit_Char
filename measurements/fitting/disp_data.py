@@ -26,10 +26,11 @@ def disp_sequence():
 
     for (root, dirs, files) in os.walk(nf):
         for f in files:
+            print(f)
             if ".json" in f and timestamp in f:
                 with open(nf + f) as file:
                     params = json.load(file)
-
+    print(params)
 
     with open(fn, 'rb') as pickled_file:
         data = pkl.load(pickled_file)
