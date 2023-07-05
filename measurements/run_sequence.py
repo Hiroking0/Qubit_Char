@@ -41,18 +41,18 @@ if __name__ == "__main__":
     f.close()
     params = eval_yaml(params)
     name = params['name']
-    decimation = int_eval(params['decimation'])
+    decimation = params['decimation']
     
-    pattern_repeat = int_eval(params['pattern_repeat'])
-    seq_repeat = int_eval(params['seq_repeat'])
+    pattern_repeat = params['pattern_repeat']
+    seq_repeat = params['seq_repeat']
     
-    readout_dur = int_eval(params[params['measurement']]['readout_duration'])
-    readout_trigger_offset = int_eval(params['readout_trigger_offset'])
+    readout_dur = params[params['measurement']]['readout_duration']
+    readout_trigger_offset = params['readout_trigger_offset']
     acq_multiples = int((readout_dur + readout_trigger_offset)/256) + 10
     samples_per_ac = 256*acq_multiples #length of acquisition in nS must be n*256
 
-    avg_start = int_eval(params['avg_start'])
-    avg_length = int_eval(params['avg_length'])
+    avg_start = params['avg_start']
+    avg_length = params['avg_length']
     
 
     awg = be.get_awg()
@@ -60,7 +60,7 @@ if __name__ == "__main__":
     num_patterns = awg.get_seq_length()
     
     w_len = awg.get_waveform_lengths(name + "_1_0")
-    wait_time = int_eval(params['zero_length']) * int_eval(params['zero_multiple']) + w_len
+    wait_time = params['zero_length'] * params['zero_multiple'] + w_len
     wait_time *= seq_repeat * pattern_repeat * num_patterns
     wait_time /= 1e9
     wait_time += .3
@@ -70,7 +70,7 @@ if __name__ == "__main__":
     path = filedialog.askdirectory() + "/" + name + "_"
     
     for i in range(num_patterns):
-        awg.set_seq_element_loop_cnt(i+1, int_eval(params['pattern_repeat']))
+        awg.set_seq_element_loop_cnt(i+1, params['pattern_repeat'])
 
     board = ats.Board(systemId = 1, boardId = 1)
     npt.ConfigureBoard(board)
@@ -116,13 +116,13 @@ if __name__ == "__main__":
     
     if save_raw:
         (chA, chB) = dp.frombin(tot_samples = samples_per_ac, numAcquisitions = num_patterns*pattern_repeat*seq_repeat, channels = 2, name = path + "rawdata.bin")
-        dp.plot_all(chA, chB, num_patterns, pattern_repeat, seq_repeat, int_eval(params['avg_start']), int_eval(params['avg_length']), large_data_plot = False)
+        dp.plot_all(chA, chB, num_patterns, pattern_repeat, seq_repeat, params['avg_start'], params['avg_length'], large_data_plot = False)
         #dp.plot_np_file(num_patterns, pattern_repeat, seq_repeat, time_step, path)
     else:
         #if num_patterns < 3:
         #    time_step=1
         #else:
-        time_step = int_eval(params[params['measurement']]['step'])
+        time_step = params[params['measurement']]['step']
         dp.plot_np_file(num_patterns, pattern_repeat, seq_repeat, time_step, path)
         
     #dp.plot_np_file(num_patterns, pattern_repeat, seq_repeat, time_step, path)
