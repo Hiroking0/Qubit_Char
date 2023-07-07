@@ -19,6 +19,13 @@ import tkinter.filedialog as tkf
 import json
 def int_eval(data):
     return eval(str(data))
+
+def plot_subax(ax, x, y, title):
+    for i in range(len(y)):
+        ax.plot(x, y[i])
+    ax.set_title(title)
+
+
 if __name__ == "__main__":
     
     f = open('general_config.yaml','r')
@@ -48,17 +55,8 @@ if __name__ == "__main__":
     p1stop = int_eval(params['p1stop'])
     p1step = int_eval(params['p1step'])
 
+
     p1 = params['p1']
-    '''
-    if p1 == 'wq' or p1 == 'wr':
-        p1start = params['p1start']
-        p1stop = params['p1stop']
-        p1step = params['p1step']
-    else:
-        p1start = params['p1start']
-        p1stop = params['p1stop']
-        p1step = params['p1step']
-        '''
     
     awg = be.get_awg()
     num_patterns = awg.get_seq_length()
@@ -77,51 +75,26 @@ if __name__ == "__main__":
                                                                     params,
                                                                     live_plot = False)
     
-    np.save(name + "chA_sub", cAp_sub)
-    np.save(name + "chB_sub", cBp_sub)
-    np.save(name + "chA_nosub", cAp_nosub)
-    np.save(name + "chB_nosub", cBp_nosub)
-    np.save(name + "mags_sub", mags_sub)
-    np.save(name + "mags_sub", mags_nosub)
+    #np.save(name + "chA_sub", cAp_sub)
+    #np.save(name + "chB_sub", cBp_sub)
+    #np.save(name + "chA_nosub", cAp_nosub)
+    #np.save(name + "chB_nosub", cBp_nosub)
+    #np.save(name + "mags_sub", mags_sub)
+    #np.save(name + "mags_sub", mags_nosub)
     
     x = np.arange(p1start, p1stop, p1step)
     
     print(np.shape(cAp_sub))
     #plt.figure()
-    plt.subplot(2,3,1)
-    for i in range(num_patterns):
-        plt.plot(x, cAp_sub[i])
-    plt.title('channel a')
-    
-    plt.subplot(2,3,2)
-    for i in range(num_patterns):
-        plt.plot(x, cBp_sub[i])
-    plt.title('channel b')
-    
-    
-    plt.subplot(2,3,3)
-    for i in range(num_patterns):
-        plt.plot(x, mags_sub[i])
-    plt.title('Magnitude sub')
-    
-    plt.subplot(2,3,4)
-    for i in range(num_patterns):
-        plt.plot(x, cAp_nosub[i])
-    plt.title('channel a nosub')
-    
-    plt.subplot(2,3,5)
-    for i in range(num_patterns):
-        plt.plot(x, cBp_nosub[i])
-    plt.title('channel b nosub')
-    
-    
-    plt.subplot(2,3,6)
-    for i in range(num_patterns):
-       plt.plot(x, mags_nosub[i])
-    plt.title('Magnitude nosub')
-    
-    
-    
+
+    fig, ax_array = plt.subplots(2,3)
+    plot_subax(ax_array[0,0], x, cAp_sub, 'channel a sub')
+    plot_subax(ax_array[0,1], x, cBp_sub, 'channel b sub')
+    plot_subax(ax_array[0,2], x, mags_sub, 'mags sub')
+    plot_subax(ax_array[1,0], x, cAp_nosub, 'channel a nosub')
+    plot_subax(ax_array[1,1], x, cBp_nosub, 'channel b nosub')
+    plot_subax(ax_array[1,2], x, mags_nosub, 'mags nosub')
+
     #plt.figure()
     #diff = cBp_nosub[0] - cBp_nosub[1]
     #plt.plot(x, diff)

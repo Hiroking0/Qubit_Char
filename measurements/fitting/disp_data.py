@@ -14,45 +14,56 @@ import os
 import json
 import pandas
 import fit_rabi
+import pickle as pkl
+from lib.run_funcs import Data_Arrs
+
 
 def disp_sequence():
-    fn = askopenfilename()
-    nf = '\\'.join(fn.split('/')[0:-1]) + "/"
+    fn = askopenfilename(filetypes=[("Pickles", "*.pkl")])
+    nf = '\\'.join(fn.split('/')[0:-1]) + "/" #Gets the path of the file and adds a /
+    no_ext_file = ''.join(fn.split('/')[-1])[:-4]
+    
+    
     plt.rcParams.update({'font.size': 18})
+
     for (root, dirs, files) in os.walk(nf):
         for f in files:
-            if ".json" in f:
+            if ".json" in f and no_ext_file in f:
                 with open(nf + f) as file:
                     params = json.load(file)
 
-    #try to open file as numpy array, this means it was many patterns.
-    
-    arr = np.load(fn)
+    with open(fn, 'rb') as pickled_file:
+        data = pkl.load(pickled_file)
+    #data is a Data_arrs type
+
+    if params['measurement'] == 'readout' or params['measurement'] == 'npp':
+        timestep = 1
+    else:
+        timestep = params[params['measurement']]['step']
+
+
+    dp.plot_np_file(data, timestep)
+
+
+    '''
     #print(np.shape(arr))
     pop = dp.get_population_v_pattern(arr, params['v_threshold'])
     print(pop)
     dp.plot_histogram(arr)
     params = params[params['measurement']]
     x = []
-    if "rabi" in nf.lower():
+    measurement = params['measurement']
+
+    if measurement == "rabi":
         x = np.linspace(params['rabi_pulse_initial_duration'], params['rabi_pulse_end_duration'], num = len(arr))
-    if "ramsey" in nf.lower():
+    if measurement == "ramsey":
         x = np.linspace(params['ramsey_gap_1_init'], params['ramsey_gap_1_final'], num = len(arr))
-    if "t1" in nf.lower():
+    if measurement == "t1":
         x = np.linspace(params['T1_init_gap'], params['T1_final_gap'], num = len(arr))
-    if "echo" in nf.lower():
+    if measurement == "echo" or measurement == "echo_1ax":
         x = np.linspace(params['echo_initial_t'], params['echo_final_t'], num = len(arr))
-    if len(arr) > 1:
-        avgs = [np.average(a) for a in arr]
-        plt.plot(avgs)
-        plt.show()
-    '''
-    if len(arr) > 1:
-        pop = dp.get_population_v_pattern(arr, params['v_threshold'], flipped = True)
-        plt.plot(pop)
-        #print(pop)
-        plt.show()
-     '''  
+
+
     #n_points = params['seq_repeat'] * params['pattern_repeat']
     wq = params['set_wq']*(10**9)
     kb = 1.38e-23
@@ -63,7 +74,14 @@ def disp_sequence():
     
     T = -del_E/denom
     print("Effective tempurature (mK):", T*(10**3))
-    
+    '''
+
+def plot_mesh_subax(ax, x, y, data, title, xlabel, ylabel):
+    ax.pcolormesh(x, y, data, shading = 'auto')
+    ax.title(title)
+    ax.xlabel('pattern #')
+    ax.ylabel(ylabel)
+    ax.xlabel(xlabel)
 
 def disp_single_sweep():
     
@@ -82,61 +100,38 @@ def disp_single_sweep():
     x = np.linspace(0, 2000, num = 51)
     y = np.linspace(min_sweep, max_sweep, num=sweep_num)
     
-    plt.subplot(2,3,1)
+
+    fig, ax_array = plt.subplots(2,3)
+
     chA_nosub = csvFile['chA_nosub'].to_list()
     chA_nosub = np.reshape(chA_nosub, shape)
     chA_nosub = np.transpose(chA_nosub)
-    plt.pcolormesh(x, y, chA_nosub, shading = 'auto')
-    plt.title("chA_nosub")
-    plt.xlabel("pattern #")
-    plt.ylabel(sweep_param)
-    
-    plt.subplot(2,3,2)
+    plot_mesh_subax(ax_array[0], x, y, chA_nosub, "chA_nosub", "pattern #", sweep_param)
+
     chB_nosub = csvFile['chB_nosub'].to_list()
     chB_nosub = np.reshape(chB_nosub, shape)
     chB_nosub = np.transpose(chB_nosub)
-    plt.pcolormesh(x, y, chB_nosub, shading = 'auto')
-    plt.title("chB_nosub")
-    plt.xlabel("pattern #")
-    plt.ylabel(sweep_param)
+    plot_mesh_subax(ax_array[1], x, y, chB_nosub, "chB_nosub", "pattern #", sweep_param)
     
-    plt.subplot(2,3,3)
     mags_nosub = csvFile['mag_nosub'].to_list()
     mags_nosub = np.reshape(mags_nosub, shape)
     mags_nosub = np.transpose(mags_nosub)
-    plt.pcolormesh(x, y, mags_nosub, shading = 'auto')
-    plt.title("mags_nosub")
-    plt.xlabel("pattern #")
-    plt.ylabel(sweep_param)
+    plot_mesh_subax(ax_array[2], x, y, mags_nosub, "mags_nosub", "pattern #", sweep_param)
 
-    plt.subplot(2,3,4)
     chA_sub = csvFile['chA_sub'].to_list()
     chA_sub = np.reshape(chA_sub, shape)
     chA_sub = np.transpose(chA_sub)
-    plt.pcolormesh(x, y, chA_sub, shading = 'auto')
-    plt.title("chA_sub")
-    plt.xlabel("pattern #")
-    plt.ylabel(sweep_param)
+    plot_mesh_subax(ax_array[3], x, y, chA_sub, "chA_sub", "pattern #", sweep_param)
 
-
-    plt.rcParams.update({'font.size': 16})
-    plt.subplot(2,3,5)
     chB_sub = csvFile['chB_sub'].to_list()
     chB_sub = np.reshape(chB_sub, shape)
     chB_sub = np.transpose(chB_sub)
-    plt.pcolormesh(x, y, chB_sub, shading = 'auto')
-    plt.title("ChB_sub")
-    plt.xlabel("$t_{ramsey} (ns)$", fontsize=16)
-    plt.ylabel('qubit drive frequency (GHz)', fontsize=16)
+    plot_mesh_subax(ax_array[4], x, y, chB_sub, "chB_sub", "pattern #", sweep_param)
     
-    plt.subplot(2,3,6)
     mags_sub = csvFile['mag_sub'].to_list()
     mags_sub = np.reshape(mags_sub, shape)
     mags_sub = np.transpose(mags_sub)
-    plt.pcolormesh(x, y, mags_sub, shading = 'auto')
-    plt.title("mags_sub")
-    plt.xlabel("pattern #")
-    plt.ylabel(sweep_param)
+    plot_mesh_subax(ax_array[5], x, y, mags_sub, "mags_sub", "pattern #", sweep_param)
     
     
     plt.show()
@@ -318,10 +313,62 @@ def disp_double_sweep():
     plt.pcolormesh(x, y, z)
     plt.show()
 
+def get_temp_thresh():
+    fn = askopenfilename(filetypes=[("Pickles", "*.pkl")])
+    nf = '\\'.join(fn.split('/')[0:-1]) + "/" #Gets the path of the file and adds a /
+    no_ext_file = ''.join(fn.split('/')[-1])[:-4]
+    
+    
+    #plt.rcParams.update({'font.size': 18})
+
+    for (root, dirs, files) in os.walk(nf):
+        for f in files:
+            if ".json" in f and no_ext_file in f:
+                with open(nf + f) as file:
+                    params = json.load(file)
+
+    with open(fn, 'rb') as pickled_file:
+        data = pkl.load(pickled_file)
+    #data is a Data_arrs type
+
+    if params['measurement'] == 'readout' or params['measurement'] == 'npp':
+        timestep = 1
+    else:
+        timestep = params[params['measurement']]['step']
+
+
+    #dp.plot_np_file(data, timestep)
+
+
+    
+    #print(np.shape(arr))
+    #ans, bns, mns, as, bs, ms
+    pop = dp.get_population_v_pattern(data.get_data_arrs()[0], params['v_threshold'])
+    print(pop)
+    #dp.plot_histogram(pop)
+    #x = []
+    #measurement = params['measurement']
+
+
+    #n_points = params['seq_repeat'] * params['pattern_repeat']
+    wq = (params['set_wq'] + params[params['measurement']]['ssb_freq'])*1e9
+    kb = 1.38649e-23
+    hbar = 1.05457e-34
+    del_E = (-hbar * 2 * np.pi * wq)
+    
+    denom = kb * np.log((pop[0])/(1-pop[0]))
+    
+    T = -del_E/denom
+    print("Effective tempurature (mK):", T*(10**3))
+    
+
+
+
 if __name__ == "__main__":
-    disp_double_sweep()
+    #get_temp_thresh()
+    #disp_double_sweep()
     #disp_sequence()
-    #show_sweep_output()
+    show_sweep_output()
     #disp_single_sweep()
     #disp_3_chevrons()
     

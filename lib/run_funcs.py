@@ -9,7 +9,7 @@ sys.path.append("../")
 from instruments.alazar import ATS9870_NPT as npt
 from instruments import Var_att_interface as ATT
 from instruments import RF_interface as RF
-from instruments.TekAwg import tek_awg as tawg
+#from instruments.TekAwg import tek_awg as tawg
 
 import time
 import numpy as np
@@ -18,22 +18,68 @@ import pyvisa as visa
 import csv
 import matplotlib.pyplot as plt
 import queue
-#board should be acquired by running ats.Board(systemId = 1, boardId = 1)
-#then npt.ConfigureBoard(board)
-#awg by running be.get_awg()
 
-def get_func_call_and_param(params):
-    pass
+import pickle as pkl
 
+class Data_Arrs:
+    def __init__(self, *args): #a_nosub, a_sub, b_nosub, b_sub, mags_nosub, mags_sub):
+        #print("in func", len(args))
+        self.a_nosub = args[0]
+        self.a_sub = args[1]
+        self.b_nosub = args[2]
+        self.b_sub = args[3]
+        self.mags_nosub = args[4]
+        self.mags_sub = args[5]
+        self.readout_A = args[6]
+        self.readout_B = args[7]
 
+    def save(self, name):
+        
+        with open(name + '.pkl', 'wb') as pickle_file:
+            pkl.dump(self, pickle_file)
 
-#wave length should be wait_time + readout_start + readout+duration
-def initialize_awg(awg, num_patterns, pattern_repeat, decimation):
-    awg.set_chan_state(1, [1,2,3,4])
+    def get_data_arrs(self):
+        return (self.a_nosub, self.a_sub, self.b_nosub, self.b_sub, self.mags_nosub, self.mags_sub, self.readout_A, self.readout_B)
     
+    def get_avgs(self):
+        length = len(self.a_nosub)
+        
+        pattern_avgs_cA = np.zeros(length)
+        pattern_avgs_cB = np.zeros(length)
+        mags = np.zeros(length)
+        
+        pattern_avgs_cA_sub = np.zeros(length)
+        pattern_avgs_cB_sub = np.zeros(length)
+        mags_sub = np.zeros(length)
+        
+        for i in range(len(mags)):
+            pattern_avgs_cA[i] = np.average(self.a_nosub[i])
+            pattern_avgs_cB[i] = np.average(self.b_nosub[i])
+            mags[i] = np.average(self.mags_nosub[i])
+            
+            pattern_avgs_cA_sub[i] = np.average(self.a_sub[i])
+            pattern_avgs_cB_sub[i] = np.average(self.b_sub[i])
+            mags_sub[i] = np.average(self.mags_sub[i])
+        return (pattern_avgs_cA, pattern_avgs_cB, mags, pattern_avgs_cA_sub, pattern_avgs_cB_sub, mags_sub)
+        
+    def gen_data_arrs(self):
+        yield self.a_nosub
+        yield self.a_sub
+        yield self.b_nosub
+        yield self.b_sub
+        yield self.mags_nosub
+        yield self.mags_sub
+
+        
+
+
+
+def initialize_awg(awg, num_patterns, pattern_repeat, decimation):
+    awg.set_chan_state(1, [1,2,3,4])    
     
     for i in range(1, num_patterns):
         awg.set_seq_element_goto_state(i, 0)
+        awg.set_seq_element_loop_cnt(i, pattern_repeat)
     awg.set_seq_element_goto_state(num_patterns, 1)
     #set sampling rate
     new_freq = 1/decimation
@@ -63,30 +109,28 @@ def run_and_acquire(awg,
                 board,
                 params,
                 num_patterns,
-                save_raw,
-                path):
+                path) -> Data_Arrs:
     """
     runs sequence on AWG once. params should be dictionary of YAML file.
     """
-    #samples_per_ac = params['acq_multiples']*256
-    #pattern_repeat = params['pattern_repeat']
-    #seq_repeat = params['seq_repeat']
-    
+
+    save_raw = False
+    live_plot = False
     que = queue.Queue()
+
     acproc = Thread(target = lambda q, board, params, num_patterns, path, raw, live:
                             q.put(npt.AcquireData(board, params, num_patterns, path, raw, live)), 
-                            args = (que, board, params, num_patterns, path, save_raw, False))
-    #acproc = Thread(target = npt.AcquireData, args = (board, params, num_patterns, path, save_raw, False))
-    
+                            args = (que, board, params, num_patterns, path, save_raw, live_plot))
+
     acproc.start()
     time.sleep(.3)
     awg.run()
     acproc.join()
     awg.stop()
-    
-    (chA_avgs_sub, chB_avgs_sub, chA_avgs_nosub, chB_avgs_nosub, mag_sub, mag_nosub) = que.get()
-    
-    return (chA_avgs_sub, chB_avgs_sub, chA_avgs_nosub, chB_avgs_nosub, mag_sub, mag_nosub)
+    arrs = que.get()
+    data_arrs = Data_Arrs(*arrs)
+
+    return data_arrs
     
     
 #this function will take one of the do_all functions as a parameter
@@ -124,6 +168,8 @@ def get_func_call(rm, sweep_param, awg):
         'pr': RF.RF_source,
         'r_att': ATT.Atten,
         'q_att': ATT.Atten,
+        'p_twpa': RF.RF_source,
+        'w_twpa': RF.RF_source
         #'amp': tawg.connect_raw_visa_socket,
         }
     if sweep_param == "amp":
@@ -140,12 +186,12 @@ def get_func_call(rm, sweep_param, awg):
         'pq': 'set_power',
         'r_att': 'set_attenuation',
         'q_att': 'set_attenuation',
+        'p_twpa': 'set_power',
+        'w_twpa': 'set_freq',
         'amp' : "set_amplitude"
         }
     
     func_call = getattr(inst, func_table[sweep_param])
-    
-
     return func_call
 
 
@@ -206,22 +252,24 @@ def single_sweep(name,
         #print(func_call)
         time.sleep(.05)
         
-        (chA_sub, chB_sub, chA_nosub, chB_nosub, mag_sub, mag_nosub) = run_and_acquire(awg,
-                                                                                       board,
-                                                                                       params,
-                                                                                       num_patterns,
-                                                                                       save_raw = False,
-                                                                                       path = name)
-        
+        data = run_and_acquire(awg,
+                                board,
+                                params,
+                                num_patterns,
+                                path = name)
+        #(pattern_avgs_cA, pattern_avgs_cB, mags, pattern_avgs_cA_sub, pattern_avgs_cB_sub, mags_sub)
         #avgsA should be array of shape(num_patterns, sweep_num, x)
+        (t_an, t_bn, m_ns, t_as, t_bs, m_s) = data.get_avgs()
+
+
+
         
-        for i in range(num_patterns):
-            avgsA_sub[i][sweep_num] = np.average(chA_sub[i])
-            avgsB_sub[i][sweep_num] = np.average(chB_sub[i])
-            avgsA_nosub[i][sweep_num] = np.average(chA_nosub[i])
-            avgsB_nosub[i][sweep_num] = np.average(chB_nosub[i])
-            mags_sub[i][sweep_num] = np.average(mag_sub[i])
-            mags_nosub[i][sweep_num] = np.average(mag_nosub[i])
+        avgsA_sub[:, sweep_num] = t_as
+        avgsB_sub[:, sweep_num] = t_bs
+        avgsA_nosub[:, sweep_num] = t_an
+        avgsB_nosub[:, sweep_num] = t_bn
+        mags_sub[:, sweep_num] = m_s
+        mags_nosub[:, sweep_num] = m_ns
         #Here avgs[:][0:sweep_num] should be correct. the rest of avgs[:][sweep_num:] should be 0
         
         if live_plot and sweep_num > 0:
@@ -239,7 +287,7 @@ def single_sweep(name,
         #pattern num = i
         #sweep param val = param
         #channel A = avgsA[i][sweep_num]
-    f_name = sweep_param + "_" + str(param) + "_" + str(i) + ".csv"
+    f_name = sweep_param + "_" + str(param) + ".csv"
     with open(name + '_' + f_name, 'w', newline='') as output:
         wr = csv.writer(output, delimiter=',', quoting=csv.QUOTE_NONE)
         if extra_column != None:
@@ -264,6 +312,7 @@ def single_sweep(name,
                     t_row.append(extra_column[1])
                 
                 wr.writerow(t_row)
+                
     return (avgsA_sub, avgsB_sub, avgsA_nosub, avgsB_nosub, mags_sub, mags_nosub)
     
     
