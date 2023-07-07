@@ -56,8 +56,8 @@ def init_params(params):
     r_att.set_attenuation(params['set_r_att'])
     twpa_rf.set_power(params['set_p_twpa'])
     twpa_rf.set_freq(params['set_w_twpa'])
-    q_rf.enable_out()
-    r_rf.enable_out()
+    #q_rf.enable_out()
+    #r_rf.enable_out()
     
 def run_and_acquire(awg,
                 board,
@@ -161,6 +161,13 @@ def single_sweep(name,
     #1.8 rf is for qubit
     #1.7 rf is for readout
     
+
+    att_sweeps = ['q_att', 'r_att']
+    rf_sweeps = ['wq', 'pq', 'wr', 'pr', 'w_twpa', 'p_twpa']
+    ena_sweeps = ['w_ena', 'p_ena']
+    
+    freq_sweeps = ['wq', 'wr', 'w_twpa', 'w_ena']
+    pow_sweeps = ['pq', 'pr', 'p_twpa', 'p_ena']
 
     sweep_param = params['p1']
     start = params['p1start']

@@ -55,8 +55,8 @@ amplitude:
 rabi:
     rabi_pulse_gap: 20 #samples between readout pulse and end of qubit pulse. Does NOT change between patterns
     rabi_pulse_initial_duration: 0 #first duration of qubit pulse
-    rabi_pulse_end_duration: 800 # Rabi length, final duration of qubit pulse (should be larger than initial)
-    step: 16
+    rabi_pulse_end_duration: 1000 # Rabi length, final duration of qubit pulse (should be larger than initial)
+    step: 20
     readout_duration: 20000
     ssb_freq: 0
     ssb_phase: 90
@@ -153,7 +153,7 @@ set_w_twpa: 8.5689
 #first letter is w for frequency p for power
 #second letter is q for qubit RF generator and r for readout RF
 #also p_twpa and w_twpa
-
+#also w_ena
 #sweep params in GHz or db for attenuator
 #If doing a single sweep, will look at p1, double will look at both
 
