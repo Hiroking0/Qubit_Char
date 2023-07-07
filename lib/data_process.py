@@ -195,9 +195,9 @@ def plot_np_file(data: Data_Arrs, time_step, path = None):
 
     plot_pattern_vs_volt(ax_array[0,0], x, pattern_avgs_cA, "ChA nosub", font_size)
     plot_pattern_vs_volt(ax_array[0,1], x, pattern_avgs_cB, "ChB nosub", font_size)
-    plot_pattern_vs_volt(ax_array[0,2], x, pattern_avgs_cA_sub, "ChA sub", font_size)
-    plot_pattern_vs_volt(ax_array[1,0], x, pattern_avgs_cB_sub, "ChB sub", font_size)
-    plot_pattern_vs_volt(ax_array[1,1], x, mags, "mags nosub", font_size)
+    plot_pattern_vs_volt(ax_array[1,0], x, pattern_avgs_cA_sub, "ChA sub", font_size)
+    plot_pattern_vs_volt(ax_array[1,1], x, pattern_avgs_cB_sub, "ChB sub", font_size)
+    plot_pattern_vs_volt(ax_array[0,2], x, mags, "mags nosub", font_size)
     plot_pattern_vs_volt(ax_array[1,2], x, mags_sub, "mags sub", font_size)
 
     
