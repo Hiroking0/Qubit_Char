@@ -119,16 +119,18 @@ def parse_np_file(arr, num_patterns, pattern_reps, seq_reps, measurement = None)
 
 def plot_hist(ax, dat, num_bins, title):
     #add check for multiple dimensions
-    ax.hist(dat, bins = num_bins, histtype = 'step', alpha = .5)
+    for pattern in dat:
+        ax.hist(pattern, bins = num_bins, histtype = 'step', alpha = .8)
     ax.set_title(title)
 
 def plot_iq(ax, I, Q, title):
-    bins = 500
+    bins = 100
     H, xedges, yedges = np.histogram2d(I.flatten(), Q.flatten(), bins=(bins, bins))
     H = H.T
     X, Y = np.meshgrid(xedges, yedges)
     
     ax.imshow(H, interpolation='nearest',)
+    ax.set_title(title)
     #ax.pcolormesh(X, Y, H)
     
     '''
@@ -155,7 +157,7 @@ def plot_np_file(data: Data_Arrs, time_step, path = None):
     (chA_nosub, chA_sub, chB_nosub, chB_sub, mags_nosub, mags_sub, readout_a, readout_b) = data.get_data_arrs()
     num_patterns = 1 if np.ndim(chA_nosub) == 1 else len(chA_nosub)
 
-    num_bins = 500
+    num_bins = 200
 
     fig, ax_array = plt.subplots(3,4)
 

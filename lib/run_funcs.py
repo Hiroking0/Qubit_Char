@@ -168,6 +168,8 @@ def get_func_call(rm, sweep_param, awg):
         'pr': RF.RF_source,
         'r_att': ATT.Atten,
         'q_att': ATT.Atten,
+        'p_twpa': RF.RF_source,
+        'w_twpa': RF.RF_source
         #'amp': tawg.connect_raw_visa_socket,
         }
     if sweep_param == "amp":
@@ -184,6 +186,8 @@ def get_func_call(rm, sweep_param, awg):
         'pq': 'set_power',
         'r_att': 'set_attenuation',
         'q_att': 'set_attenuation',
+        'p_twpa': 'set_power',
+        'w_twpa': 'set_freq',
         'amp' : "set_amplitude"
         }
     
@@ -252,11 +256,10 @@ def single_sweep(name,
                                 board,
                                 params,
                                 num_patterns,
-                                save_raw = False,
                                 path = name)
-        
+        #(pattern_avgs_cA, pattern_avgs_cB, mags, pattern_avgs_cA_sub, pattern_avgs_cB_sub, mags_sub)
         #avgsA should be array of shape(num_patterns, sweep_num, x)
-        (t_an, t_as, t_bn, t_bs, m_ns, m_s, ra, rb) = data.get_avgs()
+        (t_an, t_bn, m_ns, t_as, t_bs, m_s) = data.get_avgs()
 
 
 
@@ -284,7 +287,7 @@ def single_sweep(name,
         #pattern num = i
         #sweep param val = param
         #channel A = avgsA[i][sweep_num]
-    f_name = sweep_param + "_" + str(param) + "_" + str(i) + ".csv"
+    f_name = sweep_param + "_" + str(param) + ".csv"
     with open(name + '_' + f_name, 'w', newline='') as output:
         wr = csv.writer(output, delimiter=',', quoting=csv.QUOTE_NONE)
         if extra_column != None:

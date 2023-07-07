@@ -23,7 +23,7 @@ def int_eval(data):
 def plot_subax(ax, x, y, title):
     for i in range(len(y)):
         ax.plot(x, y[i])
-    ax.title(title)
+    ax.set_title(title)
 
 
 if __name__ == "__main__":
@@ -75,12 +75,12 @@ if __name__ == "__main__":
                                                                     params,
                                                                     live_plot = False)
     
-    np.save(name + "chA_sub", cAp_sub)
-    np.save(name + "chB_sub", cBp_sub)
-    np.save(name + "chA_nosub", cAp_nosub)
-    np.save(name + "chB_nosub", cBp_nosub)
-    np.save(name + "mags_sub", mags_sub)
-    np.save(name + "mags_sub", mags_nosub)
+    #np.save(name + "chA_sub", cAp_sub)
+    #np.save(name + "chB_sub", cBp_sub)
+    #np.save(name + "chA_nosub", cAp_nosub)
+    #np.save(name + "chB_nosub", cBp_nosub)
+    #np.save(name + "mags_sub", mags_sub)
+    #np.save(name + "mags_sub", mags_nosub)
     
     x = np.arange(p1start, p1stop, p1step)
     
@@ -88,12 +88,12 @@ if __name__ == "__main__":
     #plt.figure()
 
     fig, ax_array = plt.subplots(2,3)
-    plot_subax(ax_array[0], cAp_sub, 'channel a sub')
-    plot_subax(ax_array[1], cBp_sub, 'channel b sub')
-    plot_subax(ax_array[2], mags_sub, 'mags sub')
-    plot_subax(ax_array[3], cAp_nosub, 'channel a nosub')
-    plot_subax(ax_array[4], cBp_nosub, 'channel b nosub')
-    plot_subax(ax_array[5], mags_nosub, 'mags nosub')
+    plot_subax(ax_array[0,0], x, cAp_sub, 'channel a sub')
+    plot_subax(ax_array[0,1], x, cBp_sub, 'channel b sub')
+    plot_subax(ax_array[0,2], x, mags_sub, 'mags sub')
+    plot_subax(ax_array[1,0], x, cAp_nosub, 'channel a nosub')
+    plot_subax(ax_array[1,1], x, cBp_nosub, 'channel b nosub')
+    plot_subax(ax_array[1,2], x, mags_nosub, 'mags nosub')
 
     #plt.figure()
     #diff = cBp_nosub[0] - cBp_nosub[1]

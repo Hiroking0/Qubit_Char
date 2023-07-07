@@ -313,10 +313,62 @@ def disp_double_sweep():
     plt.pcolormesh(x, y, z)
     plt.show()
 
+def get_temp_thresh():
+    fn = askopenfilename(filetypes=[("Pickles", "*.pkl")])
+    nf = '\\'.join(fn.split('/')[0:-1]) + "/" #Gets the path of the file and adds a /
+    no_ext_file = ''.join(fn.split('/')[-1])[:-4]
+    
+    
+    #plt.rcParams.update({'font.size': 18})
+
+    for (root, dirs, files) in os.walk(nf):
+        for f in files:
+            if ".json" in f and no_ext_file in f:
+                with open(nf + f) as file:
+                    params = json.load(file)
+
+    with open(fn, 'rb') as pickled_file:
+        data = pkl.load(pickled_file)
+    #data is a Data_arrs type
+
+    if params['measurement'] == 'readout' or params['measurement'] == 'npp':
+        timestep = 1
+    else:
+        timestep = params[params['measurement']]['step']
+
+
+    #dp.plot_np_file(data, timestep)
+
+
+    
+    #print(np.shape(arr))
+    #ans, bns, mns, as, bs, ms
+    pop = dp.get_population_v_pattern(data.get_data_arrs()[0], params['v_threshold'])
+    print(pop)
+    #dp.plot_histogram(pop)
+    #x = []
+    #measurement = params['measurement']
+
+
+    #n_points = params['seq_repeat'] * params['pattern_repeat']
+    wq = (params['set_wq'] + params[params['measurement']]['ssb_freq'])*1e9
+    kb = 1.38649e-23
+    hbar = 1.05457e-34
+    del_E = (-hbar * 2 * np.pi * wq)
+    
+    denom = kb * np.log((pop[0])/(1-pop[0]))
+    
+    T = -del_E/denom
+    print("Effective tempurature (mK):", T*(10**3))
+    
+
+
+
 if __name__ == "__main__":
+    #get_temp_thresh()
     #disp_double_sweep()
-    disp_sequence()
-    #show_sweep_output()
+    #disp_sequence()
+    show_sweep_output()
     #disp_single_sweep()
     #disp_3_chevrons()
     
