@@ -18,11 +18,28 @@ import json
 import numpy as np
 from datetime import datetime
 
+def int_eval(data):
+    return eval(str(data))
+
+def eval_yaml(yaml):
+    string_params = ['name','measurement','shape','p1','p2']
+
+    for key,val in yaml.items():
+        if isinstance(val,dict) == False and key not in string_params :
+            yaml[key] = int_eval(val)
+        elif isinstance(val,dict) == True:
+            for subkey, subval in val.items():
+                if subkey not in string_params:
+                    yaml[key][subkey] = int_eval(subval)
+    return yaml
+
+
 if __name__ == "__main__":
     
     f = open('./general_config.yaml','r')
     params = yaml.safe_load(f)
     f.close()
+    params = eval_yaml(params)
     name = params['name']
     decimation = params['decimation']
     
@@ -39,7 +56,7 @@ if __name__ == "__main__":
     
 
     awg = be.get_awg()
-    
+
     num_patterns = awg.get_seq_length()
     
     w_len = awg.get_waveform_lengths(name + "_1_0")

@@ -12,6 +12,7 @@ from lib import wave_construction as be
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 MHz = 1e6
 GHz = 1e9
 

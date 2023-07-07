@@ -6,6 +6,7 @@ This library has code for the following measurements/calibrations
 - Rabi
 - Ramsey
 - Echo
+- RPM
 
 ### Terminology 
 pattern: one entry (of all four channels) on the AWG. For the no-pulse pulse measurement, one pattern would be an entry including just

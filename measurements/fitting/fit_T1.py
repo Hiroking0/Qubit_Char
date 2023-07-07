@@ -12,7 +12,6 @@ from tkinter.filedialog import askopenfilename
 from scipy.optimize import curve_fit
 import sys
 sys.path.append("../../")
-from lib import data_process as dp
 import os
 import json
 
@@ -31,26 +30,6 @@ def fit_T1(y, init_a, init_b, init_c, num_points, max_length):
     
     return new_data, a, b, c
 
-
-'''
-def T1_loop(hrs = 1.0, t = 300 , avg = 800):
-    s = 600 # sleep time in s
-    runs =  (hrs*60*60)//s; runs = int(runs)
-    T1_list = np.zeros((runs)) 
-    
-    for i in range (runs):
-        try:
-            rec_avg_all, rec_readout, rec_avg_vs_pats = daq_programs.run_daq2(51, avg, verbose=0)
-        except Exception as e:
-            if "ApiPllNotLocked" in str(e) : 
-                rec_avg_all, rec_readout, rec_avg_vs_pats = daq_programs.run_daq2(51, avg, verbose=0)
-        T1_list[i] = fit(rec_avg_vs_pats[1],t)
-        time.sleep(s)
-        
-    plt.plot(np.linspace(0,hrs,runs),T1_list)
-    return T1_list
-
-'''
 
 if __name__ == "__main__":
     
@@ -73,10 +52,10 @@ if __name__ == "__main__":
     for i in range(len(arr)):
         avgs[i] = np.average(arr[i])
         
-    a = -.6
-    b = .02
-    c = 5000
-    params = params[params['measurement']]
+    a = 300
+    b = 100
+    c = 100000
+    #params = params[params['measurement']]
     longest_T1 = params['T1_final_gap']
     shortest_T1 = params['T1_init_gap']
     num_patterns = len(arr)
@@ -85,7 +64,7 @@ if __name__ == "__main__":
     print("final data:")
     print("offset: ", new_a)
     print("amplitude: ", new_b)
-    print("tau: ", new_c)
+    print("tau: ", new_c/1000)
     
     x = np.linspace(shortest_T1,longest_T1, num_patterns)
     plt.rcParams.update({'font.size': 22})
