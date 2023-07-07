@@ -24,6 +24,7 @@ import pickle as pkl
 class Data_Arrs:
     def __init__(self, *args): #a_nosub, a_sub, b_nosub, b_sub, mags_nosub, mags_sub):
         #print("in func", len(args))
+        print(args[0][0][0])
         self.a_nosub = args[0]
         self.a_sub = args[1]
         self.b_nosub = args[2]
@@ -60,7 +61,8 @@ class Data_Arrs:
             pattern_avgs_cA_sub[i] = np.average(self.a_sub[i])
             pattern_avgs_cB_sub[i] = np.average(self.b_sub[i])
             mags_sub[i] = np.average(self.mags_sub[i])
-        return (pattern_avgs_cA, pattern_avgs_cB, mags, pattern_avgs_cA_sub, pattern_avgs_cB_sub, mags_sub)
+            
+        return (pattern_avgs_cA, pattern_avgs_cA_sub, pattern_avgs_cB, pattern_avgs_cB_sub, mags, mags_sub)
         
     def gen_data_arrs(self):
         yield self.a_nosub
