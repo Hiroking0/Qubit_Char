@@ -397,8 +397,10 @@ def get_et_pulse_group(ge_first_duration,
                        rabi_step,
                        readout_start,
                        readout_dur,
-                       frequency,
-                       phase,
+                       frequency_ge,
+                       phase_ge,
+                       freq_ef,
+                       phase_ef,
                        decimation,
                        shape):
     
@@ -423,7 +425,7 @@ def get_et_pulse_group(ge_first_duration,
     pulse1 = start_sweep_class(p1_start_final,
                                   ge_first_duration,
                                   amplitude = 1,
-                                  frequency = frequency,
+                                  frequency = frequency_ge,
                                   phase = 0,
                                   channel = 1,
                                   sweep_stop = p1_start_init,
@@ -432,8 +434,8 @@ def get_et_pulse_group(ge_first_duration,
     p1c2 = start_sweep_class(p1_start_final,
                                   ge_first_duration,
                                   amplitude = 1,
-                                  frequency = frequency,
-                                  phase = np.radians(phase),
+                                  frequency = frequency_ge,
+                                  phase = np.radians(phase_ge),
                                   channel = 2,
                                   sweep_stop = p1_start_init,
                                   sweep_step = rabi_step)
@@ -443,7 +445,7 @@ def get_et_pulse_group(ge_first_duration,
     pulse2 = duration_sweep_class(p2_start_init,
                                      rabi_start,
                                      amplitude = 1,
-                                     frequency = frequency,
+                                     frequency = freq_ef,
                                      phase = 0,
                                      channel = 3,
                                      sweep_stop = rabi_stop,
@@ -452,8 +454,8 @@ def get_et_pulse_group(ge_first_duration,
     p2c4 = duration_sweep_class(p2_start_init,
                                      rabi_start,
                                      amplitude = 1,
-                                     frequency = frequency,
-                                     phase = np.radians(phase),
+                                     frequency = freq_ef,
+                                     phase = np.radians(phase_ef),
                                      channel = 4,
                                      sweep_stop = rabi_stop,
                                      sweep_step = rabi_step)
@@ -461,8 +463,8 @@ def get_et_pulse_group(ge_first_duration,
     #self, start: int, duration: int, amplitude: float, frequency: float, channel: int
     p3_start = readout_start - gap_2 - ge_second_duration
     
-    pulse3 = single_class(p3_start, ge_second_duration, amplitude = 1, frequency = frequency, phase = 0, channel = 1)
-    p3c2 = single_class(p3_start, ge_second_duration, amplitude = 1, frequency = frequency, phase = np.radians(phase), channel = 2)
+    pulse3 = single_class(p3_start, ge_second_duration, amplitude = 1, frequency = frequency_ge, phase = 0, channel = 1)
+    p3c2 = single_class(p3_start, ge_second_duration, amplitude = 1, frequency = frequency_ge, phase = np.radians(phase_ge), channel = 2)
     
     
     ro = be.Readout_Pulse(readout_start, readout_dur, 1)
@@ -485,7 +487,7 @@ def get_pg(params):
     params = params[measurement] if (measurement != 'echo_1ax') else params['echo']
     shape = params['shape']
     readout = int_eval(params['readout_duration'])
-    if measurement != 'readout':
+    if measurement != 'readout' and measurement != 'effect_temp':
         wq_offset = int_eval(params['ssb_freq'])
         phase = int_eval(params['ssb_phase'])
 
@@ -627,6 +629,11 @@ def get_pg(params):
             ge_first_duration = int_eval(params['ge_first_duration'])
             ge_second_duration = int_eval(params['ge_second_duration'])
             
+            wq_ge_offset = int_eval(params['ssb_freq_ge'])
+            wq_ef_offset = int_eval(params['ssb_freq_ef'])
+            phase_ge = int_eval(params['ssb_phase_ge'])
+            phase_ef = int_eval(params['ssb_phase_ef'])
+            
             readout_start = readout_buffer + ge_first_duration + gap_1 + rabi_stop + gap_1 + ge_second_duration + gap_2
             #Round to nearest multiple of decimation 
             readout_start = decimation * math.ceil(readout_start/decimation)
@@ -641,8 +648,10 @@ def get_pg(params):
                                         step,
                                         readout_start, #readout
                                         readout, #readout duration
-                                        wq_offset,
-                                        phase,
+                                        wq_ge_offset,
+                                        phase_ge,
+                                        wq_ef_offset,
+                                        phase_ef,
                                         decimation,
                                         shape)
     print(num_patterns)
