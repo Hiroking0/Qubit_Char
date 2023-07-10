@@ -85,12 +85,12 @@ if __name__ == "__main__":
     
 
     fig, ax_array = plt.subplots(2,3)
-    plot_3d_subax(ax_array[0], x, y, f_A_nosub, p1, p2, "ch A nosub")
-    plot_3d_subax(ax_array[1], x, y, f_B_nosub, p1, p2, "ch B nosub")
-    plot_3d_subax(ax_array[2], x, y, f_M_nosub, p1, p2, "Mags nosub")
-    plot_3d_subax(ax_array[3], x, y, f_A_sub, p1, p2, "ch A sub")
-    plot_3d_subax(ax_array[4], x, y, f_B_sub, p1, p2, "ch B sub")
-    plot_3d_subax(ax_array[5], x, y, f_M_sub, p1, p2, "Mags sub")
+    plot_3d_subax(ax_array[0,0], x, y, f_A_nosub, p1, p2, "ch A nosub")
+    plot_3d_subax(ax_array[0,1], x, y, f_B_nosub, p1, p2, "ch B nosub")
+    plot_3d_subax(ax_array[0,2], x, y, f_M_nosub, p1, p2, "Mags nosub")
+    plot_3d_subax(ax_array[1,0], x, y, f_A_sub, p1, p2, "ch A sub")
+    plot_3d_subax(ax_array[1,1], x, y, f_B_sub, p1, p2, "ch B sub")
+    plot_3d_subax(ax_array[1,2], x, y, f_M_sub, p1, p2, "Mags sub")
     
     if len(f_M_sub[0] == 2):
 

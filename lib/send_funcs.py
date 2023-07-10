@@ -429,12 +429,12 @@ def get_et_pulse_group(ge_first_duration,
                                   sweep_stop = p1_start_init,
                                   sweep_step = rabi_step)
     
-    p1c3 = start_sweep_class(p1_start_final,
+    p1c2 = start_sweep_class(p1_start_final,
                                   ge_first_duration,
                                   amplitude = 1,
                                   frequency = frequency,
                                   phase = np.radians(phase),
-                                  channel = 3,
+                                  channel = 2,
                                   sweep_stop = p1_start_init,
                                   sweep_step = rabi_step)
     
@@ -445,7 +445,7 @@ def get_et_pulse_group(ge_first_duration,
                                      amplitude = 1,
                                      frequency = frequency,
                                      phase = 0,
-                                     channel = 2,
+                                     channel = 3,
                                      sweep_stop = rabi_stop,
                                      sweep_step = rabi_step)
     
@@ -462,11 +462,11 @@ def get_et_pulse_group(ge_first_duration,
     p3_start = readout_start - gap_2 - ge_second_duration
     
     pulse3 = single_class(p3_start, ge_second_duration, amplitude = 1, frequency = frequency, phase = 0, channel = 1)
-    p3c3 = single_class(p3_start, ge_second_duration, amplitude = 1, frequency = frequency, phase = np.radians(phase), channel = 3)
+    p3c2 = single_class(p3_start, ge_second_duration, amplitude = 1, frequency = frequency, phase = np.radians(phase), channel = 2)
     
     
     ro = be.Readout_Pulse(readout_start, readout_dur, 1)
-    pg = be.PulseGroup([pulse1, p1c3, pulse2, p2c4, pulse3, p3c3, ro])
+    pg = be.PulseGroup([pulse1, p1c2, pulse2, p2c4, pulse3, p3c2, ro])
     
     return pg
 

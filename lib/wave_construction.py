@@ -470,29 +470,34 @@ class PulseGroup:
         zero_multiple = int(zero_multiple/decimation)
         #First convert all arrays to waveforms, then send
         (c1Waves, c2Waves, c3Waves, c4Waves) = self.get_waveforms()
+        send_waves_arr = []
+        subseq_channels = []
+        if not np.all(c1Waves[-1].channel < 1e-10):
+            send_waves_arr.append(c1Waves)
+            subseq_channels.append(1)
+        if not np.all(c2Waves[-1].channel < 1e-10):
+            send_waves_arr.append(c2Waves)
+            subseq_channels.append(2)
+        if not np.all(c3Waves[-1].channel < 1e-10):
+            send_waves_arr.append(c3Waves)
+            subseq_channels.append(3)
+        if not np.all(c4Waves[-1].channel < 1e-10):
+            send_waves_arr.append(c4Waves)
+            subseq_channels.append(4)
         
-        if np.all(c3Waves[-1].channel < 1e-10):
-            num_channels = 2
-        else:
-            num_channels = 4
         
         awg.delete_all_waveforms()
         awg.delete_all_subseq()
         time.sleep(.5)
         
-        send_waves(awg, c1Waves, name, channel = 1)
-        time.sleep(.1)
-        send_waves(awg, c2Waves, name, channel = 2)
-        time.sleep(.1)
-        if num_channels == 4:
-            send_waves(awg, c3Waves, name, channel = 3)
+        for i in range(len(send_waves_arr)):
+            send_waves(awg, send_waves_arr[i], name, channel = subseq_channels[i])
             time.sleep(.1)
-            send_waves(awg, c4Waves, name, channel = 4)
-        
+            
         awg.new_waveform('zero', tawg.Waveform(np.array([0]*zero_length, dtype = np.float32), 0, 0))
         
         time.sleep(.1)
-        subseq_waves(awg, c1Waves, name, pattern_repeat, zero_multiple, num_channels)
+        subseq_waves(awg, c1Waves, name, pattern_repeat, zero_multiple, subseq_channels)
         
     #This function will add one column of a pulse. All params should be Pulse objects
     def add_pulse(self, pulse):
@@ -607,11 +612,11 @@ def subseq_waves(awg, arr, name, pattern_repeat, zero_repeat, num_channels):
         #create new subseq called ex "rabi_0... rabi_i"
         subseq_name = name + "_" + str(i)
         awg.new_subseq(subseq_name, 2)
-        for j in range(num_channels):
-            t_name = name + f"_{j+1}_" + str(i)
+        for j in num_channels:
+            t_name = name + f"_{j}_" + str(i)
             #set each subsequence element. Channel 1 and 2
-            awg.set_subseq_element(subseq_name, t_name, 1, j+1)
-            awg.set_subseq_element(subseq_name, "zero", 2, j+1)
+            awg.set_subseq_element(subseq_name, t_name, 1, j)
+            awg.set_subseq_element(subseq_name, "zero", 2, j)
             #Set each repeat of zero to correct number
             awg.set_subseq_repeat(subseq_name, 2, zero_repeat)
             

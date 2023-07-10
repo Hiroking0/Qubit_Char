@@ -24,7 +24,6 @@ import pickle as pkl
 class Data_Arrs:
     def __init__(self, *args): #a_nosub, a_sub, b_nosub, b_sub, mags_nosub, mags_sub):
         #print("in func", len(args))
-        print(args[0][0][0])
         self.a_nosub = args[0]
         self.a_sub = args[1]
         self.b_nosub = args[2]
@@ -210,13 +209,6 @@ def single_sweep(name,
     #1.7 rf is for readout
     
 
-    att_sweeps = ['q_att', 'r_att']
-    rf_sweeps = ['wq', 'pq', 'wr', 'pr', 'w_twpa', 'p_twpa']
-    ena_sweeps = ['w_ena', 'p_ena']
-    
-    freq_sweeps = ['wq', 'wr', 'w_twpa', 'w_ena']
-    pow_sweeps = ['pq', 'pr', 'p_twpa', 'p_ena']
-
     sweep_param = params['p1']
     start = params['p1start']
     stop = params['p1stop']
@@ -289,7 +281,7 @@ def single_sweep(name,
         #pattern num = i
         #sweep param val = param
         #channel A = avgsA[i][sweep_num]
-    f_name = sweep_param + "_" + str(param) + ".csv"
+    f_name = sweep_param + ".csv"
     with open(name + '_' + f_name, 'w', newline='') as output:
         wr = csv.writer(output, delimiter=',', quoting=csv.QUOTE_NONE)
         if extra_column != None:

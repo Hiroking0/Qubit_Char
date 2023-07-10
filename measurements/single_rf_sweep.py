@@ -17,6 +17,8 @@ import yaml
 import time
 import tkinter.filedialog as tkf
 import json
+from run_sequence import eval_yaml
+
 def int_eval(data):
     return eval(str(data))
 
@@ -31,7 +33,7 @@ if __name__ == "__main__":
     f = open('general_config.yaml','r')
     params = yaml.safe_load(f)
     f.close()
-    
+    yaml = eval_yaml(params)
     
 
     #name = params['name']
@@ -84,7 +86,6 @@ if __name__ == "__main__":
     
     x = np.arange(p1start, p1stop, p1step)
     
-    print(np.shape(cAp_sub))
     #plt.figure()
 
     fig, ax_array = plt.subplots(2,3)
