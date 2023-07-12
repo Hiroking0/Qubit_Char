@@ -69,9 +69,9 @@ def legacy_fit():
     for i in range(len(arr)):
         avgs[i] = np.average(arr[i])
         
-    a = 226.6
-    b = .76
-    c = 1/350
+    a = 292.3
+    b = .2
+    c = 1/240
     d = np.pi/2
     num_patterns = len(arr)
     params = params[params['measurement']]
@@ -129,6 +129,7 @@ def fit_subax(ax, x, exp, fit_data, title):
             "\n amp: " + str(round(fit_data[2], 3)) + \
             "\nfreq: " + str(round(fit_data[3], 10)) + " GHz" + \
             "\nphase: "+ str(round(fit_data[4], 3))
+
     ax.text(.98, .98, text, fontsize = 10, horizontalalignment='right',
         verticalalignment='top', transform=ax.transAxes)
     
@@ -159,10 +160,10 @@ def new_fit():
     #for i in range(len(arr)):
     #    avgs[i] = np.average(arr[i])
         
-    a = 226.6
-    b = .76
-    c = 1/350
-    d = np.pi/2
+    a = 226.6 #offset
+    b = .2 #amp
+    c = 1/250   #freq
+    d = np.pi/2 #phase
     params = params['rabi']
     longest_T1 = params['rabi_pulse_initial_duration']
     shortest_T1 = params['rabi_pulse_end_duration']

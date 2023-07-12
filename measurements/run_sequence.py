@@ -83,5 +83,5 @@ if __name__ == "__main__":
     else:
         time_step = params[params['measurement']]['step']
 
-
+    
     dp.plot_np_file(data, time_step, path)
