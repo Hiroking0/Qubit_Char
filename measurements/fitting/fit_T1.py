@@ -131,21 +131,22 @@ def new_fit():
     
     fig, ax_array = plt.subplots(2,3)
     
-    #ans, bns, mns, as, bs, ms
+
+    #(pattern_avgs_cA, pattern_avgs_cA_sub, pattern_avgs_cB, pattern_avgs_cB_sub, mags, mags_sub)
     data_ans = fit_T1(avgs[0], a, b, c, x)
-    data_bns = fit_T1(avgs[1], a, b, c, x)
-    data_mns = fit_T1(avgs[2], a, b, c, x)
-    data_as = fit_T1(avgs[3], a, b, c, x)
-    data_bs = fit_T1(avgs[4], a, b, c, x)
+    data_as = fit_T1(avgs[1], a, b, c, x)
+    data_bns = fit_T1(avgs[2], a, b, c, x)
+    data_bs = fit_T1(avgs[3], a, b, c, x)
+    data_mns = fit_T1(avgs[4], a, b, c, x)
     data_ms = fit_T1(avgs[5], a, b, c, x)
     
     #ms, ms_a, ms_b, ms_c
     plt.rcParams.update({'font.size': 22})
     fit_subax(ax_array.flatten()[0], x, avgs[0], data_ans, "chA nosub")
-    fit_subax(ax_array.flatten()[1], x, avgs[1], data_bns, "chB nosub")
-    fit_subax(ax_array.flatten()[2], x, avgs[2], data_mns, "Mags nosub")
-    fit_subax(ax_array.flatten()[3], x, avgs[3], data_as, "chA sub")
-    fit_subax(ax_array.flatten()[4], x, avgs[4], data_bs, "chB sub")
+    fit_subax(ax_array.flatten()[1], x, avgs[1], data_as, "chB nosub")
+    fit_subax(ax_array.flatten()[2], x, avgs[2], data_bns, "Mags nosub")
+    fit_subax(ax_array.flatten()[3], x, avgs[3], data_bs, "chA sub")
+    fit_subax(ax_array.flatten()[4], x, avgs[4], data_mns, "chB sub")
     fit_subax(ax_array.flatten()[5], x, avgs[5], data_ms, "mags sub")
 
     plt.suptitle('T1 measurement')

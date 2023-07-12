@@ -475,9 +475,10 @@ class PulseGroup:
         if not np.all(c1Waves[-1].channel < 1e-10):
             send_waves_arr.append(c1Waves)
             subseq_channels.append(1)
-        if not np.all(c2Waves[-1].channel < 1e-10):
-            send_waves_arr.append(c2Waves)
-            subseq_channels.append(2)
+
+        send_waves_arr.append(c2Waves)
+        subseq_channels.append(2)
+
         if not np.all(c3Waves[-1].channel < 1e-10):
             send_waves_arr.append(c3Waves)
             subseq_channels.append(3)

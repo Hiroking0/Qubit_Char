@@ -61,7 +61,6 @@ def get_nopi_pi_group(
 def get_readout_group(
                 readout_start, #readout
                 readout, #readout duration
-                #freq,
                 decimation):
     readout_start = int(readout_start/decimation)
     readout = int(readout/decimation)
@@ -572,7 +571,6 @@ def get_pg(params):
             readout_start = decimation * math.ceil(readout_start/decimation)
             pg = get_readout_group(readout_start = readout_start,
                             readout = readout,
-                            #freq = wr_offset,
                             decimation = decimation)
             
 

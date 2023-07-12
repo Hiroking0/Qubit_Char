@@ -86,6 +86,17 @@ def plot_mesh_subax(ax, x, y, data, title, xlabel, ylabel):
 def disp_single_sweep():
     
     file = askopenfilename()
+
+
+    nf = '\\'.join(file.split('/')[0:-1]) + "/"
+
+    for (root, dirs, files) in os.walk(nf):
+        for f in files:
+            if ".json" in f:
+                with open(nf + f) as t_file:
+                    params = json.load(t_file)
+
+
     csvFile = pandas.read_csv(file, sep = ',', engine = 'python')
     num_patterns = max(csvFile['pattern_num']) + 1
     sweep_num = int(len(csvFile['pattern_num'])/num_patterns)
@@ -97,12 +108,13 @@ def disp_single_sweep():
     max_sweep = max(csvFile[sweep_param].to_list())
     print(min_sweep, max_sweep)
     #x = range(num_patterns)
-    x = np.linspace(0, 2000, num = 51)
+    x = np.arange(params['p1start'], params['p1stop'], params['p1step'])
+    #x = np.linspace(0, 2000, num = 51)
     y = np.linspace(min_sweep, max_sweep, num=sweep_num)
     
 
     fig, ax_array = plt.subplots(2,3)
-
+    ax_array = ax_array.flatten()
     chA_nosub = csvFile['chA_nosub'].to_list()
     chA_nosub = np.reshape(chA_nosub, shape)
     chA_nosub = np.transpose(chA_nosub)
@@ -407,9 +419,9 @@ if __name__ == "__main__":
     #get_temp_thresh()
     #disp_double_sweep()
     #disp_sequence()
-    #show_sweep_output()
-    #disp_single_sweep()
+    show_sweep_output() #each pattern will be overlayed on each other
+    #disp_single_sweep() #3d plot pattern # is x axis
     #disp_3_chevrons()
-    two_rpm()
+    #two_rpm()
     
     
