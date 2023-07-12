@@ -83,8 +83,11 @@ if __name__ == "__main__":
     #np.save(name + "chB_nosub", cBp_nosub)
     #np.save(name + "mags_sub", mags_sub)
     #np.save(name + "mags_sub", mags_nosub)
-    
-    x = np.arange(p1start, p1stop, p1step)
+    if params['measurement'] != 'readout' and params['p1'] == 'wq':
+        ssb = params[params['measurement']]['ssb_freq']
+        x = np.arange(p1start + ssb, p1stop + ssb, p1step)
+    else:
+        x = np.arange(p1start, p1stop, p1step)
     
     #plt.figure()
 

@@ -14,6 +14,7 @@ from instruments import RF_interface as RF
 import time
 import numpy as np
 from threading import Thread
+from multiprocessing import Process
 import pyvisa as visa
 import csv
 import matplotlib.pyplot as plt
@@ -114,7 +115,6 @@ def run_and_acquire(awg,
     """
     runs sequence on AWG once. params should be dictionary of YAML file.
     """
-
     save_raw = False
     live_plot = False
     que = queue.Queue()
@@ -123,8 +123,12 @@ def run_and_acquire(awg,
                             q.put(npt.AcquireData(board, params, num_patterns, path, raw, live)), 
                             args = (que, board, params, num_patterns, path, save_raw, live_plot))
 
+    #acproc = Process(target = lambda q, board, params, num_patterns, path, raw, live:
+    #                    q.put(npt.AcquireData(board, params, num_patterns, path, raw, live)), 
+    #                    args = (que, board, params, num_patterns, path, save_raw, live_plot))
+
     acproc.start()
-    time.sleep(.3)
+    time.sleep(.5)
     awg.run()
     acproc.join()
     awg.stop()

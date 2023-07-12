@@ -23,9 +23,9 @@ def int_eval(data):
 def plot_3d_subax(ax, x, y, dat, p1, p2, title):
     for pattern in dat:
         ax.pcolormesh(x, y, pattern)
-    ax.xlabel(p2)
-    ax.ylabel(p1)
-    ax.title(title)
+    ax.set_xlabel(p2)
+    ax.set_ylabel(p1)
+    ax.set_title(title)
 
 
 

@@ -305,7 +305,7 @@ def disp_double_sweep():
     #index 4 is b nosub
     for f in fns:
         csvFile = pandas.read_csv(f, sep = ',', engine = 'python')
-        temp_z = csvFile['chB_nosub'].to_list()
+        temp_z = csvFile['chA_nosub'].to_list()
         temp_x = csvFile[csvFile.columns[-1]][0]
         temp_x = np.where(x == temp_x)[0][0]
         z[:, temp_x] = temp_z
@@ -329,6 +329,10 @@ def get_temp_thresh():
 
     with open(fn, 'rb') as pickled_file:
         data = pkl.load(pickled_file)
+
+
+
+
     #data is a Data_arrs type
 
     if params['measurement'] == 'readout' or params['measurement'] == 'npp':
@@ -343,7 +347,10 @@ def get_temp_thresh():
     
     #print(np.shape(arr))
     #ans, bns, mns, as, bs, ms
-    pop = dp.get_population_v_pattern(data.get_data_arrs()[0], params['v_threshold'])
+    #ans, as, bns, bs, mns, ms
+    thresh = params['v_threshold']
+    print(thresh)
+    pop = dp.get_population_v_pattern(data.get_data_arrs()[4], thresh)
     print(pop)
     #dp.plot_histogram(pop)
     #x = []
@@ -358,19 +365,51 @@ def get_temp_thresh():
     
     denom = kb * np.log((pop[0])/(1-pop[0]))
     
-    T = -del_E/denom
+    T = np.abs(del_E/denom)
     print("Effective tempurature (mK):", T*(10**3))
     
+def two_rpm():
+    fn = askopenfilename(filetypes=[("Pickles", "*.pkl")])
+    fn2 = askopenfilename(filetypes=[("Pickles", "*.pkl")])
+    nf = '\\'.join(fn.split('/')[0:-1]) + "/" #Gets the path of the file and adds a /
+    no_ext_file = ''.join(fn.split('/')[-1])[:-4]
+    
+    
+    #plt.rcParams.update({'font.size': 18})
 
+    for (root, dirs, files) in os.walk(nf):
+        for f in files:
+            if ".json" in f and no_ext_file in f:
+                print(nf + f)
+                with open(nf + f) as file:
+                    params = json.load(file)
+
+    with open(fn, 'rb') as pickled_file:
+        data1 = pkl.load(pickled_file)
+    with open(fn2, 'rb') as pickled_file:
+        data2 = pkl.load(pickled_file)
+
+    timestep = params['effect_temp']['step']
+    r_start = params['effect_temp']['rabi_start']
+    r_stop = params['effect_temp']['rabi_stop']
+
+    #(pattern_avgs_cA, pattern_avgs_cA_sub, pattern_avgs_cB, pattern_avgs_cB_sub, mags, mags_sub)
+    avgs1 = data1.get_avgs()
+    avgs2 = data2.get_avgs()
+
+    x = np.arange(r_start, r_stop, timestep)
+    plt.plot(x, avgs1[3])
+    plt.plot(x, avgs2[3])
+    plt.show()
 
 
 if __name__ == "__main__":
     #get_temp_thresh()
     #disp_double_sweep()
     #disp_sequence()
-    show_sweep_output()
+    #show_sweep_output()
     #disp_single_sweep()
     #disp_3_chevrons()
-    
+    two_rpm()
     
     

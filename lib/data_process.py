@@ -14,7 +14,7 @@ def get_population_v_pattern(arr, thresh, flipped = False):
     plt_arr = np.zeros(len(arr))
     for i in range(len(arr)):
         pe = 0
-        #for each pattern, look at every point and see if its above thresh
+        #for each pattern, look at every point and see if its above threshL
         for j in arr[i]:
             if (j > thresh and not flipped) or (j < thresh and flipped):
                 pe += 1
@@ -156,7 +156,7 @@ def plot_np_file(data: Data_Arrs, time_step, path = None):
 
     (chA_nosub, chA_sub, chB_nosub, chB_sub, mags_nosub, mags_sub, readout_a, readout_b) = data.get_data_arrs()
     num_patterns = 1 if np.ndim(chA_nosub) == 1 else len(chA_nosub)
-
+    
     num_bins = 200
 
     fig, ax_array = plt.subplots(3,4)
@@ -179,7 +179,7 @@ def plot_np_file(data: Data_Arrs, time_step, path = None):
     
 
     (pattern_avgs_cA, pattern_avgs_cA_sub, pattern_avgs_cB, pattern_avgs_cB_sub, mags, mags_sub) = data.get_avgs()
-
+    print(pattern_avgs_cB)
     
     x = [i*time_step for i in range(num_patterns)]
 
