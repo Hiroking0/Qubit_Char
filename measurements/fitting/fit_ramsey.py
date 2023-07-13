@@ -90,12 +90,12 @@ def legacy_fit():
 
 
 def fit_subax(ax, x, exp, fit_data, title):
-    
     ax.plot(x, exp, 'ko', markersize=10)
     ax.plot(x, fit_data[0], 'r', linewidth=3.5)
     ax.set_xlabel("$t_{Ramsey}$ (ns)")
     ax.set_ylabel("V")
     ax.set_title(title)
+    
     text = "offset: " + str(round(fit_data[1], 3)) + \
     "\n amp: " + str(round(fit_data[2], 3)) + \
     "\nT2: " + str(round(fit_data[3]/1000, 3)) + " us" + \
@@ -144,6 +144,7 @@ def new_fit():
     fig, ax_array = plt.subplots(2,3)
     
     #(pattern_avgs_cA, pattern_avgs_cA_sub, pattern_avgs_cB, pattern_avgs_cB_sub, mags, mags_sub)
+    fig.set_tight_layout(True)
     data_ans = fit_ramsey(avgs[0], a, b, t2, f, phi, x)
     data_as = fit_ramsey(avgs[1], a, b, t2, f, phi, x)
     data_bns = fit_ramsey(avgs[2], a, b, t2, f, phi, x)
@@ -152,13 +153,14 @@ def new_fit():
     data_ms = fit_ramsey(avgs[5], a, b, t2, f, phi, x)
     
     plt.rcParams.update({'font.size': 22})
-    fit_subax(ax_array.flatten()[0], x, avgs[0], data_ans, "chA nosub")
-    fit_subax(ax_array.flatten()[1], x, avgs[1], data_as, "chB nosub")
-    fit_subax(ax_array.flatten()[2], x, avgs[2], data_bns, "Mags nosub")
-    fit_subax(ax_array.flatten()[3], x, avgs[3], data_bs, "chA sub")
-    fit_subax(ax_array.flatten()[4], x, avgs[4], data_mns, "chB sub")
-    fit_subax(ax_array.flatten()[5], x, avgs[5], data_ms, "mags sub")
-
+    fit_subax(ax_array[0,0], x, avgs[0], data_ans, "chA nosub")
+    fit_subax(ax_array[1,0], x, avgs[1], data_as, "chA sub")
+    fit_subax(ax_array[0,1], x, avgs[2], data_bns, "chB nosub")
+    fit_subax(ax_array[1,1], x, avgs[3], data_bs, "chB sub")
+    fit_subax(ax_array[0,2], x, avgs[4], data_mns, "mags nosub")
+    fit_subax(ax_array[1,2], x, avgs[5], data_ms, "mags sub")
+    figManager = plt.get_current_fig_manager()
+    figManager.window.showMaximized()
     plt.suptitle('Ramsey measurement')
     plt.show()
 
