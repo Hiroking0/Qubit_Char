@@ -98,7 +98,7 @@ if __name__ == "__main__":
     plot_subax(ax_array[1,0], x, cAp_nosub, 'channel a nosub')
     plot_subax(ax_array[1,1], x, cBp_nosub, 'channel b nosub')
     plot_subax(ax_array[1,2], x, mags_nosub, 'mags nosub')
-
+    plt.savefig(name + "pic", dpi= 300, pad_inches = 0, bbox_inches = 'tight')
     #plt.figure()
     #diff = cBp_nosub[0] - cBp_nosub[1]
     #plt.plot(x, diff)

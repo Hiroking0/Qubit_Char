@@ -16,7 +16,7 @@ import pandas
 import fit_rabi
 import pickle as pkl
 from lib.run_funcs import Data_Arrs
-
+from fit_rabi import fit_subax, fit_rabi
 
 def disp_sequence():
     fn = askopenfilename(filetypes=[("Pickles", "*.pkl")])
@@ -383,35 +383,81 @@ def get_temp_thresh():
 def two_rpm():
     fn = askopenfilename(filetypes=[("Pickles", "*.pkl")])
     fn2 = askopenfilename(filetypes=[("Pickles", "*.pkl")])
-    nf = '\\'.join(fn.split('/')[0:-1]) + "/" #Gets the path of the file and adds a /
+    with open(fn, 'rb') as pickled_file:
+        data = pkl.load(pickled_file)
+    with open(fn2, 'rb') as pickled_file:
+        data2 = pkl.load(pickled_file)
+    
+    nf = '\\'.join(fn.split('/')[0:-1]) + "/"
     no_ext_file = ''.join(fn.split('/')[-1])[:-4]
     
-    
-    #plt.rcParams.update({'font.size': 18})
-
     for (root, dirs, files) in os.walk(nf):
         for f in files:
             if ".json" in f and no_ext_file in f:
-                print(nf + f)
                 with open(nf + f) as file:
                     params = json.load(file)
 
-    with open(fn, 'rb') as pickled_file:
-        data1 = pkl.load(pickled_file)
-    with open(fn2, 'rb') as pickled_file:
-        data2 = pkl.load(pickled_file)
-
-    timestep = params['effect_temp']['step']
-    r_start = params['effect_temp']['rabi_start']
-    r_stop = params['effect_temp']['rabi_stop']
-
-    #(pattern_avgs_cA, pattern_avgs_cA_sub, pattern_avgs_cB, pattern_avgs_cB_sub, mags, mags_sub)
-    avgs1 = data1.get_avgs()
+    #arrs = data.get_data_arrs()
+    avgs = data.get_avgs()
     avgs2 = data2.get_avgs()
 
-    x = np.arange(r_start, r_stop, timestep)
-    plt.plot(x, avgs1[3])
-    plt.plot(x, avgs2[3])
+        
+    a = 226.6 #offset
+    b = .2 #amp
+    c = 1/250   #freq
+    d = np.pi/2 #phase
+    params = params['rabi']
+    longest_T1 = params['rabi_pulse_initial_duration']
+    shortest_T1 = params['rabi_pulse_end_duration']
+    num_patterns = len(avgs[0])
+    
+    x = np.linspace(shortest_T1,longest_T1, num_patterns)
+    
+    
+    #pattern_avgs_cA, pattern_avgs_cA_sub, pattern_avgs_cB, pattern_avgs_cB_sub, mags, mags_sub
+    #data_ans = fit_rabi(avgs[0], a, b, c, d, x)
+    data_bns = fit_rabi(avgs[2], a, b, c, d, x)
+    data_bns2 = fit_rabi(avgs2[2], a, b, c, d, x)
+    #data_mns = fit_rabi(avgs[2], a, b, c, d, x)
+    #data_as = fit_rabi(avgs[3], a, b, c, d, x)
+    #data_bs = fit_rabi(avgs[4], a, b, c, d, x)
+    #data_ms = fit_rabi(avgs[5], a, b, c, d, x)
+    
+    #ms, ms_a, ms_b, ms_c
+    fig, ax = plt.subplots(1,1)
+    plt.rcParams.update({'font.size': 22})
+    #fit_subax(ax_array.flatten()[0], x, avgs[0], data_ans, "chA nosub")
+    #fit_subax(ax_array, x, avgs[1], data_bns, "chB nosub")
+    #fit_subax(ax_array, x, avgs2[1], data_bns2, "chB nosub")
+    for axis in ['top', 'bottom', 'left', 'right']:
+        ax.spines[axis].set_linewidth(2.5)
+
+    ax.plot(x, avgs[2], 'ko', markersize=10)
+    ax.plot(x, data_bns[0], 'r', linewidth=3.5)
+    ax.set_xlabel("$t_{Rabi}$ (ns)")
+    ax.set_ylabel("V")
+
+    ax.plot(x, avgs2[2], 'bo', markersize=10)
+    ax.plot(x, data_bns2[0], 'y', linewidth=3.5)
+    ax.set_xlabel("$t_{Rabi}$ (ns)")
+    ax.set_ylabel("V")
+
+    #ax.set_title(title)
+    #text = "offset: " + str(round(fit_data[1], 3)) + \
+    #        "\n amp: " + str(round(fit_data[2], 3)) + \
+    #        "\nfreq: " + str(round(fit_data[3], 10)) + " GHz" + \
+    #        "\nphase: "+ str(round(fit_data[4], 3))
+
+    #ax.text(.98, .98, text, fontsize = 10, horizontalalignment='right',
+    #    verticalalignment='top', transform=ax.transAxes)
+
+    #fit_subax(ax_array.flatten()[2], x, avgs[2], data_mns, "Mags nosub")
+    #fit_subax(ax_array.flatten()[3], x, avgs[3], data_as, "chA sub")
+    #fit_subax(ax_array.flatten()[4], x, avgs[4], data_bs, "chB sub")
+    #fit_subax(ax_array.flatten()[5], x, avgs[5], data_ms, "mags sub")
+
+    plt.suptitle('RPM measurement')
+    plt.legend(['pi preperation data', 'pi prep fit', '20% pi prep data', '20% pi prep fit'])
     plt.show()
 
 
@@ -419,9 +465,9 @@ if __name__ == "__main__":
     #get_temp_thresh()
     #disp_double_sweep()
     #disp_sequence()
-    show_sweep_output() #each pattern will be overlayed on each other
+    #show_sweep_output() #each pattern will be overlayed on each other
     #disp_single_sweep() #3d plot pattern # is x axis
     #disp_3_chevrons()
-    #two_rpm()
+    two_rpm()
     
     
