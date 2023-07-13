@@ -28,7 +28,7 @@ class N5183A(VisaInstrument):
             get_cmd=":POWer:AMPLitude?",
             set_cmd=":POWer:AMPLitude {}",
             get_parser=float,
-            vals=Numbers(min_value=-32, max_value=30),
+            vals=Numbers(min_value=-130, max_value=30),
         )
         
         self.add_parameter(
