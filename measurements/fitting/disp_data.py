@@ -78,10 +78,9 @@ def disp_sequence():
 
 def plot_mesh_subax(ax, x, y, data, title, xlabel, ylabel):
     ax.pcolormesh(x, y, data, shading = 'auto')
-    ax.title(title)
-    ax.xlabel('pattern #')
-    ax.ylabel(ylabel)
-    ax.xlabel(xlabel)
+    ax.set_title(title)
+    ax.set_xlabel('pattern #')
+    ax.set_ylabel(ylabel)
 
 def disp_single_sweep():
     
@@ -108,10 +107,10 @@ def disp_single_sweep():
     max_sweep = max(csvFile[sweep_param].to_list())
     print(min_sweep, max_sweep)
     #x = range(num_patterns)
-    x = np.arange(params['p1start'], params['p1stop'], params['p1step'])
+    y = np.arange(params['p1start'], params['p1stop'], params['p1step'])
     #x = np.linspace(0, 2000, num = 51)
-    y = np.linspace(min_sweep, max_sweep, num=sweep_num)
-    
+    x = np.linspace(0, num_patterns, num = 51)
+    #print(sweep_num)
 
     fig, ax_array = plt.subplots(2,3)
     ax_array = ax_array.flatten()
@@ -466,8 +465,8 @@ if __name__ == "__main__":
     #disp_double_sweep()
     #disp_sequence()
     #show_sweep_output() #each pattern will be overlayed on each other
-    #disp_single_sweep() #3d plot pattern # is x axis
+    disp_single_sweep() #3d plot pattern # is x axis
     #disp_3_chevrons()
-    two_rpm()
+    #two_rpm()
     
     
