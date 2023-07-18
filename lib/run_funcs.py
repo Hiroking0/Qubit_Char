@@ -257,7 +257,8 @@ def single_sweep(name,
                                 path = name)
         #(pattern_avgs_cA, pattern_avgs_cB, mags, pattern_avgs_cA_sub, pattern_avgs_cB_sub, mags_sub)
         #avgsA should be array of shape(num_patterns, sweep_num, x)
-        (t_an, t_bn, m_ns, t_as, t_bs, m_s) = data.get_avgs()
+        #(pattern_avgs_cA, pattern_avgs_cA_sub, pattern_avgs_cB, pattern_avgs_cB_sub, mags, mags_sub)
+        (t_an, t_as, t_bn, t_bs, m_ns, m_s) = data.get_avgs()
 
 
 
