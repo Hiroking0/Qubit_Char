@@ -160,9 +160,9 @@ def new_fit():
     #for i in range(len(arr)):
     #    avgs[i] = np.average(arr[i])
         
-    a = 226.6 #offset
-    b = .2 #amp
-    c = 1/250   #freq
+    a = 210 #offset
+    b = .0075 #amp
+    c = 1/500  #freq
     d = np.pi/2 #phase
     params = params['rabi']
     longest_T1 = params['rabi_pulse_initial_duration']
@@ -173,22 +173,22 @@ def new_fit():
     
     fig, ax_array = plt.subplots(2,3)
     
-    #ans, bns, mns, as, bs, ms
+    #(pattern_avgs_cA, pattern_avgs_cA_sub, pattern_avgs_cB, pattern_avgs_cB_sub, mags, mags_sub)
     data_ans = fit_rabi(avgs[0], a, b, c, d, x)
-    data_bns = fit_rabi(avgs[1], a, b, c, d, x)
-    data_mns = fit_rabi(avgs[2], a, b, c, d, x)
-    data_as = fit_rabi(avgs[3], a, b, c, d, x)
-    data_bs = fit_rabi(avgs[4], a, b, c, d, x)
+    data_as = fit_rabi(avgs[1], a, b, c, d, x)
+    data_bns = fit_rabi(avgs[2], a, b, c, d, x)
+    data_bs = fit_rabi(avgs[3], a, b, c, d, x)
+    data_mns = fit_rabi(avgs[4], a, b, c, d, x)
     data_ms = fit_rabi(avgs[5], a, b, c, d, x)
     
     #ms, ms_a, ms_b, ms_c
     plt.rcParams.update({'font.size': 22})
-    fit_subax(ax_array.flatten()[0], x, avgs[0], data_ans, "chA nosub")
-    fit_subax(ax_array.flatten()[1], x, avgs[1], data_bns, "chB nosub")
-    fit_subax(ax_array.flatten()[2], x, avgs[2], data_mns, "Mags nosub")
-    fit_subax(ax_array.flatten()[3], x, avgs[3], data_as, "chA sub")
-    fit_subax(ax_array.flatten()[4], x, avgs[4], data_bs, "chB sub")
-    fit_subax(ax_array.flatten()[5], x, avgs[5], data_ms, "mags sub")
+    fit_subax(ax_array[0,0], x, avgs[0], data_ans, "chA nosub")
+    fit_subax(ax_array[1,0], x, avgs[1], data_as, "chA sub")
+    fit_subax(ax_array[0,1], x, avgs[2], data_bns, "chB nosub")
+    fit_subax(ax_array[1,1], x, avgs[3], data_bs, "chB sub")
+    fit_subax(ax_array[0,2], x, avgs[4], data_mns, "mags nosub")
+    fit_subax(ax_array[1,2], x, avgs[5], data_ms, "mags sub")
 
     plt.suptitle('Rabi measurement')
     plt.show()
