@@ -63,16 +63,7 @@ class Data_Arrs:
             mags_sub[i] = np.average(self.mags_sub[i])
             
         return (pattern_avgs_cA, pattern_avgs_cA_sub, pattern_avgs_cB, pattern_avgs_cB_sub, mags, mags_sub)
-        
-    def gen_data_arrs(self):
-        yield self.a_nosub
-        yield self.a_sub
-        yield self.b_nosub
-        yield self.b_sub
-        yield self.mags_nosub
-        yield self.mags_sub
 
-        
 
 
 
@@ -134,7 +125,6 @@ def run_and_acquire(awg,
     awg.stop()
     arrs = que.get()
     data_arrs = Data_Arrs(*arrs)
-
     return data_arrs
     
     

@@ -165,11 +165,12 @@ def new_fit():
     c = 1/500  #freq
     d = np.pi/2 #phase
     params = params['rabi']
-    longest_T1 = params['rabi_pulse_initial_duration']
-    shortest_T1 = params['rabi_pulse_end_duration']
+    shortest_T1 = params['rabi_pulse_initial_duration']
+    longest_T1 = params['rabi_pulse_end_duration']
     num_patterns = len(avgs[0])
     
     x = np.linspace(shortest_T1,longest_T1, num_patterns)
+    print(shortest_T1)
     
     fig, ax_array = plt.subplots(2,3)
     
