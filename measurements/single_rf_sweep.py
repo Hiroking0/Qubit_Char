@@ -18,6 +18,7 @@ import time
 import tkinter.filedialog as tkf
 import json
 from run_sequence import eval_yaml
+from datetime import datetime
 
 def int_eval(data):
     return eval(str(data))
@@ -39,10 +40,15 @@ if __name__ == "__main__":
     #name = params['name']
 
     directory = tkf.askdirectory()
-    name = directory + "/" + params['name'] + "_"
+    name = directory + "/" + params['name']
     decimation = params['decimation']
+
+    now = datetime.now()
+    date = now.strftime("%m%d_%H%M%S")
+    name = f"{name}_{date}"
+
     
-    j_file = open(name+"json.json", 'w')
+    j_file = open(name+"_json.json", 'w')
     json.dump(params, j_file, indent = 4)
     j_file.close()
 
@@ -56,8 +62,9 @@ if __name__ == "__main__":
     p1start = int_eval(params['p1start'])
     p1stop = int_eval(params['p1stop'])
     p1step = int_eval(params['p1step'])
-
-
+    
+    
+    
     p1 = params['p1']
     
     awg = be.get_awg()
@@ -71,18 +78,14 @@ if __name__ == "__main__":
 
 
     cAp_sub, cBp_sub, cAp_nosub, cBp_nosub, mags_sub, mags_nosub = run_funcs.single_sweep(name,
-                                                                    awg,
-                                                                    board,
-                                                                    num_patterns,
-                                                                    params,
-                                                                    live_plot = False)
+                                                                                            awg,
+                                                                                            board,
+                                                                                            num_patterns,
+                                                                                            params,
+                                                                                            live_plot = False)
+
     
-    #np.save(name + "chA_sub", cAp_sub)
-    #np.save(name + "chB_sub", cBp_sub)
-    #np.save(name + "chA_nosub", cAp_nosub)
-    #np.save(name + "chB_nosub", cBp_nosub)
-    #np.save(name + "mags_sub", mags_sub)
-    #np.save(name + "mags_sub", mags_nosub)
+
     if params['measurement'] != 'readout' and params['p1'] == 'wq':
         ssb = params[params['measurement']]['ssb_freq']
         x = np.arange(p1start + ssb, p1stop + ssb, p1step)

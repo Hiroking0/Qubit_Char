@@ -276,8 +276,11 @@ def single_sweep(name,
         #pattern num = i
         #sweep param val = param
         #channel A = avgsA[i][sweep_num]
-    f_name = sweep_param + ".csv"
-    with open(name + '_' + f_name, 'w', newline='') as output:
+
+    #f_name = f"{sweep_param}_{date}.csv"
+    f_name = f"{sweep_param}.csv"
+    with open(f"{name}_{f_name}", 'w', newline='') as output:
+    #with open(name + '_' + f_name, 'w', newline='') as output:
         wr = csv.writer(output, delimiter=',', quoting=csv.QUOTE_NONE)
         if extra_column != None:
             header = header=['chA_sub','chB_sub','mag_sub', 'chA_nosub', 'chB_nosub', 'mag_nosub', 'pattern_num', str(sweep_param), extra_column[0]]
