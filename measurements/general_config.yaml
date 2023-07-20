@@ -2,7 +2,7 @@
 name: 'RPM_10perc_pi'
 
 #ramsey, T1, rabi, npp, readout, echo, echo_1ax, amplitude, effect_temp
-measurement: 'rabi'
+measurement: 'npp'
 
 #################################################################################################################################################
 #####################################################      writing and sending sequences to AWG      ############################################
@@ -131,7 +131,7 @@ effect_temp:
 
 #running Sequence
 pattern_repeat: 1
-seq_repeat: 300
+seq_repeat: 200
 
 #averaging
 avg_start: 1000  #The start avraging doesn't need to be changed.
@@ -169,7 +169,7 @@ set_w_twpa: 8.5035 #8.4055
 #Y axis
 p1: 'r_att' #7.1486 +- 2 MHz
 p1start: 0
-p1stop:  20
+p1stop:  3
 p1step: 1
 #x axis
 p2: 'r_att'
