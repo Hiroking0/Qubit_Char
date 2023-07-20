@@ -98,7 +98,6 @@ def init_params(params):
     #r_rf.enable_out()
     
 def run_and_acquire(awg,
-                #board,
                 params,
                 num_patterns,
                 path,
@@ -220,14 +219,17 @@ def single_sweep(name,
 
     mags_sub = np.zeros((num_patterns, len(np.arange(start,stop,step))))
     mags_nosub = np.zeros((num_patterns, len(np.arange(start,stop,step))))
+
+    sweeps = np.arange(start, stop, step)
     #print(np.shape(mags_nosub))
 
     if live_plot:
         plt.ion()
         fig = plt.figure()
         ax = fig.add_subplot(111)
-        line1, = ax.plot(avgsB_nosub[0]) # Returns a tuple of line objects, thus the comma
-        line2, = ax.plot(avgsB_nosub[1])
+        
+        line1, = ax.plot(sweeps, avgsB_nosub[0]) # Returns a tuple of line objects, thus the comma
+        line2, = ax.plot(sweeps, avgsB_nosub[1])
         #fig.canvas.draw()
         #fig, ax1 = plt.subplots()
         #axim1 = ax1.imshow(mags_nosub, vmin=280, vmax=320)
@@ -235,7 +237,7 @@ def single_sweep(name,
         #myobj = plt.imshow(mags_nosub, vmin = 100, vmax = 400)
 
     sweep_num = 0
-    sweeps = np.arange(start, stop, step)
+    
     for param in sweeps:
         #this is the func call that sets the new sweep parameter built from previous commands
         func_call(param)
@@ -252,7 +254,7 @@ def single_sweep(name,
         (t_an, t_as, t_bn, t_bs, m_ns, m_s) = data.get_avgs()
 
 
-
+        
         
         avgsA_sub[:, sweep_num] = t_as
         avgsB_sub[:, sweep_num] = t_bs

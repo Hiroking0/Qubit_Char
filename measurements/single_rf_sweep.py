@@ -76,7 +76,6 @@ if __name__ == "__main__":
 
     cAp_sub, cBp_sub, cAp_nosub, cBp_nosub, mags_sub, mags_nosub = run_funcs.single_sweep(name,
                                                                                             awg,
-                                                                                            #board,
                                                                                             num_patterns,
                                                                                             params,
                                                                                             live_plot = False)
