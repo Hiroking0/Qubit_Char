@@ -17,6 +17,7 @@ from multiprocessing import Process, Manager
 import pyvisa as visa
 import csv
 import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation 
 
 import pickle as pkl
 
@@ -195,7 +196,6 @@ def get_func_call(rm, sweep_param, awg):
 #It should be python list of ["parameter name", value]
 def single_sweep(name,
                  awg,
-                 board,
                  num_patterns,
                  params,
                  extra_column = None,
@@ -224,12 +224,13 @@ def single_sweep(name,
 
     if live_plot:
         plt.ion()
-        
-        fig, ax1 = plt.subplots()
-        #ax = fig.add_subplot(111)
-        #plt.pcolormesh(mags_nosub)
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        line1, = ax.plot(avgsB_nosub[0]) # Returns a tuple of line objects, thus the comma
+        line2, = ax.plot(avgsB_nosub[1])
         #fig.canvas.draw()
-        axim1 = ax1.imshow(mags_nosub, vmin=280, vmax=320)
+        #fig, ax1 = plt.subplots()
+        #axim1 = ax1.imshow(mags_nosub, vmin=280, vmax=320)
         
         #myobj = plt.imshow(mags_nosub, vmin = 100, vmax = 400)
 
@@ -242,7 +243,6 @@ def single_sweep(name,
         time.sleep(.05)
         
         data = run_and_acquire(awg,
-                                board,
                                 params,
                                 num_patterns,
                                 path = name)
@@ -261,12 +261,19 @@ def single_sweep(name,
         mags_sub[:, sweep_num] = m_s
         mags_nosub[:, sweep_num] = m_ns
         #Here avgs[:][0:sweep_num] should be correct. the rest of avgs[:][sweep_num:] should be 0
-        
         if live_plot and sweep_num > 0:
-            axim1.set_data(mags_nosub)
+            line1.set_ydata(avgsB_nosub[0])
+            line2.set_ydata(avgsB_nosub[1])
+            fig.canvas.draw()
             fig.canvas.flush_events()
-            plt.pause(.01)
-            
+            m1 = np.min(avgsB_nosub[0][:sweep_num])
+            m2 = np.min(avgsB_nosub[1][:sweep_num])
+            real_min = min(m1, m2)
+            print(real_min)
+            ax.set_ylim(real_min, np.max(avgsB_nosub[0][:sweep_num]))
+            #ax.set_title("rep # " + str(index_number))
+            #ax.set_ylim(np.min(plt_avg), np.max(plt_avg))
+
         
         sweep_num += 1
             
@@ -306,6 +313,7 @@ def single_sweep(name,
                 
                 wr.writerow(t_row)
                 
+
     return (avgsA_sub, avgsB_sub, avgsA_nosub, avgsB_nosub, mags_sub, mags_nosub)
     
     

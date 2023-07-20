@@ -98,8 +98,6 @@ def ConfigureBoard(board):
     #                     0)
     
 def AcquireData(que):
-#def AcquireData(params, num_patterns, path, saveData = True, live_plot = False):
-    #board, params, num_patterns, path, saveData, live_plot = queue.get()
     board = ats.Board(systemId = 1, boardId = 1)
     ConfigureBoard(board)
     (params, num_patterns, path, saveData, live_plot) = que.get()
@@ -115,6 +113,7 @@ def AcquireData(que):
     seq_repeat = params['seq_repeat']
     avg_start = params['avg_start']
     avg_duration = params['avg_length']
+    
     #print("samp per ac", samp_per_acq)
     #print("num patterns", num_patterns)
     #print("pattern repeat", pattern_repeat)
@@ -142,8 +141,9 @@ def AcquireData(que):
         fig = plt.figure()
         ax = fig.add_subplot(111)
         line1, = ax.plot(range(num_patterns), plt_avg) # Returns a tuple of line objects, thus the comma
-        ax.margins(y=.1)
-        ax.autoscale(enable = True)
+        plot_decimation = int(20/num_patterns)
+        #ax.margins(y=.1)
+        #ax.autoscale(enable = True)
     
     # No pre-trigger samples in NPT mode
     preTriggerSamples = 0
@@ -259,11 +259,11 @@ def AcquireData(que):
         
             
             
-            if live_plot and pattern_number == 0 and index_number > 0:
+            if live_plot and pattern_number == 0 and index_number > 0 and index_number % plot_decimation == 0:
                 for i in range(num_patterns):
                     t_avg = np.average(chB_avgs_nosub[i][:index_number])
                     plt_avg[i] = t_avg
-                
+
                 line1.set_ydata(plt_avg)
                 fig.canvas.draw()
                 fig.canvas.flush_events()
