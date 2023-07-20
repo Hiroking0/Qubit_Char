@@ -97,9 +97,13 @@ def ConfigureBoard(board):
     #board.configureAuxIO(ats.AUX_OUT_TRIGGER,
     #                     0)
     
+def AcquireData(que):
+#def AcquireData(params, num_patterns, path, saveData = True, live_plot = False):
+    #board, params, num_patterns, path, saveData, live_plot = queue.get()
+    board = ats.Board(systemId = 1, boardId = 1)
+    ConfigureBoard(board)
+    (params, num_patterns, path, saveData, live_plot) = que.get()
 
-def AcquireData(board, params, num_patterns, path, saveData = True, live_plot = False):
-    
     readout_dur = params[params['measurement']]['readout_duration']
     readout_trigger_offset = params['readout_trigger_offset']
     
@@ -138,7 +142,8 @@ def AcquireData(board, params, num_patterns, path, saveData = True, live_plot = 
         fig = plt.figure()
         ax = fig.add_subplot(111)
         line1, = ax.plot(range(num_patterns), plt_avg) # Returns a tuple of line objects, thus the comma
-    
+        ax.margins(y=.1)
+        ax.autoscale(enable = True)
     
     # No pre-trigger samples in NPT mode
     preTriggerSamples = 0
@@ -254,17 +259,17 @@ def AcquireData(board, params, num_patterns, path, saveData = True, live_plot = 
         
             
             
-            if live_plot and pattern_number == 0:
+            if live_plot and pattern_number == 0 and index_number > 0:
                 for i in range(num_patterns):
-                    plt_avg[i] = np.average(chB_avgs_sub[i][:index_number])
-                    #fig.canvas.title()
-                
+                    t_avg = np.average(chB_avgs_nosub[i][:index_number])
+                    plt_avg[i] = t_avg
                 
                 line1.set_ydata(plt_avg)
                 fig.canvas.draw()
                 fig.canvas.flush_events()
+                ax.set_title("rep # " + str(index_number))
+                ax.set_ylim(np.min(plt_avg), np.max(plt_avg))
                 
-            
             
             buffersCompleted += 1
             bytesTransferred += buffer.size_bytes
@@ -339,8 +344,13 @@ def AcquireData(board, params, num_patterns, path, saveData = True, live_plot = 
     if live_plot:
         print('closed')
         fig.canvas.close()
-    return (chA_avgs_nosub, chA_avgs_sub, chB_avgs_nosub, chB_avgs_sub, mag_nosub, mag_sub, readout_avg_array_A, readout_avg_array_B)
 
+    return_data = (chA_avgs_nosub, chA_avgs_sub, chB_avgs_nosub, chB_avgs_sub, mag_nosub, mag_sub, readout_avg_array_A, readout_avg_array_B)
+    que.put(return_data)
+    #print("hi2")
+    #return_dict['ret'] = (chA_avgs_nosub, chA_avgs_sub, chB_avgs_nosub, chB_avgs_sub, mag_nosub, mag_sub, readout_avg_array_A, readout_avg_array_B)
+    #return (chA_avgs_nosub, chA_avgs_sub, chB_avgs_nosub, chB_avgs_sub, mag_nosub, mag_sub, readout_avg_array_A, readout_avg_array_B)
+    return
 
 if __name__ == "__main__":
     board = ats.Board(systemId = 1, boardId = 1)

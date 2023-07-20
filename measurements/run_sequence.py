@@ -35,6 +35,9 @@ def eval_yaml(yaml):
 
 if __name__ == "__main__":
     
+
+
+
     f = open('./general_config.yaml','r')
     params = yaml.safe_load(f)
     f.close()
@@ -55,9 +58,6 @@ if __name__ == "__main__":
     wait_time /= 1e9
     wait_time += .3
     print(f'estimated wait time is {wait_time} seconds')
-
-    board = ats.Board(systemId = 1, boardId = 1)
-    npt.ConfigureBoard(board)
     
     run_funcs.initialize_awg(awg, num_patterns, pattern_repeat, decimation)
     run_funcs.init_params(params)
@@ -65,11 +65,12 @@ if __name__ == "__main__":
     now = datetime.now()
     date = now.strftime("%m%d_%H%M%S")
     path = raw_path + "/" + name + "_" + date
+    
     data = run_funcs.run_and_acquire(awg,
-                                    board,
                                     params,
                                     num_patterns,
-                                    path)
+                                    path,
+                                    live_plot=True)
 
     
     
