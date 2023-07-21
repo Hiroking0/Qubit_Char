@@ -36,7 +36,16 @@ if __name__ == "__main__":
     f.close()
     
     directory = tkf.askdirectory()
-    name = directory + "/" + params['name'] + "_"
+
+    awg = be.get_awg()
+    num_patterns = awg.get_seq_length()
+
+    if params['name'] == 'auto':
+        name = directory + "/" + params['measurement'] + "_" + str(num_patterns) + "_"
+    else:
+        name = directory + "/" + params['name'] + "_"
+
+    #name = directory + "/" + params['name'] + "_"
     
     j_file = open(name+"json.json", 'w')
     json.dump(params, j_file, indent = 4)
@@ -53,9 +62,7 @@ if __name__ == "__main__":
     #sweep power J7201B
     decimation = int_eval(params['decimation'])
     
-    awg = be.get_awg()
     
-    num_patterns = awg.get_seq_length()
     
     run_funcs.initialize_awg(awg, num_patterns, pattern_repeat, decimation)
     run_funcs.init_params(params)
