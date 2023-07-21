@@ -143,14 +143,14 @@ v_threshold: 223.85 #threshold value for distinguishing ground and excited state
 
 #static parameters, these are set before each running of the sequence
 
-set_wr: 7.20233 #7.2025 7.2017
-set_wq: 3.355 - 0.088 + 0.00533333333   #3.2405-0.088- 0.00062421 + 0.000106382979
+set_wr: 7.1483 #7.2025 7.2017
+set_wq: 3   #3.2405-0.088- 0.00062421 + 0.000106382979
 set_pr: 15
-set_r_att: 25 #40 for low power for q4 and 21 for high power 
+set_r_att: 35 #40 for low power for q4 and 21 for high power 
 set_pq: 15
-set_q_att: 0
-set_p_twpa: -19.7
-set_w_twpa: 8.4055
+set_q_att: 15
+set_p_twpa: -18.9
+set_w_twpa: 8.5035
 
 #################################################################################################################################################
 #####################################################      Sweep Parametrs       #####################################################
@@ -168,9 +168,9 @@ set_w_twpa: 8.4055
 
 #Y axis
 p1: 'wq' #7.1486 +- 2 MHz
-p1start:  3.25 - .088 -0.01
-p1stop:  3.25 - .088 +0.01
-p1step: .0005
+p1start:  3.29
+p1stop:  3.325
+p1step: .001
 
 #x axis
 p2: 'pr'
