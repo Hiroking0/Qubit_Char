@@ -42,7 +42,7 @@ def disp_sequence():
 
     #This code is for adding a phase offset to nosub or sub arrays
     
-    theta = np.pi/2+.3
+    theta = np.pi/2+.5
 
 
     exp = np.exp(1j*theta)
@@ -50,6 +50,8 @@ def disp_sequence():
 
     complex_arr = np.zeros((len(a_nosub), len(a_nosub[0])), dtype=np.complex_)
     complex_arr_sub = np.zeros((len(a_nosub), len(a_nosub[0])), dtype=np.complex_)
+    angle_arr = np.angle(complex_arr_sub.flatten())
+    theta = np.average(angle_arr)
     for i in range(len(a_nosub)):
         for j in range(len(a_nosub[0])):
             t_i = a_nosub[i,j]
@@ -66,6 +68,8 @@ def disp_sequence():
     new_a_nosub = np.real(complex_arr)
     new_b_nosub = np.imag(complex_arr)
     
+
+
     new_a_sub = np.real(complex_arr_sub)
     new_b_sub = np.imag(complex_arr_sub)
 
