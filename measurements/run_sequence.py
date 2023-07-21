@@ -39,7 +39,10 @@ if __name__ == "__main__":
     params = yaml.safe_load(f)
     f.close()
     params = eval_yaml(params)
-    name = params['name']
+    #name = params['name']
+
+
+
     decimation = params['decimation']
     
     pattern_repeat = params['pattern_repeat']
@@ -49,12 +52,18 @@ if __name__ == "__main__":
 
     num_patterns = awg.get_seq_length()
     
-    w_len = awg.get_waveform_lengths(name + "_1_0")
-    wait_time = params['zero_length'] * params['zero_multiple'] + w_len
+    if params['name'] == 'auto':
+        name = params['measurement'] + "_" + str(num_patterns)
+    else:
+        name = params['name']
+
+
+    #w_len = awg.get_waveform_lengths(name + "_1_0")
+    wait_time = params['zero_length'] * params['zero_multiple']# + w_len
     wait_time *= seq_repeat * pattern_repeat * num_patterns
     wait_time /= 1e9
     wait_time += .3
-    print(f'estimated wait time is {wait_time} seconds')
+    print(f'estimated wait time is >{wait_time} seconds')
 
     board = ats.Board(systemId = 1, boardId = 1)
     npt.ConfigureBoard(board)

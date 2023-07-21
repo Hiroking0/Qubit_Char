@@ -40,7 +40,15 @@ if __name__ == "__main__":
     #name = params['name']
 
     directory = tkf.askdirectory()
-    name = directory + "/" + params['name']
+    awg = be.get_awg()
+    num_patterns = awg.get_seq_length()
+
+    if params['name'] == 'auto':
+        name = directory + "/" + params['measurement'] + "_" + str(num_patterns)
+    else:
+        name = directory + "/" + params['name']
+
+    
     decimation = params['decimation']
 
     now = datetime.now()
@@ -63,12 +71,7 @@ if __name__ == "__main__":
     p1stop = int_eval(params['p1stop'])
     p1step = int_eval(params['p1step'])
     
-    
-    
     p1 = params['p1']
-    
-    awg = be.get_awg()
-    num_patterns = awg.get_seq_length()
 
     board = ats.Board(systemId = 1, boardId = 1)
     npt.ConfigureBoard(board)

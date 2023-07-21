@@ -127,11 +127,8 @@ def plot_iq(ax, I, Q, title):
     bins = 100
     H, xedges, yedges = np.histogram2d(I.flatten(), Q.flatten(), bins=(bins, bins))
     H = H.T
-    X, Y = np.meshgrid(xedges, yedges)
-    
-    ax.imshow(H, interpolation='nearest',)
+    ax.imshow(H, interpolation='nearest', extent = [xedges[0], xedges[-1], yedges[0], yedges[-1]], )
     ax.set_title(title)
-    #ax.pcolormesh(X, Y, H)
     
     '''
     #add check for multiple dimensions

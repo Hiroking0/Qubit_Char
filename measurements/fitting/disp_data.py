@@ -15,8 +15,7 @@ import json
 import pandas
 import fit_rabi
 import pickle as pkl
-from lib.run_funcs import Data_Arrs
-from fit_rabi import fit_subax, fit_rabi
+from fit_rabi import  fit_rabi
 
 def disp_sequence():
     fn = askopenfilename(filetypes=[("Pickles", "*.pkl")])
@@ -41,7 +40,41 @@ def disp_sequence():
     else:
         timestep = params[params['measurement']]['step']
 
+    #This code is for adding a phase offset to nosub or sub arrays
+    
+    theta = np.pi/2+.3
 
+
+    exp = np.exp(1j*theta)
+    (a_nosub, a_sub, b_nosub, b_sub, mags_nosub, mags_sub, readout_A, readout_B) = data.get_data_arrs()
+
+    complex_arr = np.zeros((len(a_nosub), len(a_nosub[0])), dtype=np.complex_)
+    complex_arr_sub = np.zeros((len(a_nosub), len(a_nosub[0])), dtype=np.complex_)
+    for i in range(len(a_nosub)):
+        for j in range(len(a_nosub[0])):
+            t_i = a_nosub[i,j]
+            t_q = b_nosub[i,j]
+            t_new = np.multiply(t_i+1j*t_q, exp)
+            complex_arr[i,j] = t_new
+
+            t_i_sub = a_sub[i,j]
+            t_q_sub = b_sub[i,j]
+            t_new_sub = np.multiply(t_i_sub+1j*t_q_sub, exp)
+            complex_arr_sub[i,j] = t_new_sub
+
+
+    new_a_nosub = np.real(complex_arr)
+    new_b_nosub = np.imag(complex_arr)
+    
+    new_a_sub = np.real(complex_arr_sub)
+    new_b_sub = np.imag(complex_arr_sub)
+
+    setattr(data, 'a_nosub', new_a_nosub)
+    setattr(data, 'b_nosub', new_b_nosub)
+
+    setattr(data, 'a_sub', new_a_sub)
+    setattr(data, 'b_sub', new_b_sub)
+    
     dp.plot_np_file(data, timestep)
 
 
@@ -463,9 +496,9 @@ def two_rpm():
 if __name__ == "__main__":
     #get_temp_thresh()
     #disp_double_sweep()
-    #disp_sequence()
+    disp_sequence()
     #show_sweep_output() #each pattern will be overlayed on each other
-    disp_single_sweep() #3d plot pattern # is x axis
+    #disp_single_sweep() #3d plot pattern # is x axis
     #disp_3_chevrons()
     #two_rpm()
     
