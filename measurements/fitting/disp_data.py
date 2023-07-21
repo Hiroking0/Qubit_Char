@@ -316,7 +316,7 @@ def disp_double_sweep():
     #index 4 is b nosub
     for f in fns:
         csvFile = pandas.read_csv(f, sep = ',', engine = 'python')
-        temp_z = csvFile['chB_nosub'].to_list()
+        temp_z = csvFile['chA_nosub'].to_list()
         temp_x = csvFile[csvFile.columns[-1]][0]
         temp_x = np.where(x == temp_x)[0][0]
         z[:, temp_x] = temp_z
@@ -465,8 +465,8 @@ if __name__ == "__main__":
     #disp_double_sweep()
     #disp_sequence()
     #show_sweep_output() #each pattern will be overlayed on each other
-    #disp_single_sweep() #3d plot pattern # is x axis
+    disp_single_sweep() #3d plot pattern # is x axis
     #disp_3_chevrons()
-    two_rpm()
+    #two_rpm()
     
     

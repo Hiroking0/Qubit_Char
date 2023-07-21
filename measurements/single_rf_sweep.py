@@ -70,12 +70,16 @@ if __name__ == "__main__":
     awg = be.get_awg()
     num_patterns = awg.get_seq_length()
 
+    board = ats.Board(systemId = 1, boardId = 1)
+    npt.ConfigureBoard(board)
+
     run_funcs.initialize_awg(awg, num_patterns, pattern_repeat, decimation)
     run_funcs.init_params(params)
 
 
     cAp_sub, cBp_sub, cAp_nosub, cBp_nosub, mags_sub, mags_nosub = run_funcs.single_sweep(name,
                                                                                             awg,
+                                                                                            board,
                                                                                             num_patterns,
                                                                                             params,
                                                                                             live_plot = False)
@@ -88,7 +92,7 @@ if __name__ == "__main__":
     else:
         x = np.arange(p1start, p1stop, p1step)
     
-    #plt.clf()
+    #plt.figure()
 
     fig, ax_array = plt.subplots(2,3)
     plot_subax(ax_array[0,0], x, cAp_sub, 'channel a sub')

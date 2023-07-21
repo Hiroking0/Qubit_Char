@@ -9,15 +9,16 @@ sys.path.append("../")
 from instruments.alazar import ATS9870_NPT as npt
 from instruments import Var_att_interface as ATT
 from instruments import RF_interface as RF
+#from instruments.TekAwg import tek_awg as tawg
 
 import time
 import numpy as np
-#from threading import Thread
-from multiprocessing import Process, Manager
+from threading import Thread
+from multiprocessing import Process
 import pyvisa as visa
 import csv
 import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation 
+import queue
 
 import pickle as pkl
 
@@ -98,33 +99,31 @@ def init_params(params):
     #r_rf.enable_out()
     
 def run_and_acquire(awg,
+                board,
                 params,
                 num_patterns,
-                path,
-                live_plot = False) -> Data_Arrs:
+                path) -> Data_Arrs:
     """
     runs sequence on AWG once. params should be dictionary of YAML file.
     """
     save_raw = False
-    manager = Manager()
-    que = manager.Queue()
-    #acproc = Thread(target = lambda q, board, params, num_patterns, path, raw, live:
-    #                        q.put(npt.AcquireData(board, params, num_patterns, path, raw, live)), 
-    #                        args = (que, board, params, num_patterns, path, save_raw, live_plot))
+    live_plot = False
+    que = queue.Queue()
 
-    #acproc = Process(target = lambda q, params, num_patterns, path, raw, live:
-    #                        q.put(npt.AcquireData(params, num_patterns, path, raw, live)), 
-    #                        args = (que, params, num_patterns, path, save_raw, live_plot))
+    acproc = Thread(target = lambda q, board, params, num_patterns, path, raw, live:
+                            q.put(npt.AcquireData(board, params, num_patterns, path, raw, live)), 
+                            args = (que, board, params, num_patterns, path, save_raw, live_plot))
 
-    que.put((params, num_patterns, path, save_raw, live_plot))
-    acproc = Process(target = npt.AcquireData, args = (que,))
+    #acproc = Process(target = lambda q, board, params, num_patterns, path, raw, live:
+    #                    q.put(npt.AcquireData(board, params, num_patterns, path, raw, live)), 
+    #                    args = (que, board, params, num_patterns, path, save_raw, live_plot))
 
     acproc.start()
     time.sleep(.5)
     awg.run()
     acproc.join()
-    arrs = que.get()
     awg.stop()
+    arrs = que.get()
     data_arrs = Data_Arrs(*arrs)
     return data_arrs
     
@@ -195,6 +194,7 @@ def get_func_call(rm, sweep_param, awg):
 #It should be python list of ["parameter name", value]
 def single_sweep(name,
                  awg,
+                 board,
                  num_patterns,
                  params,
                  extra_column = None,
@@ -219,25 +219,21 @@ def single_sweep(name,
 
     mags_sub = np.zeros((num_patterns, len(np.arange(start,stop,step))))
     mags_nosub = np.zeros((num_patterns, len(np.arange(start,stop,step))))
-
-    sweeps = np.arange(start, stop, step)
     #print(np.shape(mags_nosub))
 
     if live_plot:
         plt.ion()
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
         
-        line1, = ax.plot(sweeps, avgsB_nosub[0]) # Returns a tuple of line objects, thus the comma
-        line2, = ax.plot(sweeps, avgsB_nosub[1])
+        fig, ax1 = plt.subplots()
+        #ax = fig.add_subplot(111)
+        #plt.pcolormesh(mags_nosub)
         #fig.canvas.draw()
-        #fig, ax1 = plt.subplots()
-        #axim1 = ax1.imshow(mags_nosub, vmin=280, vmax=320)
+        axim1 = ax1.imshow(mags_nosub, vmin=280, vmax=320)
         
         #myobj = plt.imshow(mags_nosub, vmin = 100, vmax = 400)
 
     sweep_num = 0
-    
+    sweeps = np.arange(start, stop, step)
     for param in sweeps:
         #this is the func call that sets the new sweep parameter built from previous commands
         func_call(param)
@@ -245,6 +241,7 @@ def single_sweep(name,
         time.sleep(.05)
         
         data = run_and_acquire(awg,
+                                board,
                                 params,
                                 num_patterns,
                                 path = name)
@@ -254,7 +251,7 @@ def single_sweep(name,
         (t_an, t_as, t_bn, t_bs, m_ns, m_s) = data.get_avgs()
 
 
-        
+
         
         avgsA_sub[:, sweep_num] = t_as
         avgsB_sub[:, sweep_num] = t_bs
@@ -263,19 +260,12 @@ def single_sweep(name,
         mags_sub[:, sweep_num] = m_s
         mags_nosub[:, sweep_num] = m_ns
         #Here avgs[:][0:sweep_num] should be correct. the rest of avgs[:][sweep_num:] should be 0
+        
         if live_plot and sweep_num > 0:
-            line1.set_ydata(avgsB_nosub[0])
-            line2.set_ydata(avgsB_nosub[1])
-            fig.canvas.draw()
+            axim1.set_data(mags_nosub)
             fig.canvas.flush_events()
-            m1 = np.min(avgsB_nosub[0][:sweep_num])
-            m2 = np.min(avgsB_nosub[1][:sweep_num])
-            real_min = min(m1, m2)
-            print(real_min)
-            ax.set_ylim(real_min, np.max(avgsB_nosub[0][:sweep_num]))
-            #ax.set_title("rep # " + str(index_number))
-            #ax.set_ylim(np.min(plt_avg), np.max(plt_avg))
-
+            plt.pause(.01)
+            
         
         sweep_num += 1
             
@@ -315,7 +305,6 @@ def single_sweep(name,
                 
                 wr.writerow(t_row)
                 
-
     return (avgsA_sub, avgsB_sub, avgsA_nosub, avgsB_nosub, mags_sub, mags_nosub)
     
     

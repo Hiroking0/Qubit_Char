@@ -71,12 +71,12 @@ if __name__ == "__main__":
                                                                                           params,
                                                                                           num_patterns)
     
-    #np.save(name + "chA_sub", f_A_sub)
-    #np.save(name + "chB_sub", f_B_sub)
-    #np.save(name + "chA_nosub", f_A_nosub)
-    #np.save(name + "chB_nosub", f_B_nosub)
-    #np.save(name + "mags_sub", f_M_sub)
-    #np.save(name + "mags_sub", f_M_nosub)
+    np.save(name + "chA_sub", f_A_sub)
+    np.save(name + "chB_sub", f_B_sub)
+    np.save(name + "chA_nosub", f_A_nosub)
+    np.save(name + "chB_nosub", f_B_nosub)
+    np.save(name + "mags_sub", f_M_sub)
+    np.save(name + "mags_sub", f_M_nosub)
     
     plt.figure()
     
