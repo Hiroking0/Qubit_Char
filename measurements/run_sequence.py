@@ -63,7 +63,7 @@ if __name__ == "__main__":
     wait_time *= seq_repeat * pattern_repeat * num_patterns
     wait_time /= 1e9
     wait_time += .3
-    print(f'estimated wait time is >{wait_time} seconds')
+    print(f'estimated wait time is =~{wait_time} seconds')
 
     board = ats.Board(systemId = 1, boardId = 1)
     npt.ConfigureBoard(board)

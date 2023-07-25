@@ -20,8 +20,13 @@ if __name__ == "__main__":
     zero_multiple = int_eval(params['zero_multiple'])
     readout_trigger_offset = int_eval(params['readout_trigger_offset'])
     #num_channels = 2
+    awg = be.get_awg()
 
-
+    num_patterns = awg.get_seq_length()
+    if params['name'] == 'auto':
+        name = params['measurement'] + "_" + str(num_patterns)
+    else:
+        name = params['name']
 
     pg = sf.get_pg(params)
 
