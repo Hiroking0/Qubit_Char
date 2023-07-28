@@ -37,7 +37,7 @@ readout:
 npp:
     #amplitude: 1
     nop_p_q_gap: 20 #samples between end of qubit pulse and beginning of readout
-    nop_p_q_dur: 393
+    nop_p_q_dur: 423
     readout_duration: 20000
     ssb_freq: .0
     ssb_phase: -90
@@ -46,20 +46,20 @@ npp:
     
 amplitude:
     amp_start: 0
-    amp_stop: 2
-    amp_q_dur: 150
+    amp_stop: .02
+    amp_q_dur: 126
     amp_q_gap: 20
-    step: .1
+    step: .01
     readout_duration: 20000
     ssb_freq: 0
     ssb_phase: 90
-    shape: 'Gaussian'
+    shape: 'Pulse'
     
 rabi:
     rabi_pulse_gap: 20 #samples between readout pulse and end of qubit pulse. Does NOT change between patterns
     rabi_pulse_initial_duration: 0 #first duration of qubit pulse
     rabi_pulse_end_duration: 1000 # Rabi length, final duration of qubit pulse (should be larger than initial)
-    step: 30
+    step: 20
     readout_duration: 20000
     ssb_freq: 0
     ssb_phase: -90
@@ -80,7 +80,7 @@ ramsey:
     ramsey_gap_2: 20 #unchanging gap between end of second qubit pulse and beginning of readout
     ramsey_gap_1_init: 0 #initial gap between the two qubit pulses
     ramsey_gap_1_final: 10000 #final gap between the two readout pulses
-    ramsey_q_dur: 240/2 #size of each individual pulse (i.e. pi/2 pulse)
+    ramsey_q_dur: 120/2 #size of each individual pulse (i.e. pi/2 pulse)
     step: 200
     readout_duration: 20000
     ssb_freq: 0
@@ -131,24 +131,24 @@ effect_temp:
 
 #running Sequence
 pattern_repeat: 1
-seq_repeat: 500
+seq_repeat: 20000
 
 #averaging
 avg_start: 1000  #The start avraging doesn't need to be changed.
 avg_length: 19750
 
-v_threshold: 223.85 #threshold value for distinguishing ground and excited states.
+v_threshold: 223.85 #threshold value for distinguishing ground and excited states.S
 #This value is only used in the fitting scripts. It can be ignored and changed
 #In the saved copy as necessary.
 
 #static parameters, these are set before each running of the sequence
 
-set_wr: 7.201421 #7.2025 7.2017
-set_wq: 3.35501 #3.2405-0.088- 0.00062421 + 0.000106382979
+set_wr: 7.1682680 #7.2025 7.2017
+set_wq: 3.240740 #3.2405-0.088- 0.00062421 + 0.000106382979
 set_pr: 15
-set_r_att: 11 #40 for low power for q4 and 21 for high power 
+set_r_att: 12 #40 for low power for q4 and 21 for high power 
 set_pq: 15
-set_q_att: 0
+set_q_att: 9
 set_p_twpa: -19.7 #-18.9
 set_w_twpa: 8.4055 #8.5035
 
@@ -167,9 +167,9 @@ set_w_twpa: 8.4055 #8.5035
 #If doing a single sweep, will look at p1, double will look at both
 
 #Y axis
-p1: 'r_att' #7.1486 +- 2 MHz
-p1start: 30
-p1stop:  60
+p1: 'q_att' #7.1486 +- 2 MHz
+p1start: 0
+p1stop:  20
 p1step: 1
 #x axis
 p2: 'pr'
