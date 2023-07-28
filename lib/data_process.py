@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import time
 from .run_funcs import Data_Arrs
 
-def get_population_v_pattern(arr, thresh, flipped = False):
+def get_population_v_pattern(arr, thresh,GE=0, flipped = False):
     plt_arr = np.zeros(len(arr))
     for i in range(len(arr)):
         pe = 0
@@ -20,8 +20,58 @@ def get_population_v_pattern(arr, thresh, flipped = False):
                 pe += 1
         pe /= len(arr[0])
         plt_arr[i] = pe
-
+    
+    '''print('channel',GE)
+    print('len(arr)',len(arr))
+    print('shape of arr', np.shape(arr))
+    print('shape of arr[0]', np.shape(arr[0]))'''
     return plt_arr
+
+def eff_temp (arr, thresh,wq, flipped = False):
+    print('using eff_temp func----------------------------------')
+    kb =  1.380649e-23
+    h =  6.62607015e-34
+    del_E = (-h * wq)
+    
+    popG = np.zeros(len(arr))
+    popE = np.zeros(len(arr))
+    #for gound population
+    
+    pe = 0
+    pep = 0
+    #for each pattern, look at every point and see if its above threshL
+    for j in arr[0]:
+        if (j > thresh and not flipped) or (j < thresh and flipped):
+            pe += 1
+        else:
+            pep += 1
+    pe /= len(arr[0])
+    pep /= len(arr[0])
+    popG=[pe,pep]
+    print('popG',popG)
+    pe = 0
+    pep = 0
+    #for each pattern, look at every point and see if its above threshL
+    for j in arr[1]:
+        if (j > thresh and not flipped) or (j < thresh and flipped):
+            pe += 1
+        else:
+            pep += 1
+    pe /= len(arr[0])
+    pep /= len(arr[0])
+    popE = [pe,pep]
+    print('popE',popE)
+    #Without pulse
+    denom = kb * np.log((popG[1])/(popG[0]))
+
+    T = np.abs(del_E/denom)
+    print("Effective tempurature (No pulse) (mK):", T*(10**3))
+
+    #With pulse 
+    denom = kb * np.log(popE[1]/popE[0])
+    
+    T = np.abs(del_E/denom)
+    print("Effective tempurature (Pulse) (mK):", T*(10**3))
 
 def frombin(tot_samples, numAcquisitions, channels = 2, name = 'data.bin'):
     #assume 1 record per buffer
@@ -176,7 +226,7 @@ def plot_np_file(data: Data_Arrs, time_step, path = None):
     
 
     (pattern_avgs_cA, pattern_avgs_cA_sub, pattern_avgs_cB, pattern_avgs_cB_sub, mags, mags_sub) = data.get_avgs()
-    print(pattern_avgs_cB)
+    #print(pattern_avgs_cB)
     
     x = [i*time_step for i in range(num_patterns)]
 
