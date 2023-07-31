@@ -144,7 +144,7 @@ v_threshold: 223.85 #threshold value for distinguishing ground and excited state
 #static parameters, these are set before each running of the sequence
 
 set_wr: 7.1682680 #7.2025 7.2017
-set_wq: 3.240740 #3.2405-0.088- 0.00062421 + 0.000106382979
+set_wq: 3.240740 - 0.0001 #3.2405-0.088- 0.00062421 + 0.000106382979
 set_pr: 15
 set_r_att: 12 #40 for low power for q4 and 21 for high power 
 set_pq: 15
