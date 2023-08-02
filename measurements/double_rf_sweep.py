@@ -13,7 +13,7 @@ from lib import run_funcs
 
 from instruments.alazar import ATS9870_NPT as npt
 from instruments.alazar import atsapi as ats
-
+from run_sequence import eval_yaml
 import tkinter.filedialog as tkf
 import yaml
 import json
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     f = open('general_config.yaml','r')
     params = yaml.safe_load(f)
     f.close()
-    
+    yaml = eval_yaml(params)
     directory = tkf.askdirectory()
 
     awg = be.get_awg()
