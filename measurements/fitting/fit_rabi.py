@@ -132,7 +132,7 @@ def fit_subax(ax, x, exp, fit_data, title,line=0):
             "\nfreq: " + str(round(fit_data[3], 10)) + " GHz" + \
             "\nphase: "+ str(round(fit_data[4], 3))
 
-    textA = ax.text(.98, .98, text, fontsize = 10, horizontalalignment='right',
+    textA = ax.text(.98, .98, text, fontsize = 10,color='green', horizontalalignment='right',
         verticalalignment='top', transform=ax.transAxes)
     return line,line2,textA
 
@@ -168,7 +168,8 @@ def new_fit():
     #avgs = np.zeros(len(arr))
     #for i in range(len(arr)):
     #    avgs[i] = np.average(arr[i])
-        
+    
+    #guess for the intial plot    
     a = 210 #offset
     b = .0075 #amp
     c = 1/500  #freq
@@ -240,6 +241,7 @@ def new_fit():
             np.average(avgs[3]),np.average(avgs[4]),np.average(avgs[5])] #offset
         b = 3*[abs(max(avgs[0])-min(avgs[0])),abs(max(avgs[1])-min(avgs[1])),abs(max(avgs[2])-min(avgs[2])),
             abs(max(avgs[3])-min(avgs[3])),abs(max(avgs[4])-min(avgs[4])),abs(max(avgs[5])-min(avgs[5]))] #amp
+        #guess for the update plot
         c = 1/600  #freq
         d = np.pi/2 #phase
         data_ans = fit_rabi(avgs[0], a[0], b[0], c, d, x)[0]
