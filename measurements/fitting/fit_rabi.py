@@ -132,9 +132,9 @@ def fit_subax(ax, x, exp, fit_data, title,line=0):
             "\nfreq: " + str(round(fit_data[3], 10)) + " GHz" + \
             "\nphase: "+ str(round(fit_data[4], 3))
 
-    ax.text(.98, .98, text, fontsize = 10, horizontalalignment='right',
+    textA = ax.text(.98, .98, text, fontsize = 10, horizontalalignment='right',
         verticalalignment='top', transform=ax.transAxes)
-    return line,line2
+    return line,line2,textA
 
 
 def new_fit():
@@ -198,12 +198,12 @@ def new_fit():
     
     #ms, ms_a, ms_b, ms_c
     plt.rcParams.update({'font.size': 15})
-    lineE0,lineF0 = fit_subax(ax_array[0,0], x, avgs[0], data_ans, "chA nosub")
-    lineE1,lineF1 = fit_subax(ax_array[1,0], x, avgs[1], data_as, "chA sub")
-    lineE2,lineF2 = fit_subax(ax_array[0,1], x, avgs[2], data_bns, "chB nosub")
-    lineE3,lineF3 = fit_subax(ax_array[1,1], x, avgs[3], data_bs, "chB sub")
-    lineE4,lineF4 = fit_subax(ax_array[0,2], x, avgs[4], data_mns, "mags nosub")
-    lineE5,lineF5 = fit_subax(ax_array[1,2], x, avgs[5], data_ms, "mags sub")
+    lineE0,lineF0,text0 = fit_subax(ax_array[0,0], x, avgs[0], data_ans, "chA nosub")
+    lineE1,lineF1,text1 = fit_subax(ax_array[1,0], x, avgs[1], data_as, "chA sub")
+    lineE2,lineF2,text2 = fit_subax(ax_array[0,1], x, avgs[2], data_bns, "chB nosub")
+    lineE3,lineF3,text3 = fit_subax(ax_array[1,1], x, avgs[3], data_bs, "chB sub")
+    lineE4,lineF4,text4 = fit_subax(ax_array[0,2], x, avgs[4], data_mns, "mags nosub")
+    lineE5,lineF5,text5 = fit_subax(ax_array[1,2], x, avgs[5], data_ms, "mags sub")
     
 
     plt.suptitle('Rabi measurement with and shift {} deg'.format(0))
@@ -230,35 +230,56 @@ def new_fit():
         lineE5.set_ydata(avgs[5])
         ax_array[1,2].set_ylim([min(avgs[5]),max(avgs[5])])
 
-
-
         fig.canvas.draw_idle()
+        return avgs
 
     def update_fit(event):
+        avgs = update_plot(event)
         #new fit 
-        data_ans = fit_rabi(avgs[0], a, b, c, d, x)[0]
-        data_as = fit_rabi(avgs[1], a, b, c, d, x)[0]
-        data_bns = fit_rabi(avgs[2], a, b, c, d, x)[0]
-        data_bs = fit_rabi(avgs[3], a, b, c, d, x)[0]
-        data_mns = fit_rabi(avgs[4], a, b, c, d, x)[0]
-        data_ms = fit_rabi(avgs[5], a, b, c, d, x)[0]
-        
+        a = [np.average(avgs[0]),np.average(avgs[1]),np.average(avgs[2]),
+            np.average(avgs[3]),np.average(avgs[4]),np.average(avgs[5])] #offset
+        b = 3*[abs(max(avgs[0])-min(avgs[0])),abs(max(avgs[1])-min(avgs[1])),abs(max(avgs[2])-min(avgs[2])),
+            abs(max(avgs[3])-min(avgs[3])),abs(max(avgs[4])-min(avgs[4])),abs(max(avgs[5])-min(avgs[5]))] #amp
+        c = 1/600  #freq
+        d = np.pi/2 #phase
+        data_ans = fit_rabi(avgs[0], a[0], b[0], c, d, x)[0]
+        data_as = fit_rabi(avgs[1], a[1], b[1], c, d, x)[0]
+        data_bns = fit_rabi(avgs[2], a[2], b[2], c, d, x)[0]
+        data_bs = fit_rabi(avgs[3], a[3], b[3], c, d, x)[0]
+        data_mns = fit_rabi(avgs[4], a[4], b[4], c, d, x)[0]
+        data_ms = fit_rabi(avgs[5], a[5], b[5], c, d, x)[0]
+
+        text=[]
+        for i in range(len(a)):
+            context = "offset: " + str(round(a[i], 3)) + \
+                "\n amp: " + str(round(b[i], 3)) + \
+                "\nfreq: " + str(round(c, 10)) + " GHz" + \
+                "\nphase: "+ str(round(d, 3))
+            text.append(context)
+
+
         lineF0.set_ydata(data_ans)
+        text0.set_text(text[0])
         ax_array[0,0].set_ylim([min(avgs[0]),max(avgs[0])])
 
         lineF1.set_ydata(data_as)
+        text1.set_text(text[1])
         ax_array[1,0].set_ylim([min(avgs[1]),max(avgs[1])])
 
         lineF2.set_ydata(data_bns)
+        text2.set_text(text[2])
         ax_array[0,1].set_ylim([min(avgs[2]),max(avgs[2])])
 
         lineF3.set_ydata(data_bs)
+        text3.set_text(text[3])
         ax_array[1,1].set_ylim([min(avgs[3]),max(avgs[3])])
 
         lineF4.set_ydata(data_mns)
+        text4.set_text(text[4])
         ax_array[0,2].set_ylim([min(avgs[4]),max(avgs[4])])
 
         lineF5.set_ydata(data_ms)
+        text5.set_text(text[5])
         ax_array[1,2].set_ylim([min(avgs[5]),max(avgs[5])])
         fig.canvas.draw_idle()
 
