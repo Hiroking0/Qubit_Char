@@ -186,7 +186,7 @@ def new_fit():
     #widgets
     ax_slide = plt.axes([0.1,0.01,0.35,0.03])
     ax_box = plt.axes([0.55, 0.01, 0.15, 0.03])
-    theta = Slider(ax_slide,"Theta",valmin= 0, valmax = 360, valinit= 0, valstep= 0.5)
+    theta = Slider(ax_slide,"Theta [Deg]",valmin= 0, valmax = 360, valinit= 0, valstep= 0.1)
     textbox = TextBox(ax_box,'Freq(GHz)', initial='1/600')
 
     #(pattern_avgs_cA, pattern_avgs_cA_sub, pattern_avgs_cB, pattern_avgs_cB_sub, mags, mags_sub)
