@@ -185,10 +185,8 @@ def new_fit():
 
     #widgets
     ax_slide = plt.axes([0.1,0.01,0.35,0.03])
-    ax_button = plt.axes([0.5, 0.01, 0.1, 0.03])
-    ax_box = plt.axes([0.67, 0.01, 0.15, 0.03])
-    theta = Slider(ax_slide,"Theta",valmin= 0, valmax = 360, valinit= 0, valstep= 0.1)
-    update_button = Button(ax_button,"Update Fit",hovercolor = 'green')
+    ax_box = plt.axes([0.55, 0.01, 0.15, 0.03])
+    theta = Slider(ax_slide,"Theta",valmin= 0, valmax = 360, valinit= 0, valstep= 0.5)
     textbox = TextBox(ax_box,'Freq(GHz)', initial='1/600')
 
     #(pattern_avgs_cA, pattern_avgs_cA_sub, pattern_avgs_cB, pattern_avgs_cB_sub, mags, mags_sub)
@@ -211,31 +209,6 @@ def new_fit():
 
     plt.suptitle('Rabi measurement with and shift {} deg'.format(0))
     
-    #slider function
-    def update_plot(val):
-        current_val = theta.val
-        avgs = data.get_avgs(current_val)
-        
-        lineE0.set_ydata(avgs[0])
-        ax_array[0,0].set_ylim([min(avgs[0]),max(avgs[0])])
-
-        lineE1.set_ydata(avgs[1])
-        ax_array[1,0].set_ylim([min(avgs[1]),max(avgs[1])])
-
-        lineE2.set_ydata(avgs[2])
-        ax_array[0,1].set_ylim([min(avgs[2]),max(avgs[2])])
-
-        lineE3.set_ydata(avgs[3])
-        ax_array[1,1].set_ylim([min(avgs[3]),max(avgs[3])])
-
-        #lineE4.set_ydata(avgs[4])
-        #ax_array[0,2].set_ylim([min(avgs[4]),max(avgs[4])])
-
-        #lineE5.set_ydata(avgs[5])
-        #ax_array[1,2].set_ylim([min(avgs[5]),max(avgs[5])])
-
-        fig.canvas.draw_idle()
-        return avgs
 
     #textbox function
     def update_freq_guess(text: str):
@@ -243,8 +216,9 @@ def new_fit():
         return text
 
     #button function
-    def update_fit(event,text=1/600):
-        avgs = update_plot(event)
+    def update_fit(event,text=1/650):
+        current_val = theta.val
+        avgs = data.get_avgs(current_val)
         #new fit 
         a = [np.average(avgs[0]),np.average(avgs[1]),np.average(avgs[2]),
             np.average(avgs[3]),np.average(avgs[4]),np.average(avgs[5])] #offset
@@ -293,9 +267,33 @@ def new_fit():
         text5.set_text(text[5])
         ax_array[1,2].set_ylim([min(avgs[5]),max(avgs[5])])
         fig.canvas.draw_idle()
+    #slider function
+    def update_plot(val):
+        current_val = theta.val
+        avgs = data.get_avgs(current_val)
+        
+        lineE0.set_ydata(avgs[0])
+        ax_array[0,0].set_ylim([min(avgs[0]),max(avgs[0])])
+
+        lineE1.set_ydata(avgs[1])
+        ax_array[1,0].set_ylim([min(avgs[1]),max(avgs[1])])
+
+        lineE2.set_ydata(avgs[2])
+        ax_array[0,1].set_ylim([min(avgs[2]),max(avgs[2])])
+
+        lineE3.set_ydata(avgs[3])
+        ax_array[1,1].set_ylim([min(avgs[3]),max(avgs[3])])
+
+        #lineE4.set_ydata(avgs[4])
+        #ax_array[0,2].set_ylim([min(avgs[4]),max(avgs[4])])
+
+        #lineE5.set_ydata(avgs[5])
+        #ax_array[1,2].set_ylim([min(avgs[5]),max(avgs[5])])
+
+        update_fit(val,textbox.text)
+        fig.canvas.draw_idle()
 
     #assign the functions when acting on it
-    update_button.on_clicked(update_fit)
     theta.on_changed(update_plot)
     textbox.on_submit(update_freq_guess)
 
