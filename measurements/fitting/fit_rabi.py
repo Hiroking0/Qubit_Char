@@ -225,11 +225,11 @@ def new_fit():
         lineE3.set_ydata(avgs[3])
         ax_array[1,1].set_ylim([min(avgs[3]),max(avgs[3])])
 
-        lineE4.set_ydata(avgs[4])
-        ax_array[0,2].set_ylim([min(avgs[4]),max(avgs[4])])
+        #lineE4.set_ydata(avgs[4])
+        #ax_array[0,2].set_ylim([min(avgs[4]),max(avgs[4])])
 
-        lineE5.set_ydata(avgs[5])
-        ax_array[1,2].set_ylim([min(avgs[5]),max(avgs[5])])
+        #lineE5.set_ydata(avgs[5])
+        #ax_array[1,2].set_ylim([min(avgs[5]),max(avgs[5])])
 
         fig.canvas.draw_idle()
         return avgs
@@ -248,8 +248,8 @@ def new_fit():
         data_as = fit_rabi(avgs[1], a[1], b[1], c, d, x)[0]
         data_bns = fit_rabi(avgs[2], a[2], b[2], c, d, x)[0]
         data_bs = fit_rabi(avgs[3], a[3], b[3], c, d, x)[0]
-        data_mns = fit_rabi(avgs[4], a[4], b[4], c, d, x)[0]
-        data_ms = fit_rabi(avgs[5], a[5], b[5], c, d, x)[0]
+        #data_mns = fit_rabi(avgs[4], a[4], b[4], c, d, x)[0]
+        #data_ms = fit_rabi(avgs[5], a[5], b[5], c, d, x)[0]
 
         text=[]
         for i in range(len(a)):
@@ -276,16 +276,14 @@ def new_fit():
         text3.set_text(text[3])
         ax_array[1,1].set_ylim([min(avgs[3]),max(avgs[3])])
 
-        lineF4.set_ydata(data_mns)
-        text4.set_text(text[4])
-        ax_array[0,2].set_ylim([min(avgs[4]),max(avgs[4])])
+        #lineF4.set_ydata(data_mns)
+        #text4.set_text(text[4])
+        #ax_array[0,2].set_ylim([min(avgs[4]),max(avgs[4])])
 
-        lineF5.set_ydata(data_ms)
-        text5.set_text(text[5])
-        ax_array[1,2].set_ylim([min(avgs[5]),max(avgs[5])])
+        #lineF5.set_ydata(data_ms)
+        #text5.set_text(text[5])
+        #ax_array[1,2].set_ylim([min(avgs[5]),max(avgs[5])])
         fig.canvas.draw_idle()
-
-
 
     update_button.on_clicked(update_fit)
     theta.on_changed(update_plot)
