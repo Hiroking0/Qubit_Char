@@ -17,8 +17,7 @@ import sys
 sys.path.append("../../")
 from lib import data_process as dp
 import pickle as pkl
-from matplotlib.widgets import Slider
-from matplotlib.widgets import Button
+from matplotlib.widgets import Slider,Button,TextBox
 
 def objective_rabi(x, a, b, c, d):
 	return a + (b*np.sin(2*np.pi*c*x+d))
@@ -172,7 +171,7 @@ def new_fit():
     #guess for the intial plot    
     a = 210 #offset
     b = .0075 #amp
-    c = 1/500  #freq
+    c = 1/600  #freq
     d = np.pi/2 #phase
     params = params['rabi']
     shortest_T1 = params['rabi_pulse_initial_duration']
@@ -180,14 +179,17 @@ def new_fit():
     num_patterns = len(avgs[0])
     
     x = np.linspace(shortest_T1,longest_T1, num_patterns)
-    print(shortest_T1)
+
     
     fig, ax_array = plt.subplots(2,3,figsize=(13, 7))
-    y=-0.4
+
+    #widgets
     ax_slide = plt.axes([0.1,0.01,0.35,0.03])
     ax_button = plt.axes([0.5, 0.01, 0.1, 0.03])
+    ax_box = plt.axes([0.67, 0.01, 0.15, 0.03])
     theta = Slider(ax_slide,"Theta",valmin= 0, valmax = 360, valinit= 0, valstep= 0.1)
     update_button = Button(ax_button,"Update Fit",hovercolor = 'green')
+    textbox = TextBox(ax_box,'Freq(GHz)', initial='1/600')
 
     #(pattern_avgs_cA, pattern_avgs_cA_sub, pattern_avgs_cB, pattern_avgs_cB_sub, mags, mags_sub)
     data_ans = fit_rabi(avgs[0], a, b, c, d, x)
@@ -234,7 +236,12 @@ def new_fit():
         fig.canvas.draw_idle()
         return avgs
 
-    def update_fit(event):
+    def update_freq_guess(text: str):
+        update_fit(text,eval(text))
+        return text
+
+
+    def update_fit(event,text=1/600):
         avgs = update_plot(event)
         #new fit 
         a = [np.average(avgs[0]),np.average(avgs[1]),np.average(avgs[2]),
@@ -242,7 +249,7 @@ def new_fit():
         b = 3*[abs(max(avgs[0])-min(avgs[0])),abs(max(avgs[1])-min(avgs[1])),abs(max(avgs[2])-min(avgs[2])),
             abs(max(avgs[3])-min(avgs[3])),abs(max(avgs[4])-min(avgs[4])),abs(max(avgs[5])-min(avgs[5]))] #amp
         #guess for the update plot
-        c = 1/600  #freq
+        c = float(eval(textbox.text))  #freq
         d = np.pi/2 #phase
         data_ans = fit_rabi(avgs[0], a[0], b[0], c, d, x)[0]
         data_as = fit_rabi(avgs[1], a[1], b[1], c, d, x)[0]
@@ -287,6 +294,7 @@ def new_fit():
 
     update_button.on_clicked(update_fit)
     theta.on_changed(update_plot)
+    textbox.on_submit(update_freq_guess)
 
     plt.show()
 
