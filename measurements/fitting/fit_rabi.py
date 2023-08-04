@@ -17,6 +17,8 @@ import sys
 sys.path.append("../../")
 from lib import data_process as dp
 import pickle as pkl
+from matplotlib.widgets import Slider
+from matplotlib.widgets import Button
 
 def objective_rabi(x, a, b, c, d):
 	return a + (b*np.sin(2*np.pi*c*x+d))
@@ -114,14 +116,14 @@ def legacy_fit():
    # plt.title("rabi measurement")
     plt.show()
 
-def fit_subax(ax, x, exp, fit_data, title):
+def fit_subax(ax, x, exp, fit_data, title,line=0):
     
     
     #for axis in ['top', 'bottom', 'left', 'right']:
     #    ax.spines[axis].set_linewidth(2.5)
     
-    ax.plot(x, exp, 'ko', markersize=10)
-    ax.plot(x, fit_data[0], 'r', linewidth=3.5)
+    line, = ax.plot(x, exp, 'ko', markersize=10)
+    line2, = ax.plot(x, fit_data[0], 'r', linewidth=3.5)
     ax.set_xlabel("$t_{Rabi}$ (ns)")
     ax.set_ylabel("V")
     ax.set_title(title)
@@ -132,7 +134,7 @@ def fit_subax(ax, x, exp, fit_data, title):
 
     ax.text(.98, .98, text, fontsize = 10, horizontalalignment='right',
         verticalalignment='top', transform=ax.transAxes)
-    
+    return line,line2
 
 
 def new_fit():
@@ -140,7 +142,6 @@ def new_fit():
     
     with open(fn, 'rb') as pickled_file:
         data = pkl.load(pickled_file)
-    
     nf = '\\'.join(fn.split('/')[0:-1]) + "/"
     no_ext_file = ''.join(fn.split('/')[-1])[:-4]
     
@@ -150,7 +151,15 @@ def new_fit():
                 with open(nf + f) as file:
                     params = json.load(file)
 
-    #arrs = data.get_data_arrs()
+
+
+    if params['measurement'] == 'readout' or params['measurement'] == 'npp':
+        timestep = 1
+    else:
+        timestep = params[params['measurement']]['step']
+
+
+    # arrs = data.get_data_arrs()
     avgs = data.get_avgs()
     #pop = dp.get_population_v_pattern(arr, params['v_threshold'], flipped = True)
     #pop = [np.average(i) for i in arr]
@@ -172,8 +181,13 @@ def new_fit():
     x = np.linspace(shortest_T1,longest_T1, num_patterns)
     print(shortest_T1)
     
-    fig, ax_array = plt.subplots(2,3)
-    
+    fig, ax_array = plt.subplots(2,3,figsize=(13, 7))
+    y=-0.4
+    ax_slide = plt.axes([0.1,0.01,0.35,0.03])
+    ax_button = plt.axes([0.5, 0.01, 0.1, 0.03])
+    theta = Slider(ax_slide,"Theta",valmin= 0, valmax = 360, valinit= 0, valstep= 0.1)
+    update_button = Button(ax_button,"Update Fit",hovercolor = 'green')
+
     #(pattern_avgs_cA, pattern_avgs_cA_sub, pattern_avgs_cB, pattern_avgs_cB_sub, mags, mags_sub)
     data_ans = fit_rabi(avgs[0], a, b, c, d, x)
     data_as = fit_rabi(avgs[1], a, b, c, d, x)
@@ -183,15 +197,76 @@ def new_fit():
     data_ms = fit_rabi(avgs[5], a, b, c, d, x)
     
     #ms, ms_a, ms_b, ms_c
-    plt.rcParams.update({'font.size': 22})
-    fit_subax(ax_array[0,0], x, avgs[0], data_ans, "chA nosub")
-    fit_subax(ax_array[1,0], x, avgs[1], data_as, "chA sub")
-    fit_subax(ax_array[0,1], x, avgs[2], data_bns, "chB nosub")
-    fit_subax(ax_array[1,1], x, avgs[3], data_bs, "chB sub")
-    fit_subax(ax_array[0,2], x, avgs[4], data_mns, "mags nosub")
-    fit_subax(ax_array[1,2], x, avgs[5], data_ms, "mags sub")
+    plt.rcParams.update({'font.size': 15})
+    lineE0,lineF0 = fit_subax(ax_array[0,0], x, avgs[0], data_ans, "chA nosub")
+    lineE1,lineF1 = fit_subax(ax_array[1,0], x, avgs[1], data_as, "chA sub")
+    lineE2,lineF2 = fit_subax(ax_array[0,1], x, avgs[2], data_bns, "chB nosub")
+    lineE3,lineF3 = fit_subax(ax_array[1,1], x, avgs[3], data_bs, "chB sub")
+    lineE4,lineF4 = fit_subax(ax_array[0,2], x, avgs[4], data_mns, "mags nosub")
+    lineE5,lineF5 = fit_subax(ax_array[1,2], x, avgs[5], data_ms, "mags sub")
+    
 
-    plt.suptitle('Rabi measurement')
+    plt.suptitle('Rabi measurement with and shift {} deg'.format(0))
+    
+    def update_plot(val):
+        current_val = theta.val
+        avgs = data.get_avgs(current_val)
+        
+        lineE0.set_ydata(avgs[0])
+        ax_array[0,0].set_ylim([min(avgs[0]),max(avgs[0])])
+
+        lineE1.set_ydata(avgs[1])
+        ax_array[1,0].set_ylim([min(avgs[1]),max(avgs[1])])
+
+        lineE2.set_ydata(avgs[2])
+        ax_array[0,1].set_ylim([min(avgs[2]),max(avgs[2])])
+
+        lineE3.set_ydata(avgs[3])
+        ax_array[1,1].set_ylim([min(avgs[3]),max(avgs[3])])
+
+        lineE4.set_ydata(avgs[4])
+        ax_array[0,2].set_ylim([min(avgs[4]),max(avgs[4])])
+
+        lineE5.set_ydata(avgs[5])
+        ax_array[1,2].set_ylim([min(avgs[5]),max(avgs[5])])
+
+
+
+        fig.canvas.draw_idle()
+
+    def update_fit(event):
+        #new fit 
+        data_ans = fit_rabi(avgs[0], a, b, c, d, x)[0]
+        data_as = fit_rabi(avgs[1], a, b, c, d, x)[0]
+        data_bns = fit_rabi(avgs[2], a, b, c, d, x)[0]
+        data_bs = fit_rabi(avgs[3], a, b, c, d, x)[0]
+        data_mns = fit_rabi(avgs[4], a, b, c, d, x)[0]
+        data_ms = fit_rabi(avgs[5], a, b, c, d, x)[0]
+        
+        lineF0.set_ydata(data_ans)
+        ax_array[0,0].set_ylim([min(avgs[0]),max(avgs[0])])
+
+        lineF1.set_ydata(data_as)
+        ax_array[1,0].set_ylim([min(avgs[1]),max(avgs[1])])
+
+        lineF2.set_ydata(data_bns)
+        ax_array[0,1].set_ylim([min(avgs[2]),max(avgs[2])])
+
+        lineF3.set_ydata(data_bs)
+        ax_array[1,1].set_ylim([min(avgs[3]),max(avgs[3])])
+
+        lineF4.set_ydata(data_mns)
+        ax_array[0,2].set_ylim([min(avgs[4]),max(avgs[4])])
+
+        lineF5.set_ydata(data_ms)
+        ax_array[1,2].set_ylim([min(avgs[5]),max(avgs[5])])
+        fig.canvas.draw_idle()
+
+
+
+    update_button.on_clicked(update_fit)
+    theta.on_changed(update_plot)
+
     plt.show()
 
 

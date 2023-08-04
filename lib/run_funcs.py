@@ -42,7 +42,7 @@ class Data_Arrs:
     def get_data_arrs(self):
         return (self.a_nosub, self.a_sub, self.b_nosub, self.b_sub, self.mags_nosub, self.mags_sub, self.readout_A, self.readout_B)
     
-    def get_avgs(self):
+    def get_avgs(self,theta=0):
         length = len(self.a_nosub)
         
         pattern_avgs_cA = np.zeros(length)
@@ -61,8 +61,33 @@ class Data_Arrs:
             pattern_avgs_cA_sub[i] = np.average(self.a_sub[i])
             pattern_avgs_cB_sub[i] = np.average(self.b_sub[i])
             mags_sub[i] = np.average(self.mags_sub[i])
-            
-        return (pattern_avgs_cA, pattern_avgs_cA_sub, pattern_avgs_cB, pattern_avgs_cB_sub, mags, mags_sub)
+
+        complex_arr = np.zeros(length, dtype=np.complex_)
+        complex_arr_sub = np.zeros(length, dtype=np.complex_)
+        angle_arr = np.angle(complex_arr_sub.flatten())
+        theta = np.radians(theta)
+
+        exp = np.exp(1j*theta)
+        
+        for j in range(length):
+            t_i = pattern_avgs_cA[j]
+            t_q = pattern_avgs_cB[j]
+            t_new = np.multiply(t_i+1j*t_q, exp)
+            complex_arr[j] = t_new
+
+            t_i_sub = pattern_avgs_cA_sub[j]
+            t_q_sub = pattern_avgs_cB_sub[j]
+            t_new_sub = np.multiply(t_i_sub+1j*t_q_sub, exp)
+            complex_arr_sub[j] = t_new_sub
+        new_pattern_avgs_cA = np.real(complex_arr)
+        new_pattern_avgs_cB = np.imag(complex_arr)
+        
+
+
+        new_pattern_avgs_cA_sub = np.real(complex_arr_sub)
+        new_pattern_avgs_cB_sub = np.imag(complex_arr_sub)
+    
+        return (new_pattern_avgs_cA, new_pattern_avgs_cA_sub, new_pattern_avgs_cB, new_pattern_avgs_cB_sub, mags, mags_sub)
 
 
 

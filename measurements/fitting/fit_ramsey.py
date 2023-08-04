@@ -130,7 +130,7 @@ def new_fit():
     #avgs = np.zeros(len(arr))
         
     a = 223.8
-    b = .1
+    b = -.1
     t2 = 3000
     f = 1/3800
     phi = 1.57

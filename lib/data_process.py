@@ -158,6 +158,48 @@ def get_p1_p2(arr, num_patterns, pattern_reps, seq_reps):
         
     return final_arr
 
+def rotation(data,angle):
+
+    
+    
+    (a_nosub, a_sub, b_nosub, b_sub, mags_nosub, mags_sub, readout_A, readout_B) = data.get_data_arrs()
+
+    complex_arr = np.zeros((len(a_nosub), len(a_nosub[0])), dtype=np.complex_)
+    complex_arr_sub = np.zeros((len(a_nosub), len(a_nosub[0])), dtype=np.complex_)
+    angle_arr = np.angle(complex_arr_sub.flatten())
+    theta = np.average(angle_arr)
+    theta = np.radians(angle)
+
+    exp = np.exp(1j*theta)
+
+    for i in range(len(a_nosub)):
+        for j in range(len(a_nosub[0])):
+            t_i = a_nosub[i,j]
+            t_q = b_nosub[i,j]
+            t_new = np.multiply(t_i+1j*t_q, exp)
+            complex_arr[i,j] = t_new
+
+            t_i_sub = a_sub[i,j]
+            t_q_sub = b_sub[i,j]
+            t_new_sub = np.multiply(t_i_sub+1j*t_q_sub, exp)
+            complex_arr_sub[i,j] = t_new_sub
+
+
+    new_a_nosub = np.real(complex_arr)
+    new_b_nosub = np.imag(complex_arr)
+    
+
+
+    new_a_sub = np.real(complex_arr_sub)
+    new_b_sub = np.imag(complex_arr_sub)
+
+    setattr(data, 'a_nosub', new_a_nosub)
+    setattr(data, 'b_nosub', new_b_nosub)
+
+    setattr(data, 'a_sub', new_a_sub)
+    setattr(data, 'b_sub', new_b_sub)
+    return data
+
 def parse_np_file(arr, num_patterns, pattern_reps, seq_reps, measurement = None):
     arr = np.reshape(arr, (num_patterns * seq_reps, pattern_reps))
     final_arr = np.zeros((num_patterns, pattern_reps*seq_reps))
