@@ -131,7 +131,11 @@ effect_temp:
 
 #running Sequence
 pattern_repeat: 1
+<<<<<<< Updated upstream
 seq_repeat: 1000
+=======
+seq_repeat: 10000
+>>>>>>> Stashed changes
 
 #averaging
 avg_start: 1000  #The start avraging doesn't need to be changed.
@@ -143,6 +147,7 @@ v_threshold: 223.85 #threshold value for distinguishing ground and excited state
 
 #static parameters, these are set before each running of the sequence
 
+<<<<<<< Updated upstream
 set_wr:  7.1085 #7.2025 7.2017
 set_wq: 3.18069 
 set_pr: 15
@@ -151,6 +156,16 @@ set_pq: 15
 set_q_att: 10
 set_p_twpa: -19.7 #-19.7
 set_w_twpa: 8.5035 #8.4055
+=======
+set_wr: 7.1689597 #7.2025 7.2017
+set_wq: 3.23893 + 0.00173934426
+set_pr: 15
+set_r_att: 25 #40 for low power for q4 and 21 for high power 
+set_pq: 15
+set_q_att: 13
+set_p_twpa: -19.7 #-18.9
+set_w_twpa: 8.4055 #8.5035
+>>>>>>> Stashed changes
 
 #################################################################################################################################################
 #####################################################      Sweep Parametrs       #####################################################
@@ -167,6 +182,7 @@ set_w_twpa: 8.5035 #8.4055
 #If doing a single sweep, will look at p1, double will look at both
 
 #Y axis
+<<<<<<< Updated upstream
 p1: 'wq' #7.1486 +- 2 MHz
 p1start: 3.17
 p1stop:  3.19
@@ -176,6 +192,17 @@ p2: 'r_att'
 p2start: 25
 p2stop: 40
 p2step: 5
+=======
+p1: 'q_att' #7.1486 +- 2 MHz
+p1start: 5
+p1stop:  18
+p1step: 1
+#x axis
+p2: 'q_att'
+p2start: 0
+p2stop: 15
+p2step: 1
+>>>>>>> Stashed changes
 
 
 
