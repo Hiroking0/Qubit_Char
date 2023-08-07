@@ -115,7 +115,7 @@ def legacy_fit():
    # plt.title("rabi measurement")
     plt.show()
 
-def fit_subax(ax, x, exp, fit_data, title,line=0):
+def fit_subax(ax, x, exp, fit_data, title):
     
     
     #for axis in ['top', 'bottom', 'left', 'right']:
@@ -149,13 +149,6 @@ def new_fit():
             if ".json" in f and no_ext_file in f:
                 with open(nf + f) as file:
                     params = json.load(file)
-
-
-
-    if params['measurement'] == 'readout' or params['measurement'] == 'npp':
-        timestep = 1
-    else:
-        timestep = params[params['measurement']]['step']
 
 
     # arrs = data.get_data_arrs()
@@ -227,19 +220,23 @@ def new_fit():
         #guess for the update plot
         c = float(eval(textbox.text))  #freq
         d = np.pi/2 #phase
-        data_ans = fit_rabi(avgs[0], a[0], b[0], c, d, x)[0]
-        data_as = fit_rabi(avgs[1], a[1], b[1], c, d, x)[0]
-        data_bns = fit_rabi(avgs[2], a[2], b[2], c, d, x)[0]
-        data_bs = fit_rabi(avgs[3], a[3], b[3], c, d, x)[0]
-        data_mns = fit_rabi(avgs[4], a[4], b[4], c, d, x)[0]
-        data_ms = fit_rabi(avgs[5], a[5], b[5], c, d, x)[0]
+        af = np.zeros(len(a))
+        bf = np.zeros(len(a))
+        cf = np.zeros(len(a))
+        df = np.zeros(len(a))
+        data_ans, af[0], bf[0], cf[0], df[0] = fit_rabi(avgs[0], a[0], b[0], c, d, x)
+        data_as, af[1], bf[1], cf[1], df[1] = fit_rabi(avgs[1], a[1], b[1], c, d, x)
+        data_bns, af[2], bf[2], cf[2], df[2] = fit_rabi(avgs[2], a[2], b[2], c, d, x)
+        data_bs, af[3], bf[3], cf[3], df[3] = fit_rabi(avgs[3], a[3], b[3], c, d, x)
+        data_mns, af[4], bf[4], cf[4], df[4] = fit_rabi(avgs[4], a[4], b[4], c, d, x)
+        data_ms, af[5], bf[5], cf[5], df[5] = fit_rabi(avgs[5], a[5], b[5], c, d, x)
 
         text=[]
         for i in range(len(a)):
-            context = "offset: " + str(round(a[i], 3)) + \
-                "\n amp: " + str(round(b[i], 3)) + \
-                "\nfreq: " + str(round(c, 10)) + " GHz" + \
-                "\nphase: "+ str(round(d, 3))
+            context = "offset: " + str(round(af[i], 3)) + \
+                "\n amp: " + str(round(bf[i], 3)) + \
+                "\nfreq: " + str(round(cf[i], 10)) + " GHz" + \
+                "\nphase: "+ str(round(df[i], 3))
             text.append(context)
 
 
