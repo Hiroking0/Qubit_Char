@@ -4,12 +4,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def live_plot(x, exp, fit_data, title):
+def live_plot(chA_avgs_sub,chB_avgs_sub,chA_avgs_nosub,chB_avgs_nosub,other_params):
     manager = Manager()
     que = manager.Queue()
-
-    def live_plot_intertnal(data):
-        
+    def live_plot_intertnal(chA_avgs_sub,chB_avgs_sub,chA_avgs_nosub,chB_avgs_nosub,other_params):
+        num_patterns,pattern_number,index_number = other_params
         plt_avg = np.zeros((6,num_patterns))
         plt.ion()
         fig, ax_array = plt.subplots(2,3)
@@ -22,25 +21,35 @@ def live_plot(x, exp, fit_data, title):
         plot_decimation = int(20/num_patterns) +1
         #ax.margins(y=.1)
         #ax.autoscale(enable = True)
-    if pattern_number == 0 and index_number > 0 and index_number % plot_decimation == 0:
-            for i in range(num_patterns):
-                chA_nosub_avg = np.average(chB_avgs_nosub[i][:index_number])
-                chA_sub_avg = np.average(chB_avgs_nosub[i][:index_number])
-                chB_nosub_avg = np.average(chB_avgs_nosub[i][:index_number])
-                chbB_sub_avg = np.average(chB_avgs_nosub[i][:index_number])
-                plt_avg[0,i] = chA_nosub_avg
-                plt_avg[1,i] = chA_sub_avg
-                plt_avg[2,i] = chB_nosub_avg
-                plt_avg[3,i] = chbB_sub_avg
+        if pattern_number == 0 and index_number > 0 and index_number % plot_decimation == 0:
+                for i in range(num_patterns):
+                    chA_nosub_avg = np.average(chA_avgs_sub[i][:index_number])
+                    chA_sub_avg = np.average(chB_avgs_sub[i][:index_number])
+                    chB_nosub_avg = np.average(chA_avgs_nosub[i][:index_number])
+                    chbB_sub_avg = np.average(chB_avgs_nosub[i][:index_number])
+                    plt_avg[0,i] = chA_nosub_avg
+                    plt_avg[1,i] = chA_sub_avg
+                    plt_avg[2,i] = chB_nosub_avg
+                    plt_avg[3,i] = chbB_sub_avg
 
-                ax_array[0,0].set_ylim(np.min(plt_avg[0]), np.max(plt_avg[0]))
-                ax_array[0,1].set_ylim(np.min(plt_avg[1]), np.max(plt_avg[1]))
-                ax_array[1,0].set_ylim(np.min(plt_avg[2]), np.max(plt_avg[2]))
-                ax_array[1,1].set_ylim(np.min(plt_avg[3]), np.max(plt_avg[3]))
-            line0.set_ydata(plt_avg[0])
-            line1.set_ydata(plt_avg[1])
-            line2.set_ydata(plt_avg[2])
-            line3.set_ydata(plt_avg[3])
-            fig.canvas.draw()
-            fig.canvas.flush_events()
-            plt.title("rep # " + str(index_number))
+                    ax_array[0,0].set_ylim(np.min(plt_avg[0]), np.max(plt_avg[0]))
+                    ax_array[0,1].set_ylim(np.min(plt_avg[1]), np.max(plt_avg[1]))
+                    ax_array[1,0].set_ylim(np.min(plt_avg[2]), np.max(plt_avg[2]))
+                    ax_array[1,1].set_ylim(np.min(plt_avg[3]), np.max(plt_avg[3]))
+                line0.set_ydata(plt_avg[0])
+                line1.set_ydata(plt_avg[1])
+                line2.set_ydata(plt_avg[2])
+                line3.set_ydata(plt_avg[3])
+                #fig.canvas.draw()
+                #fig.canvas.flush_events()
+                plt.title("rep # " + str(index_number))
+        return line0,line1,line2,line3
+    que.put((chA_avgs_sub,chB_avgs_sub,chA_avgs_nosub,chB_avgs_nosub,other_params))
+    acproc = Process(target = live_plot_intertnal, args = (que,))
+    acproc.start()
+    acproc.join()
+    line0,line1,line2,line3 = que.get()
+    return line0,line1,line2,line3,
+    
+    
+    
