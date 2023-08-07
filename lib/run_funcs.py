@@ -101,7 +101,7 @@ def run_and_acquire(awg,
                 params,
                 num_patterns,
                 path,
-                live_plot = False) -> Data_Arrs:
+                live_plot = True) -> Data_Arrs:
     """
     runs sequence on AWG once. params should be dictionary of YAML file.
     """

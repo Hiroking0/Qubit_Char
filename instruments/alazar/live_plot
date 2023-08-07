@@ -1,0 +1,46 @@
+from multiprocessing import Process, Manager
+from instruments.alazar import ATS9870_NPT as npt
+import matplotlib.pyplot as plt
+import numpy as np
+
+
+def live_plot(x, exp, fit_data, title):
+    manager = Manager()
+    que = manager.Queue()
+
+    def live_plot_intertnal(data):
+        
+        plt_avg = np.zeros((6,num_patterns))
+        plt.ion()
+        fig, ax_array = plt.subplots(2,3)
+        line0, = ax_array[0,0].plot(range(num_patterns), plt_avg[0]) # Returns a tuple of line objects, thus the comma
+        line1, = ax_array[1,0].plot(range(num_patterns), plt_avg[1])
+        line2, = ax_array[0,1].plot(range(num_patterns), plt_avg[2])
+        line3, = ax_array[1,1].plot(range(num_patterns), plt_avg[3])
+        #line5, = ax_array[0,2].plot(range(num_patterns), plt_avg[4])
+        #line6, = ax_array[1,2].plot(range(num_patterns), plt_avg[5])
+        plot_decimation = int(20/num_patterns) +1
+        #ax.margins(y=.1)
+        #ax.autoscale(enable = True)
+    if pattern_number == 0 and index_number > 0 and index_number % plot_decimation == 0:
+            for i in range(num_patterns):
+                chA_nosub_avg = np.average(chB_avgs_nosub[i][:index_number])
+                chA_sub_avg = np.average(chB_avgs_nosub[i][:index_number])
+                chB_nosub_avg = np.average(chB_avgs_nosub[i][:index_number])
+                chbB_sub_avg = np.average(chB_avgs_nosub[i][:index_number])
+                plt_avg[0,i] = chA_nosub_avg
+                plt_avg[1,i] = chA_sub_avg
+                plt_avg[2,i] = chB_nosub_avg
+                plt_avg[3,i] = chbB_sub_avg
+
+                ax_array[0,0].set_ylim(np.min(plt_avg[0]), np.max(plt_avg[0]))
+                ax_array[0,1].set_ylim(np.min(plt_avg[1]), np.max(plt_avg[1]))
+                ax_array[1,0].set_ylim(np.min(plt_avg[2]), np.max(plt_avg[2]))
+                ax_array[1,1].set_ylim(np.min(plt_avg[3]), np.max(plt_avg[3]))
+            line0.set_ydata(plt_avg[0])
+            line1.set_ydata(plt_avg[1])
+            line2.set_ydata(plt_avg[2])
+            line3.set_ydata(plt_avg[3])
+            fig.canvas.draw()
+            fig.canvas.flush_events()
+            plt.title("rep # " + str(index_number))

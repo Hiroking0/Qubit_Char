@@ -5,7 +5,7 @@ import os
 #import signal
 import sys
 import time
-
+from . import live_plot as lp
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..', 'Library'))
 from . import atsapi as ats
 #import atsapi as ats
@@ -133,17 +133,21 @@ def AcquireData(que):
     readout_avg_array_A = np.zeros((num_patterns, samp_per_acq))
     readout_avg_array_B = np.zeros((num_patterns, samp_per_acq))
     
-    
-    plt_avg = np.zeros(num_patterns)
+    '''    
+    plt_avg = np.zeros((6,num_patterns))
     
     if live_plot:
         plt.ion()
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
-        line1, = ax.plot(range(num_patterns), plt_avg) # Returns a tuple of line objects, thus the comma
-        plot_decimation = int(20/num_patterns)
+        fig, ax_array = plt.subplots(2,3)
+        line0, = ax_array[0,0].plot(range(num_patterns), plt_avg[0]) # Returns a tuple of line objects, thus the comma
+        line1, = ax_array[1,0].plot(range(num_patterns), plt_avg[1])
+        line2, = ax_array[0,1].plot(range(num_patterns), plt_avg[2])
+        line3, = ax_array[1,1].plot(range(num_patterns), plt_avg[3])
+        #line5, = ax_array[0,2].plot(range(num_patterns), plt_avg[4])
+        #line6, = ax_array[1,2].plot(range(num_patterns), plt_avg[5])
+        plot_decimation = int(20/num_patterns) +1
         #ax.margins(y=.1)
-        #ax.autoscale(enable = True)
+        #ax.autoscale(enable = True)'''
     
     # No pre-trigger samples in NPT mode
     preTriggerSamples = 0
@@ -183,7 +187,7 @@ def AcquireData(que):
     bytesPerBuffer = bytesPerRecord * recordsPerBuffer * channelCount
 
     #Select number of DMA buffers to allocate
-    bufferCount = 10
+    bufferCount = 256
 
     # Allocate DMA buffers
 
@@ -258,17 +262,35 @@ def AcquireData(que):
             readout_avg_array_B[pattern_number]=(chA + readout_avg_array_B[pattern_number] * buffersCompleted) / (1 + buffersCompleted)
         
             
-            
-            if live_plot and pattern_number == 0 and index_number > 0 and index_number % plot_decimation == 0:
-                for i in range(num_patterns):
-                    t_avg = np.average(chB_avgs_nosub[i][:index_number])
-                    plt_avg[i] = t_avg
+            if live_plot:
+                lp.live_plot()
 
-                line1.set_ydata(plt_avg)
+
+
+            '''if live_plot and pattern_number == 0 and index_number > 0 and index_number % plot_decimation == 0:
+                for i in range(num_patterns):
+                    chA_nosub_avg = np.average(chB_avgs_nosub[i][:index_number])
+                    chA_sub_avg = np.average(chB_avgs_nosub[i][:index_number])
+                    chB_nosub_avg = np.average(chB_avgs_nosub[i][:index_number])
+                    chbB_sub_avg = np.average(chB_avgs_nosub[i][:index_number])
+                    plt_avg[0,i] = chA_nosub_avg
+                    plt_avg[1,i] = chA_sub_avg
+                    plt_avg[2,i] = chB_nosub_avg
+                    plt_avg[3,i] = chbB_sub_avg
+
+                    ax_array[0,0].set_ylim(np.min(plt_avg[0]), np.max(plt_avg[0]))
+                    ax_array[0,1].set_ylim(np.min(plt_avg[1]), np.max(plt_avg[1]))
+                    ax_array[1,0].set_ylim(np.min(plt_avg[2]), np.max(plt_avg[2]))
+                    ax_array[1,1].set_ylim(np.min(plt_avg[3]), np.max(plt_avg[3]))
+
+                line0.set_ydata(plt_avg[0])
+                line1.set_ydata(plt_avg[1])
+                line2.set_ydata(plt_avg[2])
+                line3.set_ydata(plt_avg[3])
                 fig.canvas.draw()
                 fig.canvas.flush_events()
-                ax.set_title("rep # " + str(index_number))
-                ax.set_ylim(np.min(plt_avg), np.max(plt_avg))
+                plt.title("rep # " + str(index_number))'''
+                
                 
             
             buffersCompleted += 1
@@ -343,7 +365,7 @@ def AcquireData(que):
     
     if live_plot:
         print('closed')
-        fig.canvas.close()
+        #fig.canvas.close()
 
     return_data = (chA_avgs_nosub, chA_avgs_sub, chB_avgs_nosub, chB_avgs_sub, mag_nosub, mag_sub, readout_avg_array_A, readout_avg_array_B)
     que.put(return_data)
