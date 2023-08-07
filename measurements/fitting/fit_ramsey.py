@@ -131,8 +131,10 @@ def new_fit():
     #first get pattern avgs
     #avgs = np.zeros(len(arr))
         
-    a = 223.8
-    b = -.1
+    a = [np.average(avgs[0]),np.average(avgs[1]),np.average(avgs[2]),
+        np.average(avgs[3]),np.average(avgs[4]),np.average(avgs[5])] #offset
+    b = 3*[abs(max(avgs[0])-min(avgs[0])),abs(max(avgs[1])-min(avgs[1])),abs(max(avgs[2])-min(avgs[2])),
+        abs(max(avgs[3])-min(avgs[3])),abs(max(avgs[4])-min(avgs[4])),abs(max(avgs[5])-min(avgs[5]))] #amp
     t2 = 3000
     f = 1/3800
     phi = 1.57
@@ -153,12 +155,12 @@ def new_fit():
 
     #(pattern_avgs_cA, pattern_avgs_cA_sub, pattern_avgs_cB, pattern_avgs_cB_sub, mags, mags_sub)
     fig.set_tight_layout(True)
-    data_ans = fit_ramsey(avgs[0], a, b, t2, f, phi, x)
-    data_as = fit_ramsey(avgs[1], a, b, t2, f, phi, x)
-    data_bns = fit_ramsey(avgs[2], a, b, t2, f, phi, x)
-    data_bs = fit_ramsey(avgs[3], a, b, t2, f, phi, x)
-    data_mns = fit_ramsey(avgs[4], a, b, t2, f, phi, x)
-    data_ms = fit_ramsey(avgs[5], a, b, t2, f, phi, x)
+    data_ans = fit_ramsey(avgs[0], a[0], b[0], t2 , f, phi, x)
+    data_as = fit_ramsey(avgs[1], a[1], b[1], t2 , f, phi, x)
+    data_bns = fit_ramsey(avgs[2], a[2], b[2], t2 , f, phi, x)
+    data_bs = fit_ramsey(avgs[3], a[3], b[3], t2 , f, phi, x)
+    data_mns = fit_ramsey(avgs[4], a[4], b[4], t2 , f, phi, x)
+    data_ms = fit_ramsey(avgs[5], a[5], b[5], t2 , f, phi, x)
     
     plt.rcParams.update({'font.size': 22})
     lineE0,lineF0,text0 = fit_subax(ax_array[0,0], x, avgs[0], data_ans, "chA nosub")

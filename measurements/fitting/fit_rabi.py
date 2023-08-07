@@ -162,8 +162,10 @@ def new_fit():
     #    avgs[i] = np.average(arr[i])
     
     #guess for the intial plot    
-    a = 210 #offset
-    b = .0075 #amp
+    a = [np.average(avgs[0]),np.average(avgs[1]),np.average(avgs[2]),
+        np.average(avgs[3]),np.average(avgs[4]),np.average(avgs[5])] #offset
+    b = 3*[abs(max(avgs[0])-min(avgs[0])),abs(max(avgs[1])-min(avgs[1])),abs(max(avgs[2])-min(avgs[2])),
+        abs(max(avgs[3])-min(avgs[3])),abs(max(avgs[4])-min(avgs[4])),abs(max(avgs[5])-min(avgs[5]))] #amp
     c = 1/650  #freq
     d = np.pi/2 #phase
     params = params['rabi']
@@ -180,15 +182,15 @@ def new_fit():
     ax_slide = plt.axes([0.1,0.01,0.35,0.03])
     ax_box = plt.axes([0.55, 0.01, 0.15, 0.03])
     theta = Slider(ax_slide,"Theta [Deg]",valmin= 0, valmax = 360, valinit= 0, valstep= 0.1)
-    textbox = TextBox(ax_box,'Freq(GHz)', initial='1/600')
+    textbox = TextBox(ax_box,'Freq(GHz)', initial='1/650')
 
     #(pattern_avgs_cA, pattern_avgs_cA_sub, pattern_avgs_cB, pattern_avgs_cB_sub, mags, mags_sub)
-    data_ans = fit_rabi(avgs[0], a, b, c, d, x)
-    data_as = fit_rabi(avgs[1], a, b, c, d, x)
-    data_bns = fit_rabi(avgs[2], a, b, c, d, x)
-    data_bs = fit_rabi(avgs[3], a, b, c, d, x)
-    data_mns = fit_rabi(avgs[4], a, b, c, d, x)
-    data_ms = fit_rabi(avgs[5], a, b, c, d, x)
+    data_ans = fit_rabi(avgs[0], a[0], b[0], c, d, x)
+    data_as = fit_rabi(avgs[1], a[1], b[1], c, d, x)
+    data_bns = fit_rabi(avgs[2], a[2], b[2], c, d, x)
+    data_bs = fit_rabi(avgs[3], a[3], b[3], c, d, x)
+    data_mns = fit_rabi(avgs[4], a[4], b[4], c, d, x)
+    data_ms = fit_rabi(avgs[5], a[5], b[5], c, d, x)
     
     #ms, ms_a, ms_b, ms_c
     plt.rcParams.update({'font.size': 15})
