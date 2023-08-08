@@ -5,9 +5,9 @@ import os
 #import signal
 import sys
 import time
-from . import live_plot as lp
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..', 'Library'))
 from . import atsapi as ats
+from multiprocessing import Process, Manager
 #import atsapi as ats
 import matplotlib.pyplot as plt
 
@@ -139,15 +139,25 @@ def AcquireData(que):
     if live_plot:
         plt.ion()
         fig, ax_array = plt.subplots(2,3)
-        line0, = ax_array[0,0].plot(range(num_patterns), plt_avg[0]) # Returns a tuple of line objects, thus the comma
-        line1, = ax_array[1,0].plot(range(num_patterns), plt_avg[1])
-        line2, = ax_array[0,1].plot(range(num_patterns), plt_avg[2])
-        line3, = ax_array[1,1].plot(range(num_patterns), plt_avg[3])
-        #line5, = ax_array[0,2].plot(range(num_patterns), plt_avg[4])
-        #line6, = ax_array[1,2].plot(range(num_patterns), plt_avg[5])
-        plot_decimation = int(20/num_patterns) +1
+        line0, = ax_array[0,0].plot(range(num_patterns), plt_avg[0],label='chA_nosub_avg') # Returns a tuple of line objects, thus the comma
+        line1, = ax_array[1,0].plot(range(num_patterns), plt_avg[1],label='chA_sub_avg')
+        line2, = ax_array[0,1].plot(range(num_patterns), plt_avg[2],label='chB_nosub_avg')
+        line3, = ax_array[1,1].plot(range(num_patterns), plt_avg[3],label='chbB_sub_avg')
+        line4, = ax_array[0,2].plot(range(num_patterns), plt_avg[4],label='mag_nosub')
+        line5, = ax_array[1,2].plot(range(num_patterns), plt_avg[5],label='mag_sub')
+        ax_array[0,0].legend()
+        ax_array[1,0].legend()
+        ax_array[0,1].legend()
+        ax_array[1,1].legend()
+        ax_array[0,2].legend()
+        ax_array[1,2].legend()
+        plot_decimation = 5
         #ax.margins(y=.1)
         #ax.autoscale(enable = True)
+
+
+        #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
     
     # No pre-trigger samples in NPT mode
     preTriggerSamples = 0
@@ -187,7 +197,7 @@ def AcquireData(que):
     bytesPerBuffer = bytesPerRecord * recordsPerBuffer * channelCount
 
     #Select number of DMA buffers to allocate
-    bufferCount = 256
+    bufferCount = 5000
 
     # Allocate DMA buffers
 
@@ -261,21 +271,37 @@ def AcquireData(que):
             readout_avg_array_A[pattern_number]=(chA + readout_avg_array_A[pattern_number] * buffersCompleted) / (1 + buffersCompleted)
             readout_avg_array_B[pattern_number]=(chA + readout_avg_array_B[pattern_number] * buffersCompleted) / (1 + buffersCompleted)
         
-        #-----------------------------------------------------------------------
-        other_params=[num_patterns,pattern_number,index_number]
-        if live_plot:
-            line0,line1,line2,line3, = lp.live_plot(chA_avgs_sub,chB_avgs_sub,chA_avgs_nosub,chB_avgs_nosub,other_params)
+            #-----------------------------------------------------------------------
+            #other_params=[num_patterns,pattern_number,index_number]
+            if live_plot:
+                if live_plot and pattern_number == 0 and index_number > 0 and index_number % plot_decimation == 0:
+                    for i in range(num_patterns):
+                            chA_nosub_avg = np.average(chA_avgs_sub[i][:index_number])
+                            chA_sub_avg = np.average(chB_avgs_sub[i][:index_number])
+                            chB_nosub_avg = np.average(chA_avgs_nosub[i][:index_number])
+                            chbB_sub_avg = np.average(chB_avgs_nosub[i][:index_number])
+                            plt_avg[0,i] = chA_nosub_avg
+                            plt_avg[1,i] = chA_sub_avg
+                            plt_avg[2,i] = chB_nosub_avg
+                            plt_avg[3,i] = chbB_sub_avg
+                            plt_avg[4,i] = np.sqrt(chA_nosub_avg**2+chB_nosub_avg**2)
+                            plt_avg[5,i] = np.sqrt(chA_sub_avg**2+chbB_sub_avg**2)
 
-
-
-            if live_plot and pattern_number == 0 and index_number > 0 and index_number % plot_decimation == 0:
-                '''line0.set_ydata(plt_avg[0])
-                line1.set_ydata(plt_avg[1])
-                line2.set_ydata(plt_avg[2])
-                line3.set_ydata(plt_avg[3])'''
-                fig.canvas.draw()
-                fig.canvas.flush_events()
-                plt.title("rep # " + str(index_number))
+                            ax_array[0,0].set_ylim(np.min(plt_avg[0]), np.max(plt_avg[0]))
+                            ax_array[1,0].set_ylim(np.min(plt_avg[1]), np.max(plt_avg[1]))
+                            ax_array[0,1].set_ylim(np.min(plt_avg[2]), np.max(plt_avg[2]))
+                            ax_array[1,1].set_ylim(np.min(plt_avg[3]), np.max(plt_avg[3]))
+                            ax_array[0,2].set_ylim(np.min(plt_avg[4]), np.max(plt_avg[4]))
+                            ax_array[1,2].set_ylim(np.min(plt_avg[5]), np.max(plt_avg[5]))
+                    line0.set_ydata(plt_avg[0])
+                    line1.set_ydata(plt_avg[1])
+                    line2.set_ydata(plt_avg[2])
+                    line3.set_ydata(plt_avg[3])
+                    line4.set_ydata(plt_avg[4])
+                    line5.set_ydata(plt_avg[5])
+                    fig.canvas.draw()
+                    fig.canvas.flush_events()
+                    plt.suptitle("rep # " + str(index_number))
                 
                 
             

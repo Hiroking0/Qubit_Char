@@ -131,7 +131,7 @@ effect_temp:
 
 #running Sequence
 pattern_repeat: 1
-seq_repeat: 5000
+seq_repeat: 1000
 
 #averaging
 avg_start: 1000  #The start avraging doesn't need to be changed.
