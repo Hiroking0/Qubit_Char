@@ -5,6 +5,8 @@ import os
 #import signal
 import sys
 import time
+sys.path.append("../../")
+from lib import data_process as dp
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..', 'Library'))
 from . import atsapi as ats
 from multiprocessing import Process, Manager
@@ -144,8 +146,8 @@ def AcquireData(que):
         line1, = ax_array[1,0].plot(range(num_patterns), plt_avg_sub[0],label='chA_sub_avg')
         line2, = ax_array[0,1].plot(range(num_patterns), plt_avg_nosub[1],label='chB_nosub_avg')
         line3, = ax_array[1,1].plot(range(num_patterns), plt_avg_sub[1],label='chbB_sub_avg')
-        line4 = ax_array[0,2].scatter(plt_avg_nosub[0], plt_avg_nosub[1],s=1)
-        line5 = ax_array[1,2].scatter(plt_avg_sub[0], plt_avg_sub[1],s=1)
+        #line4 = ax_array[0,2].scatter(plt_avg_nosub[0], plt_avg_nosub[1],s=1)
+        #line5 = ax_array[1,2].scatter(plt_avg_sub[0], plt_avg_sub[1],s=1)
         ax_array[0,0].set_title('chA_nosub_avg')
         ax_array[1,0].set_title('chA_sub_avg')
         ax_array[0,1].set_title('chB_nosub_avg')
@@ -156,7 +158,7 @@ def AcquireData(que):
         scatter_nosub_y = []
         scatter_sub_x = []
         scatter_sub_y = []
-        plot_decimation = 10
+        plot_decimation = 2
         ax_array[0,1].legend()
         #ax.margins(y=.1)
         #ax.autoscale(enable = True)
@@ -259,7 +261,6 @@ def AcquireData(que):
             buffer = buffers[buffersCompleted % len(buffers)]
             board.waitAsyncBufferComplete(buffer.addr, timeout_ms=5000)
             
-            
             half = int(len(buffer.buffer)/2)
             chA = buffer.buffer[:half]
             chB = buffer.buffer[half:]
@@ -281,7 +282,7 @@ def AcquireData(que):
             #other_params=[num_patterns,pattern_number,index_number]
             if live_plot:
                 if live_plot and pattern_number == 0 and index_number > 0 and index_number % plot_decimation == 0:
-                    for i in range(num_patterns):
+                    '''for i in range(num_patterns):
                         chA_sub_avg = np.average(chA_avgs_sub[i][:index_number])
                         chB_sub_avg = np.average(chB_avgs_sub[i][:index_number])
                         chA_nosub_avg = np.average(chA_avgs_nosub[i][:index_number])
@@ -289,33 +290,36 @@ def AcquireData(que):
                         plt_avg_nosub[0,i] = chA_nosub_avg
                         plt_avg_sub[0,i] = chA_sub_avg
                         plt_avg_nosub[1,i] = chB_nosub_avg
-                        plt_avg_sub[1,i] = chB_sub_avg
+                        plt_avg_sub[1,i] = chB_sub_avg'''
                     scatter_nosub_x = np.append(scatter_nosub_x,chA_avgs_nosub)
                     scatter_nosub_y = np.append(scatter_nosub_y,chB_avgs_nosub)
-                    scatter_sub_x = np.append(scatter_sub_x,chA_avgs_sub)
-                    scatter_sub_y = np.append(scatter_sub_y,chB_avgs_sub)
+                    #scatter_sub_x = np.append(scatter_sub_x,chA_avgs_sub)
+                    #scatter_sub_y = np.append(scatter_sub_y,chB_avgs_sub)
 
                     #setting axis limits for the lines
-                    ax_array[0,0].set_ylim(np.min(plt_avg_nosub[0]), np.max(plt_avg_nosub[0]))
+                    '''ax_array[0,0].set_ylim(np.min(plt_avg_nosub[0]), np.max(plt_avg_nosub[0]))
                     ax_array[1,0].set_ylim(np.min(plt_avg_sub[0]), np.max(plt_avg_sub[0]))
                     ax_array[0,1].set_ylim(np.min(plt_avg_nosub[1]), np.max(plt_avg_nosub[1]))
-                    ax_array[1,1].set_ylim(np.min(plt_avg_sub[1]), np.max(plt_avg_sub[1]))
+                    ax_array[1,1].set_ylim(np.min(plt_avg_sub[1]), np.max(plt_avg_sub[1]))'''
                     
                     if index_number > 1:
                         #setting axis limits for the scatter
-                        def margin(data):
+                        '''def margin(data):
                             return abs(np.max(data)-min(data))*0.05
                         ax_array[0,2].set_xlim(np.min(scatter_nosub_x)-margin(scatter_nosub_x), np.max(scatter_nosub_x)+margin(scatter_nosub_x))
                         ax_array[0,2].set_ylim(np.min(scatter_nosub_y)-margin(scatter_nosub_y), np.max(scatter_nosub_y)+margin(scatter_nosub_y))
                         ax_array[1,2].set_xlim(np.min(scatter_sub_x)-margin(scatter_sub_x), np.max(scatter_sub_x)+margin(scatter_sub_x))
-                        ax_array[1,2].set_ylim(np.min(scatter_sub_y)-margin(scatter_sub_y), np.max(scatter_sub_y)+margin(scatter_sub_y))
-
-                    line0.set_ydata(plt_avg_nosub[0])
+                        ax_array[1,2].set_ylim(np.min(scatter_sub_y)-margin(scatter_sub_y), np.max(scatter_sub_y)+margin(scatter_sub_y))'''
+                    
+                    '''line0.set_ydata(plt_avg_nosub[0])
                     line1.set_ydata(plt_avg_sub[0])
                     line2.set_ydata(plt_avg_nosub[1])
-                    line3.set_ydata(plt_avg_sub[1])
-                    line4.set_offsets(np.column_stack((scatter_nosub_x, scatter_nosub_y)))
-                    line5.set_offsets(np.column_stack((scatter_sub_x, scatter_sub_y)))
+                    line3.set_ydata(plt_avg_sub[1])'''
+
+                    dp.plot_iq(ax_array[0,2],scatter_nosub_x,scatter_nosub_y,'nosub')
+                    #dp.plot_iq(ax_array[1,2],scatter_sub_x,scatter_sub_y,'sub')
+                    #line4.set_offsets(np.column_stack((scatter_nosub_x, scatter_nosub_y)))
+                    #line5.set_offsets(np.column_stack((scatter_sub_x, scatter_sub_y)))
 
                     fig.canvas.draw()
                     fig.canvas.flush_events()

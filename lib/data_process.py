@@ -9,6 +9,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 from .run_funcs import Data_Arrs
+import sys
+sys.path.append("../../")
+from lib import data_process as dp
 
 def get_population_v_pattern(arr, thresh, flipped = False):
     plt_arr = np.zeros(len(arr))
@@ -124,14 +127,25 @@ def plot_hist(ax, dat, num_bins, title):
     ax.set_title(title)
 
 def plot_iq(ax, I, Q, title):
-    bins = 100
-    H, xedges, yedges = np.histogram2d(I.flatten(), Q.flatten(), bins=(bins, bins))
-    H = H.T
-    X, Y = np.meshgrid(xedges, yedges)
+    if not hasattr(ax,'image'):
+        bins = 100
+        H, xedges, yedges = np.histogram2d(I.flatten(), Q.flatten(), bins=(bins, bins))
+        H = H.T
+        #X, Y = np.meshgrid(xedges, yedges)
+
+        image = ax.imshow(H, interpolation='nearest',extent = [xedges[0], xedges[-1], yedges[0], yedges[-1]])
+        ax.set_title(title)
+        ax.image = image
+        #ax.pcolormesh(X, Y, H)
+    else:
+        image = ax.image
+        H, xedges, yedges = np.histogram2d(I.flatten(), Q.flatten(), bins=image.get_array().shape)
+        H = H.T
+        image.set_data(H)
+        ax.relim()
+        ax.autoscale_view()
+
     
-    ax.imshow(H, interpolation='nearest',)
-    ax.set_title(title)
-    #ax.pcolormesh(X, Y, H)
     
     '''
     #add check for multiple dimensions
@@ -209,6 +223,9 @@ def plot_np_file(data: Data_Arrs, time_step, path = None):
     plt.show()
 
 
+def appending(wholedata, newdata):
+    wholedata = np.append(wholedata,newdata)
+    return wholedata
 
 
 def plot_all(chA, chB, num_patterns, pattern_reps, seq_reps, avg_start, avg_length, large_data_plot = False):
