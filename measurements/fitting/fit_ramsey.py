@@ -200,11 +200,11 @@ def new_fit():
         df = np.zeros(len(a))
         #new_data, a, b, t2, f, phi
         data_ans, af[0], bf[0], t2f[0], ff[0], df[0] = fit_ramsey(avgs[0], a[0], b[0], t2 , f, d, x)
-        data_as, af[1], bf[1], t2f[0], ff[1], df[1] = fit_ramsey(avgs[1], a[1], b[1], t2, f, d, x)
-        data_bns, af[2], bf[2], t2f[0], ff[2], df[2] = fit_ramsey(avgs[2], a[2], b[2], t2, f, d, x)
-        data_bs, af[3], bf[3], t2f[0], ff[3], df[3] = fit_ramsey(avgs[3], a[3], b[3], t2, f, d, x)
-        data_mns, af[4], bf[4], t2f[0], ff[4], df[4] = fit_ramsey(avgs[4], a[4], b[4], t2, f, d, x)
-        data_ms, af[5], bf[5], t2f[0], ff[5], df[5] = fit_ramsey(avgs[5], a[5], b[5], t2, f, d, x)
+        data_as, af[1], bf[1], t2f[1], ff[1], df[1] = fit_ramsey(avgs[1], a[1], b[1], t2, f, d, x)
+        data_bns, af[2], bf[2], t2f[2], ff[2], df[2] = fit_ramsey(avgs[2], a[2], b[2], t2, f, d, x)
+        data_bs, af[3], bf[3], t2f[3], ff[3], df[3] = fit_ramsey(avgs[3], a[3], b[3], t2, f, d, x)
+        data_mns, af[4], bf[4], t2f[4], ff[4], df[4] = fit_ramsey(avgs[4], a[4], b[4], t2, f, d, x)
+        data_ms, af[5], bf[5], t2f[5], ff[5], df[5] = fit_ramsey(avgs[5], a[5], b[5], t2, f, d, x)
         text=[]
         for i in range(len(a)):
             context = "offset: " + str(round(af[i], 3)) + \
