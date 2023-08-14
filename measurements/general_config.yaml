@@ -128,6 +128,7 @@ effect_temp:
 
 #live plot
 Live_plot: On
+Plot_Decimation: 5
 
 #inclusive of end points now
 #num_patterns will be len(range(q_dur_start, end + step, step))

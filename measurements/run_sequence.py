@@ -21,7 +21,7 @@ def int_eval(data):
     return eval(str(data))
 
 def eval_yaml(yaml):
-    string_params = ['name','measurement','shape','p1','p2','Live_plot']
+    string_params = ['name','measurement','shape','p1','p2','Live_plot','Plot_Decimation']
 
     for key,val in yaml.items():
         if isinstance(val,dict) == False and key not in string_params :
