@@ -110,7 +110,6 @@ def AcquireData(que):
     acq_multiples = int((readout_dur + readout_trigger_offset)/256) + 10
     samp_per_acq = 256*acq_multiples #length of acquisition in nS must be n*256
     
-    
     pattern_repeat = params['pattern_repeat']
     seq_repeat = params['seq_repeat']
     avg_start = params['avg_start']
@@ -141,13 +140,18 @@ def AcquireData(que):
     plt_avg_nosub = np.zeros((2,num_patterns))
     
     if live_plot:
+        if params['measurement'] == 'readout' or params['measurement'] == 'npp':
+            time_step = 1
+        else:
+            time_step = params[params['measurement']]['step']
+        x = [i*time_step for i in range(num_patterns)]
         #setting up the plots and histograms
         plt.ion()
         fig, ax_array = plt.subplots(2,3)
-        line0, = ax_array[0,0].plot(range(num_patterns), plt_avg_sub[0],label='chA_sub_avg')
-        line1, = ax_array[1,0].plot(range(num_patterns), plt_avg_nosub[0],label='chA_nosub_avg') # Returns a tuple of line objects, thus the comma
-        line2, = ax_array[0,1].plot(range(num_patterns), plt_avg_sub[1],label='chbB_sub_avg')
-        line3, = ax_array[1,1].plot(range(num_patterns), plt_avg_nosub[1],label='chB_nosub_avg')
+        line0, = ax_array[0,0].plot(x, plt_avg_sub[0],label='chA_sub_avg')
+        line1, = ax_array[1,0].plot(x, plt_avg_nosub[0],label='chA_nosub_avg') # Returns a tuple of line objects, thus the comma
+        line2, = ax_array[0,1].plot(x, plt_avg_sub[1],label='chbB_sub_avg')
+        line3, = ax_array[1,1].plot(x, plt_avg_nosub[1],label='chB_nosub_avg')
         #line4 = ax_array[0,2].scatter(plt_avg_nosub[0], plt_avg_nosub[1],s=1)
         #line5 = ax_array[1,2].scatter(plt_avg_sub[0], plt_avg_sub[1],s=1)
         ax_array[0,0].set_title('chA_sub_avg')
