@@ -17,7 +17,7 @@ import fit_rabi
 import pickle as pkl
 from fit_rabi import  fit_rabi
 from scipy.optimize import curve_fit
-
+from multiprocessing import Process, Manager
 def disp_sequence():
     fn = askopenfilename(filetypes=[("Pickles", "*.pkl")])
     nf = '\\'.join(fn.split('/')[0:-1]) + "/" #Gets the path of the file and adds a /
@@ -423,14 +423,132 @@ def get_temp_thresh():
     #x = []
     #measurement = params['measurement']
 
+    #---------------------------------------------------------------------channel-----------------------------------------------
+    channel_name = input("Enter channel:")
+    thresh = input("Enter threshold:")
+    thresh = eval(str(thresh))
 
+    print('________Results________')
+
+    if channel_name == 'chA_nosub':
+        channel = 0
+    elif channel_name == 'chA_sub':
+        channel = 1
+    elif channel_name == 'chB_nosub':
+        channel = 2
+    elif channel_name == 'chB_sub':
+        channel = 3
+    elif channel_name == 'mags_nosub':
+        channel = 4
+    elif channel_name == 'mags_sub':
+        channel = 5
+    else:
+        print('Error')
+    
     #n_points = params['seq_repeat'] * params['pattern_repeat']
     wq = (params['set_wq'] + params[params['measurement']]['ssb_freq'])*1e9
+    print('wq',wq)
     kb = 1.38649e-23
     hbar = 1.05457e-34
     del_E = (-hbar * 2 * np.pi * wq)
     
-    denom = kb * np.log((pop[0])/(1-pop[0]))
+    print('')
+    print('### Temp with user thresh ###')
+    dp.eff_temp(data.get_data_arrs()[channel],thresh,wq)
+
+    #fitting
+    #data is a Data_arrs type
+    #(a_nosub, a_sub, b_nosub, b_sub, mags_nosub, mags_sub, readout_A, readout_B) = data.get_data_arrs() 
+
+    def cuts(tb,data,thresh = thresh):
+        freq_G, bin_edges = np.histogram(data[0],200,range=(np.min(data),np.max(data)))
+        freq_E, bin_edges = np.histogram(data[1],200,range=(np.min(data),np.max(data)))
+        bin_centers = 0.5*(bin_edges[1:] + bin_edges[:-1])
+        if tb == 'b':
+            cut = (bin_centers<thresh)
+
+            cutdataG = freq_G[cut]
+            cutdataE = freq_E[cut]
+
+            binG = bin_centers[cut]
+            binE = bin_centers[cut]
+        elif tb == 't':
+            cut = (bin_centers>thresh)
+
+            cutdataG = freq_G[cut]
+            cutdataE = freq_E[cut]
+
+            binG = bin_centers[cut]
+            binE = bin_centers[cut]
+        #return freq_G,freq_E, bin_centers
+        return cutdataG,binG,cutdataE,binE,bin_centers
+
+    def gaus(x,peak,center,dev):
+        return peak*np.exp(-(x-center)**2/(2*dev**2))
+    
+    def _2gaussian(x, amp1,cen1,sigma1, amp2,cen2,sigma2,area):
+        return (amp1*(1/(sigma1*(np.sqrt(2*np.pi))))*(np.exp((-1.0/2.0)*(((x-cen1)/sigma1)**2))) + \
+            amp2*(1/(sigma2*(np.sqrt(2*np.pi))))*(np.exp((-1.0/2.0)*(((x-cen2)/sigma2)**2))))
+    
+    #extract cuts
+    cutdataG1,binG1,cutdataE1,binE1,bin_centers = cuts('b',data.get_data_arrs()[channel])
+    cutdataG2,binG2,cutdataE2,binE2,bin_centers = cuts('t',data.get_data_arrs()[channel])
+    #freq_G,freq_E, bin_centers = cuts('b',b_nosub)
+    
+
+    #----------------------------------intial guess-------------------------------------------------------------------
+    p0 =[np.max(cutdataG2),np.average(binG2),0.2*(max(binG2)-min(binG2))]
+    #p0n = [300,214.044,0.1,600,214.705,0.1,abs(np.sum(freq_G))]
+    
+    #Fits with cuts
+    popt, pcov = curve_fit(gaus,binG2,cutdataG2,p0)
+    pars1 = popt
+    
+    popt, pcov = curve_fit(gaus,binE1,cutdataE1,p0)
+    pars2 = popt
+    
+    #fits using double gaus
+    #popt1, pcov = curve_fit(_2gaussian, bin_centers, freq_G, p0n)
+    #amp1,cen1,sigma1, amp2,cen2,sigma2,freq = popt1
+    #pars_1 = popt1[0:3]
+    #pars_2 = popt1[3:6]
+
+    '''popt2, pcov = curve_fit(_2gaussian, bin_centers, freq_E, p0n)
+    amp1,cen1,sigma1, amp2,cen2,sigma2 = popt
+    pars_1 = popt2[0:3]
+    pars_2 = popt2[3:6]'''
+
+    #calculate temp using fit
+    #eric
+    nthresh = np.average([pars1[1],pars2[1]])
+    #eff temp func
+    print('')
+    print('### Temp with user thresh ###')
+    dp.eff_temp(data.get_data_arrs()[channel],nthresh,wq)
+
+    #plotting
+    plt.hist(data.get_data_arrs()[channel][0],bins=200,histtype='step',label='0')
+    plt.hist(data.get_data_arrs()[channel][1],bins=200,histtype='step',label='1')
+    plt.plot(bin_centers,gaus(bin_centers,*pars1),label='curve fit')
+    plt.plot(bin_centers,gaus(bin_centers,*pars2),label='curve fit')
+    plt.plot([thresh,thresh],[0,pars2[0]],'b--',label='guess:{:.3f}'.format(thresh))
+    plt.plot([nthresh,nthresh],[0,pars2[0]],'r-',label='fit:{:.3f}'.format(nthresh))
+    plt.title(channel_name)
+    #plt.plot(binG,gaus(binG,600,214.052,.1),label='fit')
+
+    #plt.plot(binG,cutdataG2,label='this')
+    #plt.plot(binE,cutdataE)
+    #print(gaus(x,peak_fit,center_fit,dev_fit))
+    #print(p0n)
+    #print(popt1)
+    print('')
+    print('________End________')
+    '''plt.plot(bin_centers, gaus(bin_centers,*pars_1))
+    plt.plot(bin_centers, gaus(bin_centers,*pars_2))
+    plt.plot(bin_centers,_2gaussian(bin_centers,*popt1),label='fit')
+    plt.plot(bin_centers,_2gaussian(bin_centers,*p0n),label='guess')'''
+    plt.legend()
+    plt.show()
     
     T = np.abs(del_E/denom)
     print("Effective tempurature (mK):", T*(10**3))
@@ -620,9 +738,9 @@ def two_rpm():
 
 
 if __name__ == "__main__":
-    #get_temp_thresh()
+    get_temp_thresh()
     #disp_double_sweep()
-    disp_sequence()
+    #disp_sequence()
     #show_sweep_output() #each pattern will be overlayed on each other
     #disp_single_sweep() #3d plot pattern # is x axis
     #disp_3_chevrons()

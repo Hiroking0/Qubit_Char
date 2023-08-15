@@ -9,7 +9,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 from .run_funcs import Data_Arrs
-
 def get_population_v_pattern(arr, thresh,GE=0, flipped = False):
     plt_arr = np.zeros(len(arr))
     for i in range(len(arr)):
@@ -28,27 +27,30 @@ def get_population_v_pattern(arr, thresh,GE=0, flipped = False):
     return plt_arr
 
 def eff_temp (arr, thresh,wq, flipped = False):
-    print('using eff_temp func----------------------------------')
     kb =  1.380649e-23
     h =  6.62607015e-34
     del_E = (-h * wq)
     
     popG = np.zeros(len(arr))
     popE = np.zeros(len(arr))
-    #for gound population
     
+    #for ground population
     pe = 0
     pep = 0
-    #for each pattern, look at every point and see if its above threshL
+    #for each pattern, look at every point and see if its above thresh
     for j in arr[0]:
         if (j > thresh and not flipped) or (j < thresh and flipped):
             pe += 1
         else:
             pep += 1
+    
+    #normalizing
     pe /= len(arr[0])
     pep /= len(arr[0])
     popG=[pe,pep]
     print('popG',popG)
+    
+    #for ground population
     pe = 0
     pep = 0
     #for each pattern, look at every point and see if its above threshL
@@ -57,6 +59,8 @@ def eff_temp (arr, thresh,wq, flipped = False):
             pe += 1
         else:
             pep += 1
+    
+    #normalizing
     pe /= len(arr[0])
     pep /= len(arr[0])
     popE = [pe,pep]

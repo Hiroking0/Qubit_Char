@@ -39,7 +39,7 @@ npp:
     nop_p_q_gap: 20 #samples between end of qubit pulse and beginning of readout
     nop_p_q_dur: 423
     readout_duration: 20000
-    ssb_freq: .0
+    ssb_freq: 0
     ssb_phase: -90
     shape: 'Pulse'
     
@@ -107,15 +107,15 @@ echo:
 effect_temp:
 
     gap_1: 20
-    ge_first_duration: 430  #pi pulse in Ch1
-    ge_second_duration: 430  #pi pulse in Ch1
+    ge_first_duration: 0  #pi pulse in Ch1
+    ge_second_duration: 125  #pi pulse in Ch1
     gap_2: 20
-    rabi_start: 0   # in Ch2
+    rabi_start: 0   # in Ch3
     rabi_stop: 1000 #+ gap between both (first and second pulse) and (second and third pulse).
     step: 20
     readout_duration: 20000
-    ssb_freq_ge: .088
-    ssb_freq_ef: .088
+    ssb_freq_ge: 0
+    ssb_freq_ef: 0
     ssb_phase_ge: -90
     ssb_phase_ef: -90
     shape: 'Pulse'
@@ -153,7 +153,7 @@ set_p_twpa: -19.7 #-18.9
 set_w_twpa: 8.4055 #8.5035
 
 #################################################################################################################################################
-#####################################################      Sweep Parametrs       #####################################################
+#####################################################      Sweep Parametrs       ################################################################
 #################################################################################################################################################
 
 
