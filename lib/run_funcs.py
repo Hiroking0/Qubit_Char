@@ -9,11 +9,11 @@ sys.path.append("../")
 from instruments.alazar import ATS9870_NPT as npt
 from instruments import Var_att_interface as ATT
 from instruments import RF_interface as RF
-
+#from instruments.alazar import live_plot as lp
 import time
 import numpy as np
 #from threading import Thread
-from multiprocessing import Process, Manager
+from multiprocessing import Process, Manager, Queue
 import pyvisa as visa
 import csv
 import matplotlib.pyplot as plt
@@ -108,6 +108,7 @@ def run_and_acquire(awg,
     save_raw = False
     manager = Manager()
     que = manager.Queue()
+    data_queue = Queue()
     #acproc = Thread(target = lambda q, board, params, num_patterns, path, raw, live:
     #                        q.put(npt.AcquireData(board, params, num_patterns, path, raw, live)), 
     #                        args = (que, board, params, num_patterns, path, save_raw, live_plot))
@@ -117,12 +118,16 @@ def run_and_acquire(awg,
     #                        args = (que, params, num_patterns, path, save_raw, live_plot))
 
     que.put((params, num_patterns, path, save_raw, live_plot))
-    acproc = Process(target = npt.AcquireData, args = (que,))
 
+    acproc = Process(target = npt.AcquireData, args = (que,data_queue,))
+    #plotting_process = Process(target = npt.live_plot, args = (params, num_patterns,que,data_queue,))
+    
     acproc.start()
+    #plotting_process.start()
     time.sleep(.5)
     awg.run()
     acproc.join()
+    #plotting_process.join()
     arrs = que.get()
     awg.stop()
     data_arrs = Data_Arrs(*arrs)
