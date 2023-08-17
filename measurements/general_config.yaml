@@ -2,7 +2,7 @@
 name: 'auto'
 
 #ramsey, T1, rabi, npp, readout, echo, echo_1ax, amplitude, effect_temp
-measurement: 'npp'
+measurement: 'rabi'
 
 #################################################################################################################################################
 #####################################################      writing and sending sequences to AWG      ############################################
@@ -37,7 +37,7 @@ readout:
 npp:
     #amplitude: 1
     nop_p_q_gap: 20 #samples between end of qubit pulse and beginning of readout
-    nop_p_q_dur: 423
+    nop_p_q_dur: 10000
     readout_duration: 20000
     ssb_freq: 0
     ssb_phase: -90
@@ -131,7 +131,7 @@ effect_temp:
 
 #running Sequence
 pattern_repeat: 1
-seq_repeat: 20000
+seq_repeat: 1000
 
 #averaging
 avg_start: 1000  #The start avraging doesn't need to be changed.
@@ -143,12 +143,12 @@ v_threshold: 223.85 #threshold value for distinguishing ground and excited state
 
 #static parameters, these are set before each running of the sequence
 
-set_wr: 7.1682680 #7.2025 7.2017
-set_wq: 3.240740 - 0.0001 #3.2405-0.088- 0.00062421 + 0.000106382979
+set_wr: 7.169103 #7.2025 7.2017
+set_wq: 3.24092 #3.2405-0.088- 0.00062421 + 0.000106382979
 set_pr: 15
-set_r_att: 12 #40 for low power for q4 and 21 for high power 
+set_r_att: 27 #40 for low power for q4 and 21 for high power 
 set_pq: 15
-set_q_att: 9
+set_q_att: 6
 set_p_twpa: -19.7 #-18.9
 set_w_twpa: 8.4055 #8.5035
 
@@ -167,9 +167,9 @@ set_w_twpa: 8.4055 #8.5035
 #If doing a single sweep, will look at p1, double will look at both
 
 #Y axis
-p1: 'q_att' #7.1486 +- 2 MHz
-p1start: 0
-p1stop:  20
+p1: 'r_att' #7.1486 +- 2 MHz
+p1start: 20
+p1stop:  40
 p1step: 1
 #x axis
 p2: 'pr'
