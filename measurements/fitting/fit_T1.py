@@ -15,7 +15,7 @@ sys.path.append("../../")
 import os
 import json
 import pickle as pkl
-
+from matplotlib.widgets import Slider,Button,TextBox
 def objective_T1(x, a, b, c):
 
 	return a + (b*np.exp(-x/c))
@@ -84,15 +84,17 @@ def fit_subax(ax, x, exp, fit_data, title):
     #for axis in ['top', 'bottom', 'left', 'right']:
     #    ax.spines[axis].set_linewidth(2.5)
     
-    ax.plot(x, exp, 'ko', markersize=10)
-    ax.plot(x, fit_data[0], 'r', linewidth=3.5)
+    line, = ax.plot(x, exp, 'ko', markersize=10)
+    line2, = ax.plot(x, fit_data[0], 'r', linewidth=3.5)
     ax.set_xlabel("$t_{T1}$ (ns)")
     ax.set_ylabel("V")
     ax.set_title(title)
-    text = "offset: " + str(round(fit_data[1], 3)) + "\n amp: " + str(round(fit_data[2], 3)) + "\ntau: " + str(round(fit_data[3]/1000, 3)) + " us"
-    ax.text(.98, .98, text, fontsize = 10, horizontalalignment='right',
-        verticalalignment='top', transform=ax.transAxes)
-    
+    text = "offset: " + str(round(fit_data[1], 3)) + \
+            "\n amp: " + str(round(fit_data[2], 3)) + \
+            "\ntau: " + str(round(fit_data[3]/1000, 3)) + " us"
+    textA =ax.text(.98, .98, text, fontsize = 10, horizontalalignment='right',
+                   verticalalignment='top',color='green', transform=ax.transAxes)
+    return line,line2,textA
     
 def new_fit():
     fn = askopenfilename(filetypes=[("Pickles", "*.pkl")])
