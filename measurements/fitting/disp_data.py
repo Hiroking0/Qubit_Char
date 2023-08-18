@@ -52,7 +52,7 @@ def disp_sequence():
     complex_arr_sub = np.zeros((len(a_nosub), len(a_nosub[0])), dtype=np.complex_)
     angle_arr = np.angle(complex_arr_sub.flatten())
     theta = np.average(angle_arr)
-    theta = np.radians(32)
+    theta = np.radians(10)
     exp = np.exp(1j*theta)
 
     print("THETA", theta)
@@ -615,10 +615,10 @@ def two_rpm():
 if __name__ == "__main__":
     #get_temp_thresh()
     #disp_double_sweep()
-    disp_sequence()
+    #disp_sequence()
     #show_sweep_output() #each pattern will be overlayed on each other
     #disp_single_sweep() #3d plot pattern # is x axis
     #disp_3_chevrons()
-    #two_rpm()
+    two_rpm()
     
     

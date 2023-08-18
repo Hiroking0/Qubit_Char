@@ -127,7 +127,7 @@ def fit_subax(ax, x, exp, fit_data, title):
     ax.set_ylabel("V")
     ax.set_title(title)
     text = "offset: " + str(round(fit_data[1], 3)) + \
-            "\n amp: " + str(round(fit_data[2], 3)) + \
+            "\n amp: " + str(round(fit_data[2], 8)) + \
             "\nfreq: " + str(round(fit_data[3], 10)) + " GHz" + \
             "\nphase: "+ str(round(fit_data[4], 3))
 
@@ -236,7 +236,7 @@ def new_fit():
         text=[]
         for i in range(len(a)):
             context = "offset: " + str(round(af[i], 3)) + \
-                "\n amp: " + str(round(bf[i], 3)) + \
+                "\n amp: " + str(round(bf[i], 8)) + \
                 "\nfreq: " + str(round(cf[i], 10)) + " GHz" + \
                 "\nphase: "+ str(round(df[i], 3))
             text.append(context)
