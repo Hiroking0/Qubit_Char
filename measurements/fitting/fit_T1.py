@@ -91,7 +91,7 @@ def fit_subax(ax, x, exp, fit_data, title):
     ax.set_title(title)
     text = "offset: " + str(round(fit_data[1], 3)) + "\n amp: " + str(round(fit_data[2], 3)) + "\ntau: " + str(round(fit_data[3]/1000, 3)) + " us"
     ax.text(.98, .98, text, fontsize = 10, horizontalalignment='right',
-        verticalalignment='top', transform=ax.transAxes)
+        verticalalignment='top', color='green',transform=ax.transAxes)
     
     
 def new_fit():

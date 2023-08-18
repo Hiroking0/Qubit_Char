@@ -91,8 +91,8 @@ def legacy_fit():
 
 
 def fit_subax(ax, x, exp, fit_data, title):
-    line, = ax.plot(x, exp, 'ko', markersize=10)
-    line2, = ax.plot(x, fit_data[0], 'r', linewidth=3.5)
+    line, = ax.plot(x, exp, 'ko', markersize=5)
+    line2, = ax.plot(x, fit_data[0], 'r', linewidth=3)
     ax.set_xlabel("$t_{Ramsey}$ (ns)")
     ax.set_ylabel("V")
     ax.set_title(title)
