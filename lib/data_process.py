@@ -9,6 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 from .run_funcs import Data_Arrs
+from matplotlib.widgets import Slider
 def get_population_v_pattern(arr, thresh,GE=0, flipped = False):
     plt_arr = np.zeros(len(arr))
     for i in range(len(arr)):
@@ -234,18 +235,26 @@ def plot_iq(ax, I, Q, title):
     '''
 
 def plot_subaxis(ax, y, title):
+    lines = []
     for i in range(len(y)):
-        ax.plot(y[i], alpha = .8)
+        line, = ax.plot(y[i], alpha = .8)
+        lines.append(line)
     ax.set_title(title)
+    return lines
 
 def plot_pattern_vs_volt(ax, x, y, title, font_size):
     ax.plot(x, y)
     ax.set_title(title)
     ax.set_xlabel('time (ns)', fontsize=font_size)
     ax.set_ylabel('Voltage (V)', fontsize=font_size)
-    
 
-def plot_np_file(data: Data_Arrs, time_step, path = None):
+def update_plot(data,A_readout,theta):
+        (chA_nosub, chA_sub, chB_nosub, chB_sub, mags_nosub, mags_sub, readout_a, readout_b) = data.get_avgs(theta)
+        print(theta)
+        for i in range(len(chA_nosub)):
+            A_readout[i].set_ydata(readout_a[i])
+
+def plot_np_file(data: Data_Arrs, time_step, path = None,widgets = False):
 
     (chA_nosub, chA_sub, chB_nosub, chB_sub, mags_nosub, mags_sub, readout_a, readout_b) = data.get_data_arrs()
     num_patterns = 1 if np.ndim(chA_nosub) == 1 else len(chA_nosub)
@@ -253,9 +262,13 @@ def plot_np_file(data: Data_Arrs, time_step, path = None):
     num_bins = 200
 
     fig, ax_array = plt.subplots(3,4)
-
-    plot_subaxis(ax_array[0,0], readout_a, "ChA readout")
-    plot_subaxis(ax_array[0,1], readout_b, "ChB readout")
+    
+    if widgets:
+        #widgets
+        ax_slide = plt.axes([0.1,0.01,0.35,0.03])
+        theta = Slider(ax_slide,"Theta [Deg]",valmin= 0, valmax = 360, valinit= 0, valstep= 0.1)
+    A_readout = plot_subaxis(ax_array[0,0], readout_a, "ChA readout")
+    B_readout = plot_subaxis(ax_array[0,1], readout_b, "ChB readout")
     plot_iq(ax_array[0,2], chA_nosub, chB_nosub, "I vs Q nosub")
     plot_iq(ax_array[0,3], chA_sub, chB_sub, "I vs Q sub")
     plot_hist(ax_array[1,0], chA_nosub, num_bins, "chA_nosub")
@@ -300,6 +313,11 @@ def plot_np_file(data: Data_Arrs, time_step, path = None):
     if path:
         plt.savefig(path + "_pic", dpi= 300, pad_inches = 0, bbox_inches = 'tight')
     plt.show()
+    if widgets==True:
+            theta.on_changed(update_plot(data, A_readout,theta.val))
+            fig.canvas.draw_idle()
+            return ax_slide
+    
 
 
 

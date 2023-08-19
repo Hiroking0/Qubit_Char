@@ -39,7 +39,36 @@ class Data_Arrs:
         with open(name + '.pkl', 'wb') as pickle_file:
             pkl.dump(self, pickle_file)
 
-    def get_data_arrs(self):
+    def get_data_arrs(self,theta=0):
+        length = len(self.a_nosub)
+        length_readout = len(self.readout_A)
+        new_a_sub = np.zeros(length)
+        new_b_sub = np.zeros(length)
+        complex_arr = np.zeros(length)
+        complex_arr_sub = np.zeros(length)
+        complex_arr_readout = np.zeros(length)
+        
+        # this is wrong because it does not sweep each array of the excited and ground but determine the number of patterns
+        for i in range(length):
+            for in in range()
+            t_i = self.a_nosub[i]
+            t_q = self.b_nosub[i]
+            t_new = (t_i+1j*t_q)*np.exp(1j*theta)
+            complex_arr[i] = t_new
+
+            t_i_sub = self.a_sub[i]
+            t_q_sub = self.b_sub[i]
+            t_new_sub = (t_i_sub+1j*t_q_sub)*np.exp(1j*theta)
+            complex_arr_sub[i] = t_new_sub
+
+            t_i_readout = self.readout_A[i]
+            t_q_readout = self.readout_B[i]
+            t_new_sub = (t_i_readout+1j*t_q_readout)*np.exp(1j*theta)
+            complex_arr_sub[i] = t_new_sub
+        '''print('len(self.a_nosub)',len(self.a_nosub[0]))
+        print('len(self.b_nosub)',len(self.b_nosub[0]))
+        print('len(self.readout_A)',len(self.readout_A[0]))
+        print('len(self.readout_B)',len(self.readout_B[0]))'''
         return (self.a_nosub, self.a_sub, self.b_nosub, self.b_sub, self.mags_nosub, self.mags_sub, self.readout_A, self.readout_B)
     
     def get_avgs(self,theta=0):

@@ -18,6 +18,7 @@ import pickle as pkl
 from fit_rabi import  fit_rabi
 from scipy.optimize import curve_fit
 from multiprocessing import Process, Manager
+from matplotlib.widgets import Slider
 def disp_sequence():
     fn = askopenfilename(filetypes=[("Pickles", "*.pkl")])
     nf = '\\'.join(fn.split('/')[0:-1]) + "/" #Gets the path of the file and adds a /
@@ -52,7 +53,7 @@ def disp_sequence():
     complex_arr_sub = np.zeros((len(a_nosub), len(a_nosub[0])), dtype=np.complex_)
     angle_arr = np.angle(complex_arr_sub.flatten())
     theta = np.average(angle_arr)
-    theta = np.radians(32)
+    theta = np.radians(0)
     exp = np.exp(1j*theta)
 
     print("THETA", theta)
@@ -82,7 +83,7 @@ def disp_sequence():
 
     setattr(data, 'a_sub', new_a_sub)
     setattr(data, 'b_sub', new_b_sub)
-    dp.plot_np_file(data, timestep)
+    dp.plot_np_file(data, timestep,None,True)
 
 
     '''
