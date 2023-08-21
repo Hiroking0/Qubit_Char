@@ -502,7 +502,7 @@ def get_temp_thresh():
     nthresh = np.average([pars1[1],pars2[1]])
     #eff temp func
     print('')
-    print('### Temp with user thresh ###')
+    print('### Temp with fit thresh ###')
     dp.eff_temp(data.get_data_arrs()[channel],nthresh,wq)
 
     #plotting
@@ -528,6 +528,8 @@ def get_temp_thresh():
     plt.plot(bin_centers,_2gaussian(bin_centers,*p0n),label='guess')'''
     plt.legend()
     plt.show()
+    
+
 
     
     
@@ -613,12 +615,12 @@ def two_rpm():
 
 
 if __name__ == "__main__":
-    #get_temp_thresh()
+    get_temp_thresh()
     #disp_double_sweep()
     #disp_sequence()
     #show_sweep_output() #each pattern will be overlayed on each other
     #disp_single_sweep() #3d plot pattern # is x axis
     #disp_3_chevrons()
-    two_rpm()
+    #two_rpm()
     
     
