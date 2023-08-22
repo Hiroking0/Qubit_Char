@@ -615,9 +615,9 @@ def two_rpm():
 
 
 if __name__ == "__main__":
-    get_temp_thresh()
+    #get_temp_thresh()
     #disp_double_sweep()
-    #disp_sequence()
+    disp_sequence()
     #show_sweep_output() #each pattern will be overlayed on each other
     #disp_single_sweep() #3d plot pattern # is x axis
     #disp_3_chevrons()

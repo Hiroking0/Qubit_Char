@@ -108,7 +108,7 @@ effect_temp:
 
     gap_1: 20
     ge_first_duration: 0  #pi pulse in Ch1
-    ge_second_duration: 178  #pi pulse in Ch1
+    ge_second_duration: 179  #pi pulse in Ch1
     gap_2: 20
     rabi_start: 0   # in Ch3
     rabi_stop: 1500 #+ gap between both (first and second pulse) and (second and third pulse).
@@ -146,7 +146,7 @@ v_threshold: 223.85 #threshold value for distinguishing ground and excited state
 set_wr: 7.169103
 set_wq: 3.2407 #3.1685813
 set_pr: 15
-set_r_att: 45 #40 for low power for q4 and 21 for high power 
+set_r_att: 41 #40 for low power for q4 and 21 for high power 
 set_pq: 15
 set_q_att:  6
 set_p_twpa: -19.7 #-18.9
