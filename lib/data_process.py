@@ -253,12 +253,14 @@ def plot_pattern_vs_volt(ax, x, y, title, font_size):
 
 def rotation_data_process(data, start, stop,result_queue):
     readout_a = []
+    readout_b = []
     for i in range(start, stop, 1):
         (chA_nosubw, chA_subw, chB_nosubw, chB_subw, mags_nosubw, mags_subw, readout_A, readout_bw) = data.get_data_arrs(np.radians(i))
         readout_a.append(readout_A)
+        readout_b.append(readout_bw)
         print(i)
     print('np.shape(readout_a)',np.shape(readout_a))
-    result_queue.put(readout_a)
+    result_queue.put((readout_a,readout_b))
 
 def plot_np_file(data: Data_Arrs, time_step, path = None,widgets = False):
 
@@ -322,7 +324,8 @@ def plot_np_file(data: Data_Arrs, time_step, path = None,widgets = False):
     n=8
     #Processing data 
     processes = []
-    results = []
+    readout_a_results = []
+    readout_b_results = []
     manager = Manager()
     result_queue = manager.Queue()
     for i in range(n):
@@ -337,13 +340,16 @@ def plot_np_file(data: Data_Arrs, time_step, path = None,widgets = False):
         print('joining')
         process.join()
         print('join suc')
-        result = result_queue.get()  # Get the result from the queue
-        print('-------------------result np.shape(result)',np.shape(result))
-        for incoming_array in result:  
-            results.append(incoming_array)
+        readout_a_result, readout_b_result = result_queue.get()  # Get the result from the queue
+        print('-------------------result np.shape(readout_a_result)',np.shape(readout_a_result))
+        for incoming_array in readout_a_result:  
+            readout_a_results.append(incoming_array)
 
+        for incoming_array in readout_b_result:  
+            readout_b_results.append(incoming_array)
         # Convert the list of arrays into a single NumPy array
-        readout_a = np.stack(results, axis=0)
+        readout_a = np.stack(readout_a_results, axis=0)
+        readout_b = np.stack(readout_b_results, axis=0)
         print('-------------------result np.shape(readout_a)',np.shape(readout_a))
 
     
@@ -353,9 +359,11 @@ def plot_np_file(data: Data_Arrs, time_step, path = None,widgets = False):
         theta = np.radians(theta_slider.val)
         #(chA_nosub, chA_sub, chB_nosub, chB_sub, mags_nosub, mags_sub, readout_a, readout_b) = data.get_data_arrs(theta)
         for i in range(len(chA_nosub)):
-            print('np.shape(readout_a[i])',np.shape(readout_a[theta_slider.val][i]))
+            #print('np.shape(readout_a[i])',np.shape(readout_a[theta_slider.val][i]))
             A_readout[i].set_ydata(readout_a[theta_slider.val][i])
             ax_array[0,0].set_ylim([np.min(readout_a[theta_slider.val]),np.max(readout_a[theta_slider.val])])
+            B_readout[i].set_ydata(readout_b[theta_slider.val][i])
+            ax_array[0,1].set_ylim([np.min(readout_b[theta_slider.val]),np.max(readout_b[theta_slider.val])])
 
     if widgets==True:
             theta_slider.on_changed(update_plot)
