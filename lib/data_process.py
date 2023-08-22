@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import time
 from .run_funcs import Data_Arrs
 from matplotlib.widgets import Slider
-from multiprocessing import Process, Manager
+from multiprocessing import Process, Manager, Queue
 
 
 def get_population_v_pattern(arr, thresh,GE=0, flipped = False):
@@ -251,13 +251,14 @@ def plot_pattern_vs_volt(ax, x, y, title, font_size):
     ax.set_xlabel('time (ns)', fontsize=font_size)
     ax.set_ylabel('Voltage (V)', fontsize=font_size)
 
-def rotation_data_process(data, start, stop):
+def rotation_data_process(data, start, stop,result_queue):
     readout_a = []
     for i in range(start, stop, 1):
         (chA_nosubw, chA_subw, chB_nosubw, chB_subw, mags_nosubw, mags_subw, readout_A, readout_bw) = data.get_data_arrs(np.radians(i))
         readout_a.append(readout_A)
         print(i)
-    return readout_a
+    print('np.shape(readout_a)',np.shape(readout_a))
+    result_queue.put(readout_a)
 
 def plot_np_file(data: Data_Arrs, time_step, path = None,widgets = False):
 
@@ -320,15 +321,29 @@ def plot_np_file(data: Data_Arrs, time_step, path = None,widgets = False):
     
     n=8
     #Processing data 
+    processes = []
+    results = []
+    manager = Manager()
+    result_queue = manager.Queue()
     for i in range(n):
         start = int(360/n*i)
         end = int(360/n*(i + 1))
-        print('start',start)
-        print('end',end)
-        computation = Process(target = rotation_data_process , args = (data,start,end,))
-        computation.start()
+        print('start', i)
+        process = Process(target = rotation_data_process , args = (data,start,end,result_queue,))
+        processes.append(process)
+        process.start()
 
     readout_a = []
+    for process in processes:
+        print('joining')
+        process.join()
+        print('join suc')
+        result = result_queue.get()  # Get the result from the queue
+        print('np.shape(result)',np.shape(result))
+        readout_a.append(result)
+        print('result np.shape(readout_a)',np.shape(readout_a))
+
+    
 
 
     def update_plot(val):
