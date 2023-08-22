@@ -10,7 +10,9 @@ import matplotlib.pyplot as plt
 import time
 from .run_funcs import Data_Arrs
 from matplotlib.widgets import Slider
-import time
+from multiprocessing import Process, Manager
+
+
 def get_population_v_pattern(arr, thresh,GE=0, flipped = False):
     plt_arr = np.zeros(len(arr))
     for i in range(len(arr)):
@@ -249,6 +251,13 @@ def plot_pattern_vs_volt(ax, x, y, title, font_size):
     ax.set_xlabel('time (ns)', fontsize=font_size)
     ax.set_ylabel('Voltage (V)', fontsize=font_size)
 
+def rotation_data_process(data, start, stop):
+    readout_a = []
+    for i in range(start, stop, 1):
+        (chA_nosubw, chA_subw, chB_nosubw, chB_subw, mags_nosubw, mags_subw, readout_A, readout_bw) = data.get_data_arrs(np.radians(i))
+        readout_a.append(readout_A)
+        print(i)
+    return readout_a
 
 def plot_np_file(data: Data_Arrs, time_step, path = None,widgets = False):
 
@@ -262,7 +271,7 @@ def plot_np_file(data: Data_Arrs, time_step, path = None,widgets = False):
     if widgets:
         #widgets
         ax_slide = plt.axes([0.1,0.01,0.35,0.03])
-        theta_slider = Slider(ax_slide,"Theta [Deg]",valmin= 0, valmax = 10, valinit= 0, valstep= 1)
+        theta_slider = Slider(ax_slide,"Theta [Deg]",valmin= 0, valmax = 360, valinit= 0, valstep= 1)
     A_readout = plot_subaxis(ax_array[0,0], readout_a, "ChA readout")
     B_readout = plot_subaxis(ax_array[0,1], readout_b, "ChB readout")
     plot_iq(ax_array[0,2], chA_nosub, chB_nosub, "I vs Q nosub")
@@ -309,16 +318,18 @@ def plot_np_file(data: Data_Arrs, time_step, path = None,widgets = False):
     if path:
         plt.savefig(path + "_pic", dpi= 300, pad_inches = 0, bbox_inches = 'tight')
     
+    n=8
+    #Processing data 
+    for i in range(n):
+        start = int(360/n*i)
+        end = int(360/n*(i + 1))
+        print('start',start)
+        print('end',end)
+        computation = Process(target = rotation_data_process , args = (data,start,end,))
+        computation.start()
+
     readout_a = []
-    print('start')
-    starttime = time.time()
-    for i in range(0,10,1):
-        (chA_nosubw, chA_subw, chB_nosubw, chB_subw, mags_nosubw, mags_subw, readout_A, readout_bw) = data.get_data_arrs(True,np.radians(i))
-        readout_a.append(readout_A)
-        print(i)
-    print('end')
-    endtime = time.time()
-    print("total time =", endtime-starttime)
+
 
     def update_plot(val):
         theta = np.radians(theta_slider.val)
@@ -326,12 +337,8 @@ def plot_np_file(data: Data_Arrs, time_step, path = None,widgets = False):
         for i in range(len(chA_nosub)):
             print('np.shape(readout_a[i])',np.shape(readout_a[theta_slider.val][i]))
             A_readout[i].set_ydata(readout_a[theta_slider.val][i])
-            print('here')
-            print('np.shape(A_readout[i])',np.shape(A_readout[i]))
             ax_array[0,0].set_ylim([np.min(readout_a[theta_slider.val]),np.max(readout_a[theta_slider.val])])
-    ##################################################
-    #some issue with fig.canvas.draw_idle()###########
-    ##################################################
+
     if widgets==True:
             theta_slider.on_changed(update_plot)
             fig.canvas.draw_idle()

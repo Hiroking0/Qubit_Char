@@ -39,50 +39,47 @@ class Data_Arrs:
         with open(name + '.pkl', 'wb') as pickle_file:
             pkl.dump(self, pickle_file)
 
-    def get_data_arrs(self,rot=False,theta=0):
-        if rot:
-            length = len(self.a_nosub)
-            complex_arr_nosub = np.zeros((length,len(self.a_nosub[0])),dtype = 'complex_')
-            complex_arr_sub = np.zeros((length,len(self.a_nosub[0])),dtype = 'complex_')
-            complex_arr_readout = np.zeros((length,len(self.a_nosub[0])),dtype = 'complex_')
-            # this is wrong because it does not sweep each array of the excited and ground but determine the number of patterns
-            for i in range(length):
-                for j in range(len(self.a_nosub[i])):
-                    t_i_nosub = self.a_nosub[i][j]
-                    t_q_nosub = self.b_nosub[i][j]
-                    t_new_nosub = (t_i_nosub+1j*t_q_nosub)*np.exp(1j*theta)
-                    complex_arr_nosub[i][j] = t_new_nosub
-
-                    t_i_sub = self.a_sub[i][j]
-                    t_q_sub = self.b_sub[i][j]
-                    t_new_sub = (t_i_sub+1j*t_q_sub)*np.exp(1j*theta)
-                    complex_arr_sub[i][j] = t_new_sub
-
-                    t_i_readout = self.readout_A[i][j]
-                    t_q_readout = self.readout_B[i][j]
-                    t_new_readout = (t_i_readout+1j*t_q_readout)*np.exp(1j*theta)
-                    complex_arr_readout[i][j] = t_new_readout
-
-            new_a_nosub = np.real(complex_arr_nosub)
-            new_b_nosub = np.imag(complex_arr_nosub)
-
-            new_a_sub = np.real(complex_arr_sub)
-            new_b_sub = np.imag(complex_arr_sub)
-
-            new_readout_A = np.real(complex_arr_readout)
-            new_readout_B = np.imag(complex_arr_readout)
-            
-            #print('np.shape(new_a_nosub)',np.shape(new_a_nosub))
-
-            '''print('len(self.a_nosub)',len(self.a_nosub[0]))
-            print('len(self.b_nosub)',len(self.b_nosub[0]))
-            print('len(self.readout_A)',len(self.readout_A[0]))
-            print('len(self.readout_B)',len(self.readout_B[0]))'''
-            return (new_a_nosub, new_a_sub, new_b_nosub, new_b_sub, self.mags_nosub, self.mags_sub, new_readout_A, new_readout_B)
+    def get_data_arrs(self,theta=0):
         
-        else:
-            return (self.a_nosub, self.a_sub, self.b_nosub, self.b_sub, self.mags_nosub, self.mags_sub, self.readout_A, self.readout_B)
-    
+        length = len(self.a_nosub)
+        complex_arr_nosub = np.zeros((length,len(self.a_nosub[0])),dtype = 'complex_')
+        complex_arr_sub = np.zeros((length,len(self.a_nosub[0])),dtype = 'complex_')
+        complex_arr_readout = np.zeros((length,len(self.a_nosub[0])),dtype = 'complex_')
+        # this is wrong because it does not sweep each array of the excited and ground but determine the number of patterns
+        for i in range(length):
+            for j in range(len(self.a_nosub[i])):
+                t_i_nosub = self.a_nosub[i][j]
+                t_q_nosub = self.b_nosub[i][j]
+                t_new_nosub = (t_i_nosub+1j*t_q_nosub)*np.exp(1j*theta)
+                complex_arr_nosub[i][j] = t_new_nosub
+
+                t_i_sub = self.a_sub[i][j]
+                t_q_sub = self.b_sub[i][j]
+                t_new_sub = (t_i_sub+1j*t_q_sub)*np.exp(1j*theta)
+                complex_arr_sub[i][j] = t_new_sub
+
+                t_i_readout = self.readout_A[i][j]
+                t_q_readout = self.readout_B[i][j]
+                t_new_readout = (t_i_readout+1j*t_q_readout)*np.exp(1j*theta)
+                complex_arr_readout[i][j] = t_new_readout
+
+        new_a_nosub = np.real(complex_arr_nosub)
+        new_b_nosub = np.imag(complex_arr_nosub)
+
+        new_a_sub = np.real(complex_arr_sub)
+        new_b_sub = np.imag(complex_arr_sub)
+
+        new_readout_A = np.real(complex_arr_readout)
+        new_readout_B = np.imag(complex_arr_readout)
+        
+        #print('np.shape(new_a_nosub)',np.shape(new_a_nosub))
+
+        '''print('len(self.a_nosub)',len(self.a_nosub[0]))
+        print('len(self.b_nosub)',len(self.b_nosub[0]))
+        print('len(self.readout_A)',len(self.readout_A[0]))
+        print('len(self.readout_B)',len(self.readout_B[0]))'''
+        return (new_a_nosub, new_a_sub, new_b_nosub, new_b_sub, self.mags_nosub, self.mags_sub, new_readout_A, new_readout_B)
+
     def get_avgs(self,theta=0):
         length = len(self.a_nosub)
         
@@ -127,7 +124,7 @@ class Data_Arrs:
 
         new_pattern_avgs_cA_sub = np.real(complex_arr_sub)
         new_pattern_avgs_cB_sub = np.imag(complex_arr_sub)
-    
+
         return (new_pattern_avgs_cA, new_pattern_avgs_cA_sub, new_pattern_avgs_cB, new_pattern_avgs_cB_sub, mags, mags_sub)
 
 
