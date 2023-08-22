@@ -333,15 +333,18 @@ def plot_np_file(data: Data_Arrs, time_step, path = None,widgets = False):
         processes.append(process)
         process.start()
 
-    readout_a = []
     for process in processes:
         print('joining')
         process.join()
         print('join suc')
         result = result_queue.get()  # Get the result from the queue
-        print('np.shape(result)',np.shape(result))
-        readout_a.append(result)
-        print('result np.shape(readout_a)',np.shape(readout_a))
+        print('-------------------result np.shape(result)',np.shape(result))
+        for incoming_array in result:  
+            results.append(incoming_array)
+
+        # Convert the list of arrays into a single NumPy array
+        readout_a = np.stack(results, axis=0)
+        print('-------------------result np.shape(readout_a)',np.shape(readout_a))
 
     
 
