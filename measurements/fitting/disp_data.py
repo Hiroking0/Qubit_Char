@@ -19,6 +19,7 @@ from fit_rabi import  fit_rabi
 from scipy.optimize import curve_fit
 from multiprocessing import Process, Manager
 from matplotlib.widgets import Slider
+import time
 def disp_sequence():
     fn = askopenfilename(filetypes=[("Pickles", "*.pkl")])
     nf = '\\'.join(fn.split('/')[0:-1]) + "/" #Gets the path of the file and adds a /
@@ -43,12 +44,11 @@ def disp_sequence():
         timestep = params[params['measurement']]['step']
 
     #This code is for adding a phase offset to nosub or sub arrays
-    
 
 
     
     (a_nosub, a_sub, b_nosub, b_sub, mags_nosub, mags_sub, readout_A, readout_B) = data.get_data_arrs()
-
+    
     complex_arr = np.zeros((len(a_nosub), len(a_nosub[0])), dtype=np.complex_)
     complex_arr_sub = np.zeros((len(a_nosub), len(a_nosub[0])), dtype=np.complex_)
     angle_arr = np.angle(complex_arr_sub.flatten())

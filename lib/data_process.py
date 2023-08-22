@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import time
 from .run_funcs import Data_Arrs
 from matplotlib.widgets import Slider
+import time
 def get_population_v_pattern(arr, thresh,GE=0, flipped = False):
     plt_arr = np.zeros(len(arr))
     for i in range(len(arr)):
@@ -248,11 +249,6 @@ def plot_pattern_vs_volt(ax, x, y, title, font_size):
     ax.set_xlabel('time (ns)', fontsize=font_size)
     ax.set_ylabel('Voltage (V)', fontsize=font_size)
 
-def update_plot(data,A_readout,theta):
-        (chA_nosub, chA_sub, chB_nosub, chB_sub, mags_nosub, mags_sub, readout_a, readout_b) = data.get_avgs(theta)
-        print(theta)
-        for i in range(len(chA_nosub)):
-            A_readout[i].set_ydata(readout_a[i])
 
 def plot_np_file(data: Data_Arrs, time_step, path = None,widgets = False):
 
@@ -266,7 +262,7 @@ def plot_np_file(data: Data_Arrs, time_step, path = None,widgets = False):
     if widgets:
         #widgets
         ax_slide = plt.axes([0.1,0.01,0.35,0.03])
-        theta = Slider(ax_slide,"Theta [Deg]",valmin= 0, valmax = 360, valinit= 0, valstep= 0.1)
+        theta_slider = Slider(ax_slide,"Theta [Deg]",valmin= 0, valmax = 10, valinit= 0, valstep= 1)
     A_readout = plot_subaxis(ax_array[0,0], readout_a, "ChA readout")
     B_readout = plot_subaxis(ax_array[0,1], readout_b, "ChB readout")
     plot_iq(ax_array[0,2], chA_nosub, chB_nosub, "I vs Q nosub")
@@ -290,7 +286,7 @@ def plot_np_file(data: Data_Arrs, time_step, path = None,widgets = False):
     x = [i*time_step for i in range(num_patterns)]
 
     #plt.figure()
-    fig2, ax_array = plt.subplots(2,3)
+    fig2, ax_array2 = plt.subplots(2,3)
 
 
     font_size = 5
@@ -299,12 +295,12 @@ def plot_np_file(data: Data_Arrs, time_step, path = None,widgets = False):
     #plt.rc('ytick', labelsize=font_size)
     
 
-    plot_pattern_vs_volt(ax_array[0,0], x, pattern_avgs_cA, "ChA nosub", font_size)
-    plot_pattern_vs_volt(ax_array[0,1], x, pattern_avgs_cB, "ChB nosub", font_size)
-    plot_pattern_vs_volt(ax_array[1,0], x, pattern_avgs_cA_sub, "ChA sub", font_size)
-    plot_pattern_vs_volt(ax_array[1,1], x, pattern_avgs_cB_sub, "ChB sub", font_size)
-    plot_pattern_vs_volt(ax_array[0,2], x, mags, "mags nosub", font_size)
-    plot_pattern_vs_volt(ax_array[1,2], x, mags_sub, "mags sub", font_size)
+    plot_pattern_vs_volt(ax_array2[0,0], x, pattern_avgs_cA, "ChA nosub", font_size)
+    plot_pattern_vs_volt(ax_array2[0,1], x, pattern_avgs_cB, "ChB nosub", font_size)
+    plot_pattern_vs_volt(ax_array2[1,0], x, pattern_avgs_cA_sub, "ChA sub", font_size)
+    plot_pattern_vs_volt(ax_array2[1,1], x, pattern_avgs_cB_sub, "ChB sub", font_size)
+    plot_pattern_vs_volt(ax_array2[0,2], x, mags, "mags nosub", font_size)
+    plot_pattern_vs_volt(ax_array2[1,2], x, mags_sub, "mags sub", font_size)
 
     
 
@@ -312,11 +308,36 @@ def plot_np_file(data: Data_Arrs, time_step, path = None,widgets = False):
     #plt.tight_layout()
     if path:
         plt.savefig(path + "_pic", dpi= 300, pad_inches = 0, bbox_inches = 'tight')
-    plt.show()
+    
+    readout_a = []
+    print('start')
+    starttime = time.time()
+    for i in range(0,10,1):
+        (chA_nosubw, chA_subw, chB_nosubw, chB_subw, mags_nosubw, mags_subw, readout_A, readout_bw) = data.get_data_arrs(True,np.radians(i))
+        readout_a.append(readout_A)
+        print(i)
+    print('end')
+    endtime = time.time()
+    print("total time =", endtime-starttime)
+
+    def update_plot(val):
+        theta = np.radians(theta_slider.val)
+        #(chA_nosub, chA_sub, chB_nosub, chB_sub, mags_nosub, mags_sub, readout_a, readout_b) = data.get_data_arrs(theta)
+        for i in range(len(chA_nosub)):
+            print('np.shape(readout_a[i])',np.shape(readout_a[theta_slider.val][i]))
+            A_readout[i].set_ydata(readout_a[theta_slider.val][i])
+            print('here')
+            print('np.shape(A_readout[i])',np.shape(A_readout[i]))
+            ax_array[0,0].set_ylim([np.min(readout_a[theta_slider.val]),np.max(readout_a[theta_slider.val])])
+    ##################################################
+    #some issue with fig.canvas.draw_idle()###########
+    ##################################################
     if widgets==True:
-            theta.on_changed(update_plot(data, A_readout,theta.val))
+            theta_slider.on_changed(update_plot)
             fig.canvas.draw_idle()
+            plt.show()
             return ax_slide
+    
     
 
 
