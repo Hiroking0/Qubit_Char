@@ -109,30 +109,48 @@ def init_params(params):
     rm = visa.ResourceManager()
     q_rf = RF.RF_source(rm, "TCPIP0::172.20.1.7::5025::SOCKET")
     r_rf = RF.RF_source(rm, "TCPIP0::172.20.1.8::5025::SOCKET")
+    qef_rf = RF.RF_source(rm, "TCPIP0::172.20.1.17::5025::SOCKET")
     q_att = ATT.Atten(rm, "TCPIP0::172.20.1.6::5025::SOCKET")
     r_att = ATT.Atten(rm, "TCPIP0::172.20.1.9::5025::SOCKET")
     twpa_rf = RF.RF_source(rm, "TCPIP0::172.20.1.11::5025::SOCKET")
     q_rf.set_freq(params['set_wq'])
     r_rf.set_freq(params['set_wr'])
+    qef_rf.set_freq(params['set_wef'])
     q_rf.set_power(params['set_pq'])
     r_rf.set_power(params['set_pr'])
+    qef_rf.set_power(params['set_pwef'])
     q_att.set_attenuation(params['set_q_att'])
     r_att.set_attenuation(params['set_r_att'])
     twpa_rf.set_power(params['set_p_twpa'])
     twpa_rf.set_freq(params['set_w_twpa'])
+
+# Turns on the RF for wq and wr and wef
+def turn_on_3rf():
+    rm = visa.ResourceManager()
+    q_rf = RF.RF_source(rm, "TCPIP0::172.20.1.7::5025::SOCKET")
+    r_rf = RF.RF_source(rm, "TCPIP0::172.20.1.8::5025::SOCKET")
+    qef_rf = RF.RF_source(rm, "TCPIP0::172.20.1.17::5025::SOCKET")
+    q_rf.enable_out()
+    r_rf.enable_out()
+    qef_rf.enable_out()
+
+# Turns on the RF for wq and wr
+def turn_on_2rf():
+    rm = visa.ResourceManager()
+    q_rf = RF.RF_source(rm, "TCPIP0::172.20.1.7::5025::SOCKET")
+    r_rf = RF.RF_source(rm, "TCPIP0::172.20.1.8::5025::SOCKET")
     q_rf.enable_out()
     r_rf.enable_out()
 
 # Turns off the RF
-def turn_off_inst(params):
+def turn_off_inst():
     rm = visa.ResourceManager()
     q_rf = RF.RF_source(rm, "TCPIP0::172.20.1.7::5025::SOCKET")
     r_rf = RF.RF_source(rm, "TCPIP0::172.20.1.8::5025::SOCKET")
-    q_att = ATT.Atten(rm, "TCPIP0::172.20.1.6::5025::SOCKET")
-    r_att = ATT.Atten(rm, "TCPIP0::172.20.1.9::5025::SOCKET")
-    twpa_rf = RF.RF_source(rm, "TCPIP0::172.20.1.11::5025::SOCKET")
+    qef_rf = RF.RF_source(rm, "TCPIP0::172.20.1.17::5025::SOCKET")
     q_rf.disable_out()
     r_rf.disable_out()
+    qef_rf.disable_out()
     
 def run_and_acquire(awg,
                 board,
