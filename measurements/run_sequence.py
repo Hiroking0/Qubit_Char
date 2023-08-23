@@ -65,10 +65,10 @@ if __name__ == "__main__":
     wait_time += .3
     print(f'estimated wait time is =~{wait_time} seconds')
 
-    if params['measurement']=='effect_temp':
+    '''if params['measurement']=='effect_temp':
         run_funcs.turn_on_3rf()
     else:
-        run_funcs.turn_on_2rf()
+        run_funcs.turn_on_2rf()'''
     
     board = ats.Board(systemId = 1, boardId = 1)
     npt.ConfigureBoard(board)
