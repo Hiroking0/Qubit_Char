@@ -103,7 +103,7 @@ def initialize_awg(awg, num_patterns, pattern_repeat, decimation):
     new_freq = 1/decimation
     awg.set_freq(str(new_freq)+"GHZ")
 
-
+    
 #This function sets the static parameters before running
 def init_params(params):
     rm = visa.ResourceManager()
@@ -120,8 +120,19 @@ def init_params(params):
     r_att.set_attenuation(params['set_r_att'])
     twpa_rf.set_power(params['set_p_twpa'])
     twpa_rf.set_freq(params['set_w_twpa'])
-    #q_rf.enable_out()
-    #r_rf.enable_out()
+    q_rf.enable_out()
+    r_rf.enable_out()
+
+# Turns off the RF
+def turn_off_inst(params):
+    rm = visa.ResourceManager()
+    q_rf = RF.RF_source(rm, "TCPIP0::172.20.1.7::5025::SOCKET")
+    r_rf = RF.RF_source(rm, "TCPIP0::172.20.1.8::5025::SOCKET")
+    q_att = ATT.Atten(rm, "TCPIP0::172.20.1.6::5025::SOCKET")
+    r_att = ATT.Atten(rm, "TCPIP0::172.20.1.9::5025::SOCKET")
+    twpa_rf = RF.RF_source(rm, "TCPIP0::172.20.1.11::5025::SOCKET")
+    q_rf.disable_out()
+    r_rf.disable_out()
     
 def run_and_acquire(awg,
                 board,
