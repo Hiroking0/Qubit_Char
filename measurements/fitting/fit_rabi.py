@@ -168,11 +168,20 @@ def new_fit():
         abs(max(avgs[3])-min(avgs[3])),abs(max(avgs[4])-min(avgs[4])),abs(max(avgs[5])-min(avgs[5]))] #amp
     c = 1/650  #freq
     d = np.pi/2 #phase
-    params = params['rabi']
-    shortest_T1 = params['rabi_pulse_initial_duration']
-    longest_T1 = params['rabi_pulse_end_duration']
+    print(params['measurement'])
+    print(type(params['measurement']))
+    if params['measurement'] == 'rabi':
+        print('rabi')
+        params = params['rabi']
+        shortest_T1 = params['rabi_pulse_initial_duration']
+        longest_T1 = params['rabi_pulse_end_duration']
+    elif params['measurement'] == 'effect_temp':
+        print('effect_temp')
+        params = params['effect_temp']
+        shortest_T1 = params['rabi_start']
+        longest_T1 = params['rabi_stop']
     num_patterns = len(avgs[0])
-    
+
     x = np.linspace(shortest_T1,longest_T1, num_patterns)
 
     
