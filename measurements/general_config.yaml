@@ -1,5 +1,6 @@
 #parameters of waveform
-name: 'auto'
+name: 'pi_prep_wef=3.0952' #name of the file, if set to 'auto', it will create a file with [mesurement type]_[number of patterns]_[month][day]_[Hour][minute][second]. 
+#The time will be based on the start time of the mesurement
 
 #ramsey, T1, rabi, npp, readout, echo, echo_1ax, amplitude, effect_temp
 measurement: 'effect_temp'
@@ -107,11 +108,11 @@ echo:
 effect_temp:
 
     gap_1: 20
-    ge_first_duration: 0  #pi pulse in Ch1
+    ge_first_duration: 179  #pi pulse in Ch1
     ge_second_duration: 179  #pi pulse in Ch1
     gap_2: 20
     rabi_start: 0   # in Ch3
-    rabi_stop: 1500 #+ gap between both (first and second pulse) and (second and third pulse).
+    rabi_stop: 3000 #+ gap between both (first and second pulse) and (second and third pulse).
     step: 30
     readout_duration: 20000
     ssb_freq_ge: 0
@@ -131,7 +132,7 @@ effect_temp:
 
 #running Sequence
 pattern_repeat: 1
-seq_repeat: 4000
+seq_repeat: 2000
 
 #averaging
 avg_start: 1000  #The start avraging doesn't need to be changed.
