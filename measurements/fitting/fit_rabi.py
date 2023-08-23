@@ -172,11 +172,13 @@ def new_fit():
     print(type(params['measurement']))
     if params['measurement'] == 'rabi':
         print('rabi')
+        title = "Rabi"
         params = params['rabi']
         shortest_T1 = params['rabi_pulse_initial_duration']
         longest_T1 = params['rabi_pulse_end_duration']
     elif params['measurement'] == 'effect_temp':
         print('effect_temp')
+        title = "Effective Temperature"
         params = params['effect_temp']
         shortest_T1 = params['rabi_start']
         longest_T1 = params['rabi_stop']
@@ -211,7 +213,7 @@ def new_fit():
     lineE5,lineF5,text5 = fit_subax(ax_array[1,2], x, avgs[5], data_ms, "mags sub")
     
 
-    plt.suptitle('Rabi measurement with and shift {} deg'.format(0))
+    plt.suptitle('{} Measurement'.format(str(title)))
     
 
     #textbox function
