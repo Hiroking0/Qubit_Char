@@ -65,10 +65,11 @@ class Data_Arrs:
         complex_arr = np.zeros(length, dtype=np.complex_)
         complex_arr_sub = np.zeros(length, dtype=np.complex_)
         angle_arr = np.angle(complex_arr_sub.flatten())
-        theta = np.radians(theta)
-
-        exp = np.exp(1j*theta)
         
+        theta = np.radians(theta)
+        exp = np.exp(1j*theta) #Rotation
+        
+        #applying the rotation to all of the points
         for j in range(length):
             t_i = pattern_avgs_cA[j]
             t_q = pattern_avgs_cB[j]
@@ -79,11 +80,10 @@ class Data_Arrs:
             t_q_sub = pattern_avgs_cB_sub[j]
             t_new_sub = np.multiply(t_i_sub+1j*t_q_sub, exp)
             complex_arr_sub[j] = t_new_sub
+        
+        #Extract the real and imaginary part of the complex array
         new_pattern_avgs_cA = np.real(complex_arr)
         new_pattern_avgs_cB = np.imag(complex_arr)
-        
-
-
         new_pattern_avgs_cA_sub = np.real(complex_arr_sub)
         new_pattern_avgs_cB_sub = np.imag(complex_arr_sub)
     
