@@ -98,70 +98,59 @@ def ConfigureBoard(board):
     #                     0)
     
 
-def AcquireData(board, params, num_patterns, path, saveData = True, live_plot = False):
-    
+def AcquireData(board, params, num_patterns, path, saveData=True, live_plot=False):
+    # Define acquisition parameters from the configuration file
     readout_dur = params[params['measurement']]['readout_duration']
     readout_trigger_offset = params['readout_trigger_offset']
-    
-    acq_multiples = int((readout_dur + readout_trigger_offset)/256) + 10
-    samp_per_acq = 256*acq_multiples #length of acquisition in nS must be n*256
-    
-    
+    acq_multiples = int((readout_dur + readout_trigger_offset) / 256) + 10
+    samp_per_acq = 256 * acq_multiples  # Length of acquisition in nS (must be n*256)
+
     pattern_repeat = params['pattern_repeat']
     seq_repeat = params['seq_repeat']
     avg_start = params['avg_start']
     avg_duration = params['avg_length']
-    #print("samp per ac", samp_per_acq)
-    #print("num patterns", num_patterns)
-    #print("pattern repeat", pattern_repeat)
-    #print("seq repeat", seq_repeat)
-    #For our purposes, I believe the only params we should change are postTrigsamples
-    #and buffs per acquisition
+    
+    #For our purposes, I believe the only params we should change are postTrigsamples and buffs per acquisition
     #PTS should be a multiple of 256 that is close to the size of the acquisition length, in nS
-    
-    #chA_avgs = np.zeros(seq_repeat * pattern_repeat * num_patterns)
-    #chB_avgs = np.zeros(seq_repeat * pattern_repeat * num_patterns)
-    
-    #dt = np.dtype(float, metadata=params)
+
+    # Initialize arrays to store acquired data
     chA_avgs_sub = np.zeros((num_patterns, seq_repeat * pattern_repeat))
     chB_avgs_sub = np.zeros((num_patterns, seq_repeat * pattern_repeat))
     chA_avgs_nosub = np.zeros((num_patterns, seq_repeat * pattern_repeat))
     chB_avgs_nosub = np.zeros((num_patterns, seq_repeat * pattern_repeat))
     readout_avg_array_A = np.zeros((num_patterns, samp_per_acq))
     readout_avg_array_B = np.zeros((num_patterns, samp_per_acq))
-    
-    
     plt_avg = np.zeros(num_patterns)
-    
+
+    # If live_plot is enabled, initialize a live plot for monitoring
     if live_plot:
         plt.ion()
         fig = plt.figure()
         ax = fig.add_subplot(111)
-        line1, = ax.plot(range(num_patterns), plt_avg) # Returns a tuple of line objects, thus the comma
-    
-    
-    # No pre-trigger samples in NPT mode
+        line1, = ax.plot(range(num_patterns), plt_avg)
+
+    # Determine the number of pre-trigger samples (in NPT mode, there are none)
     preTriggerSamples = 0
 
-    #Select the number of samples per record.
+    # Determine the number of post-trigger samples
     postTriggerSamples = samp_per_acq
 
-    #Select the number of records per DMA buffer.
+    # Determine the number of records per DMA buffer
     recordsPerBuffer = 1
 
-    #Select the number of buffers per acquisition.
+    # Determine the number of buffers per acquisition
     #in the NPT case, this will be the total number of acquisitions
     buffersPerAcquisition = num_patterns * pattern_repeat * seq_repeat
-    #Select the active channels.
+
+    # Determine the active channels for acquisition
     channels = ats.CHANNEL_A | ats.CHANNEL_B
     channelCount = 0
     for c in ats.channels:
         channelCount += (c & channels == c)
 
-    #Should data be saved to file?
+    # Decide whether to save data to a file
     dataFile = None
     if saveData:
-        
         dataFile = open(path + "rawdata.bin", 'wb')
 
     #if saveData:
@@ -177,11 +166,10 @@ def AcquireData(board, params, num_patterns, path, saveData = True, live_plot = 
     bytesPerRecord = bytesPerSample * samplesPerRecord
     bytesPerBuffer = bytesPerRecord * recordsPerBuffer * channelCount
 
-    #Select number of DMA buffers to allocate
+    # Select the number of DMA buffers to allocate
     bufferCount = 10
 
-    # Allocate DMA buffers
-
+    # Initialize DMA buffers
     sample_type = ctypes.c_uint8
     if bytesPerSample > 1:
         sample_type = ctypes.c_uint16
@@ -189,86 +177,70 @@ def AcquireData(board, params, num_patterns, path, saveData = True, live_plot = 
     buffers = []
     for i in range(bufferCount):
         buffers.append(ats.DMABuffer(board.handle, sample_type, bytesPerBuffer))
-    
+
     # Set the record size
     board.setRecordSize(preTriggerSamples, postTriggerSamples)
 
     recordsPerAcquisition = recordsPerBuffer * buffersPerAcquisition
 
-    # Configure the board to make an NPT AutoDMA acquisition
-    board.beforeAsyncRead(channels,
-                          -preTriggerSamples,
-                          samplesPerRecord,
-                          recordsPerBuffer,
-                          recordsPerAcquisition,
-                          ats.ADMA_EXTERNAL_STARTCAPTURE | ats.ADMA_NPT)
-    
+    # Configure the board for NPT AutoDMA acquisition
+    board.beforeAsyncRead(
+        channels,
+        -preTriggerSamples,
+        samplesPerRecord,
+        recordsPerBuffer,
+        recordsPerAcquisition,
+        ats.ADMA_EXTERNAL_STARTCAPTURE | ats.ADMA_NPT
+    )
 
-    # Post DMA buffers to board
+    # Post DMA buffers to the board
     for buffer in buffers:
         board.postAsyncBuffer(buffer.addr, buffer.size_bytes)
-    
-    start = time.time() # Keep track of when acquisition started
+
+    start = time.time()  # Keep track of when acquisition started
+
     try:
-        board.startCapture() # Start the acquisition
-        print("Capturing %d buffers. Press <enter> to abort" %
-              buffersPerAcquisition)
+        board.startCapture()  # Start the acquisition
+        print("Capturing %d buffers. Press <enter> to abort" % buffersPerAcquisition)
         buffersCompleted = 0
         bytesTransferred = 0
-        while (buffersCompleted < buffersPerAcquisition and not
-               ats.enter_pressed()):
-            
-            pattern_number = int(buffersCompleted/pattern_repeat) % num_patterns
-            seq_number = int(buffersCompleted/(num_patterns*pattern_repeat))
-            
-            index_number = seq_number*pattern_repeat + buffersCompleted % pattern_repeat
-            
-            
-            
-            
-            #print(pattern_number, index_number, seq_number, seq_number*pattern_repeat, buffersCompleted % pattern_repeat)
-            
-            #print(buffersCompleted)
-            # Wait for the buffer at the head of the list of available
-            # buffers to be filled by the board.
+
+        while (buffersCompleted < buffersPerAcquisition and not ats.enter_pressed()):
+            pattern_number = int(buffersCompleted / pattern_repeat) % num_patterns
+            seq_number = int(buffersCompleted / (num_patterns * pattern_repeat))
+            index_number = seq_number * pattern_repeat + buffersCompleted % pattern_repeat
+
+            # Wait for the buffer at the head of the list of available buffers to be filled by the board.
             buffer = buffers[buffersCompleted % len(buffers)]
             board.waitAsyncBufferComplete(buffer.addr, timeout_ms=5000)
-            
-            
-            half = int(len(buffer.buffer)/2)
+
+            half = int(len(buffer.buffer) / 2)
             chA = buffer.buffer[:half]
             chB = buffer.buffer[half:]
-            
+
             t_Aavg = np.average(chA[avg_start: avg_start + avg_duration])
             t_Bavg = np.average(chB[avg_start: avg_start + avg_duration])
-            
-            
+
             chA_avgs_sub[pattern_number][index_number] = t_Aavg - np.average(chA[200:800])
             chB_avgs_sub[pattern_number][index_number] = t_Bavg - np.average(chB[200:800])
             chA_avgs_nosub[pattern_number][index_number] = t_Aavg
             chB_avgs_nosub[pattern_number][index_number] = t_Bavg
-            
-          
-            readout_avg_array_A[pattern_number]=(chA + readout_avg_array_A[pattern_number] * buffersCompleted) / (1 + buffersCompleted)
-            readout_avg_array_B[pattern_number]=(chA + readout_avg_array_B[pattern_number] * buffersCompleted) / (1 + buffersCompleted)
-        
-            
-            
+
+            readout_avg_array_A[pattern_number] = (chA + readout_avg_array_A[pattern_number] * buffersCompleted) / (
+                    1 + buffersCompleted)
+            readout_avg_array_B[pattern_number] = (chA + readout_avg_array_B[pattern_number] * buffersCompleted) / (
+                    1 + buffersCompleted)
+
             if live_plot and pattern_number == 0:
                 for i in range(num_patterns):
                     plt_avg[i] = np.average(chB_avgs_sub[i][:index_number])
-                    #fig.canvas.title()
-                
-                
+
                 line1.set_ydata(plt_avg)
                 fig.canvas.draw()
                 fig.canvas.flush_events()
-                
-            
-            
+
             buffersCompleted += 1
             bytesTransferred += buffer.size_bytes
-            
             
             # Process sample data in this buffer. Data is available
             # as a NumPy array at buffer.buffer
@@ -293,6 +265,8 @@ def AcquireData(board, params, num_patterns, path, saveData = True, live_plot = 
             # - 0x80 represents a ~0V signal.
             # - 0xFF represents a positive full scale input signal.
             # Optionaly save data to file
+
+            # Optionally save data to file
             if dataFile:
                 buffer.buffer.tofile(dataFile)
 
@@ -301,45 +275,55 @@ def AcquireData(board, params, num_patterns, path, saveData = True, live_plot = 
             #    buffer.buffer[:half].tofile(dataFileA)
             #    buffer.buffer[half:].tofile(dataFileB)
 
-            # Add the buffer to the end of the list of available buffers.
+            # Add the buffer to the end of the list of available buffers
             board.postAsyncBuffer(buffer.addr, buffer.size_bytes)
-            
+
     finally:
         board.abortAsyncRead()
-    # Compute the total transfer time, and display performance information.
+
+    # Compute performance metrics
     transferTime_sec = time.time() - start
     print("Capture completed in %f sec" % transferTime_sec)
     buffersPerSec = 0
     bytesPerSec = 0
     recordsPerSec = 0
+
     if transferTime_sec > 0:
         buffersPerSec = buffersCompleted / transferTime_sec
         bytesPerSec = bytesTransferred / transferTime_sec
         recordsPerSec = recordsPerBuffer * buffersCompleted / transferTime_sec
-    print("Captured %d buffers (%f buffers per sec)" %
-          (buffersCompleted, buffersPerSec))
-    print("Captured %d records (%f records per sec)" %
-          (recordsPerBuffer * buffersCompleted, recordsPerSec))
-    print("Transferred %d bytes (%f bytes per sec)" %
-          (bytesTransferred, bytesPerSec))
-    #np.save(path + "chA_sub", chA_avgs_sub)
-    #np.save(path + "chB_sub", chB_avgs_sub)
-    #np.save(path + "chA_nosub", chA_avgs_nosub)
-    #np.save(path + "chB_nosub", chB_avgs_nosub)
+
+    print("Captured %d buffers (%f buffers per sec)" % (buffersCompleted, buffersPerSec))
+    print("Captured %d records (%f records per sec)" % (recordsPerBuffer * buffersCompleted, recordsPerSec))
+    print("Transferred %d bytes (%f bytes per sec)" % (bytesTransferred, bytesPerSec))
+
     mag_sub = np.zeros((len(chA_avgs_sub), len(chA_avgs_sub[0])))
     mag_nosub = np.zeros((len(chA_avgs_sub), len(chA_avgs_sub[0])))
+    
     for i in range(len(chA_avgs_sub)):
         for j in range(len(chA_avgs_sub[0])):
             mag_sub[i][j] = np.sqrt(chA_avgs_sub[i][j] ** 2 + chB_avgs_sub[i][j] ** 2)
             mag_nosub[i][j] = np.sqrt(chA_avgs_nosub[i][j] ** 2 + chB_avgs_nosub[i][j] ** 2)
     
+    # Optionally save data arrays to file
+    #np.save(path + "chA_sub", chA_avgs_sub)
+    #np.save(path + "chB_sub", chB_avgs_sub)
+    #np.save(path + "chA_nosub", chA_avgs_nosub)
+    #np.save(path + "chB_nosub", chB_avgs_nosub)
     #np.save(path + "mag_sub", mag_sub)
     #np.save(path + "mag_nosub", mag_nosub)
-    
-    if live_plot:
-        print('closed')
-        fig.canvas.close()
-    return (chA_avgs_nosub, chA_avgs_sub, chB_avgs_nosub, chB_avgs_sub, mag_nosub, mag_sub, readout_avg_array_A, readout_avg_array_B)
+
+    return (
+        chA_avgs_nosub,
+        chA_avgs_sub,
+        chB_avgs_nosub,
+        chB_avgs_sub,
+        mag_nosub,
+        mag_sub,
+        readout_avg_array_A,
+        readout_avg_array_B
+    )
+
 
 
 if __name__ == "__main__":
