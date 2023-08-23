@@ -42,7 +42,7 @@ if __name__ == "__main__":
     #name = params['name']
 
 
-
+    
     decimation = params['decimation']
     
     pattern_repeat = params['pattern_repeat']
@@ -65,6 +65,11 @@ if __name__ == "__main__":
     wait_time += .3
     print(f'estimated wait time is =~{wait_time} seconds')
 
+    if params['measurement']=='effect_temp':
+        run_funcs.turn_on_3rf()
+    else:
+        run_funcs.turn_on_2rf()
+    
     board = ats.Board(systemId = 1, boardId = 1)
     npt.ConfigureBoard(board)
     
@@ -74,13 +79,15 @@ if __name__ == "__main__":
     now = datetime.now()
     date = now.strftime("%m%d_%H%M%S")
     path = raw_path + "/" + name + "_" + date
+
+
     data = run_funcs.run_and_acquire(awg,
                                     board,
                                     params,
                                     num_patterns,
                                     path)
 
-    
+    #run_funcs.turn_off_inst()
     
     j_file = open(path+"_json.json", 'w')
     json.dump(params, j_file, indent = 4)

@@ -112,7 +112,7 @@ effect_temp:
     ge_second_duration: 179  #pi pulse in Ch1
     gap_2: 20
     rabi_start: 0   # in Ch3
-    rabi_stop: 3000 #+ gap between both (first and second pulse) and (second and third pulse).
+    rabi_stop: 1500 #+ gap between both (first and second pulse) and (second and third pulse).
     step: 30
     readout_duration: 20000
     ssb_freq_ge: 0
@@ -132,7 +132,7 @@ effect_temp:
 
 #running Sequence
 pattern_repeat: 1
-seq_repeat: 10
+seq_repeat: 2000
 
 #averaging
 avg_start: 1000  #The start avraging doesn't need to be changed.
@@ -146,10 +146,12 @@ v_threshold: 223.85 #threshold value for distinguishing ground and excited state
 
 set_wr: 7.169103
 set_wq: 3.2407 #3.1685813
-set_wef: 3.0952426
+set_wef: 3.0962426
+
 set_pr: 15
 set_pq: 15
 set_pwef: 15
+
 set_r_att: 41 #40 for low power for q4 and 21 for high power 
 set_q_att:  6
 set_p_twpa: -19.7 #-18.9
