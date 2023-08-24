@@ -10,7 +10,6 @@ from instruments.alazar import ATS9870_NPT as npt
 from instruments import Var_att_interface as ATT
 from instruments import RF_interface as RF
 #from instruments.TekAwg import tek_awg as tawg
-
 import time
 import numpy as np
 from threading import Thread
@@ -19,12 +18,27 @@ import pyvisa as visa
 import csv
 import matplotlib.pyplot as plt
 import queue
-
 import pickle as pkl
 
 class Data_Arrs:
-    def __init__(self, *args): #a_nosub, a_sub, b_nosub, b_sub, mags_nosub, mags_sub):
-        #print("in func", len(args))
+    """
+    A class for managing data arrays.
+
+    Parameters:
+        *args: Data arrays (a_nosub, a_sub, b_nosub, b_sub, mags_nosub, mags_sub, readout_A, readout_B).
+
+    Attributes:
+        a_nosub (numpy.ndarray): Data array A without subtraction.
+        a_sub (numpy.ndarray): Data array A with subtraction.
+        b_nosub (numpy.ndarray): Data array B without subtraction.
+        b_sub (numpy.ndarray): Data array B with subtraction.
+        mags_nosub (numpy.ndarray): Magnitudes without subtraction.
+        mags_sub (numpy.ndarray): Magnitudes with subtraction.
+        readout_A (numpy.ndarray): Readout A data.
+        readout_B (numpy.ndarray): Readout B data.
+    """
+
+    def __init__(self, *args):
         self.a_nosub = args[0]
         self.a_sub = args[1]
         self.b_nosub = args[2]
@@ -35,77 +49,112 @@ class Data_Arrs:
         self.readout_B = args[7]
 
     def save(self, name):
-        
+        """
+        Save the data arrays to a pickle file.
+
+        Parameters:
+            name (str): The name of the pickle file.
+        """
         with open(name + '.pkl', 'wb') as pickle_file:
             pkl.dump(self, pickle_file)
 
     def get_data_arrs(self):
+        """
+        Get the data arrays.
+
+        Returns:
+            tuple: A tuple containing data arrays (a_nosub, a_sub, b_nosub, b_sub, mags_nosub, mags_sub, readout_A, readout_B).
+        """
         return (self.a_nosub, self.a_sub, self.b_nosub, self.b_sub, self.mags_nosub, self.mags_sub, self.readout_A, self.readout_B)
+
+def get_avgs(self, theta=0):
+    """
+    Calculate average values.
+
+    Parameters:
+        theta (float, optional): Rotation angle (default is 0).
+
+    Returns:
+        tuple: A tuple containing arrays (new_pattern_avgs_cA, new_pattern_avgs_cA_sub, new_pattern_avgs_cB, new_pattern_avgs_cB_sub, mags, mags_sub).
+    """
+    length = len(self.a_nosub)
     
-    def get_avgs(self,theta=0):
-        length = len(self.a_nosub)
-        
-        pattern_avgs_cA = np.zeros(length)
-        pattern_avgs_cB = np.zeros(length)
-        mags = np.zeros(length)
-        
-        pattern_avgs_cA_sub = np.zeros(length)
-        pattern_avgs_cB_sub = np.zeros(length)
-        mags_sub = np.zeros(length)
-        
-        for i in range(len(mags)):
-            pattern_avgs_cA[i] = np.average(self.a_nosub[i])
-            pattern_avgs_cB[i] = np.average(self.b_nosub[i])
-            mags[i] = np.average(self.mags_nosub[i])
-            
-            pattern_avgs_cA_sub[i] = np.average(self.a_sub[i])
-            pattern_avgs_cB_sub[i] = np.average(self.b_sub[i])
-            mags_sub[i] = np.average(self.mags_sub[i])
-
-        complex_arr = np.zeros(length, dtype=np.complex_)
-        complex_arr_sub = np.zeros(length, dtype=np.complex_)
-        angle_arr = np.angle(complex_arr_sub.flatten())
-        
-        theta = np.radians(theta)
-        exp = np.exp(1j*theta) #Rotation
-        
-        #applying the rotation to all of the points
-        for j in range(length):
-            t_i = pattern_avgs_cA[j]
-            t_q = pattern_avgs_cB[j]
-            t_new = np.multiply(t_i+1j*t_q, exp)
-            complex_arr[j] = t_new
-
-            t_i_sub = pattern_avgs_cA_sub[j]
-            t_q_sub = pattern_avgs_cB_sub[j]
-            t_new_sub = np.multiply(t_i_sub+1j*t_q_sub, exp)
-            complex_arr_sub[j] = t_new_sub
-        
-        #Extract the real and imaginary part of the complex array
-        new_pattern_avgs_cA = np.real(complex_arr)
-        new_pattern_avgs_cB = np.imag(complex_arr)
-        new_pattern_avgs_cA_sub = np.real(complex_arr_sub)
-        new_pattern_avgs_cB_sub = np.imag(complex_arr_sub)
+    # Initialize arrays to store average values.
+    pattern_avgs_cA = np.zeros(length)
+    pattern_avgs_cB = np.zeros(length)
+    mags = np.zeros(length)
     
-        return (new_pattern_avgs_cA, new_pattern_avgs_cA_sub, new_pattern_avgs_cB, new_pattern_avgs_cB_sub, mags, mags_sub)
+    pattern_avgs_cA_sub = np.zeros(length)
+    pattern_avgs_cB_sub = np.zeros(length)
+    mags_sub = np.zeros(length)
+    
+    # Calculate average values for each data array.
+    for i in range(len(mags)):
+        pattern_avgs_cA[i] = np.average(self.a_nosub[i])
+        pattern_avgs_cB[i] = np.average(self.b_nosub[i])
+        mags[i] = np.average(self.mags_nosub[i])
+        
+        pattern_avgs_cA_sub[i] = np.average(self.a_sub[i])
+        pattern_avgs_cB_sub[i] = np.average(self.b_sub[i])
+        mags_sub[i] = np.average(self.mags_sub[i])
 
+    # Initialize arrays to store complex values and angles.
+    complex_arr = np.zeros(length, dtype=np.complex_)
+    complex_arr_sub = np.zeros(length, dtype=np.complex_)
+    angle_arr = np.angle(complex_arr_sub.flatten())
+    
+    # Calculate rotation angle in radians.
+    theta = np.radians(theta)
+    exp = np.exp(1j*theta) # Rotation
+    
+    # Apply the rotation to all data points.
+    for j in range(length):
+        t_i = pattern_avgs_cA[j]
+        t_q = pattern_avgs_cB[j]
+        t_new = np.multiply(t_i+1j*t_q, exp)
+        complex_arr[j] = t_new
 
+        t_i_sub = pattern_avgs_cA_sub[j]
+        t_q_sub = pattern_avgs_cB_sub[j]
+        t_new_sub = np.multiply(t_i_sub+1j*t_q_sub, exp)
+        complex_arr_sub[j] = t_new_sub
+    
+    # Extract the real and imaginary part of the complex array.
+    new_pattern_avgs_cA = np.real(complex_arr)
+    new_pattern_avgs_cB = np.imag(complex_arr)
+    new_pattern_avgs_cA_sub = np.real(complex_arr_sub)
+    new_pattern_avgs_cB_sub = np.imag(complex_arr_sub)
 
+    return (new_pattern_avgs_cA, new_pattern_avgs_cA_sub, new_pattern_avgs_cB, new_pattern_avgs_cB_sub, mags, mags_sub)
 
 def initialize_awg(awg, num_patterns, pattern_repeat, decimation):
+    """
+    Initialize the AWG with specific parameters.
+
+    Parameters:
+        awg (object): The AWG object.
+        num_patterns (int): Number of patterns.
+        pattern_repeat (int): Number of pattern repeats.
+        decimation (float): Decimation value.
+    """
     awg.set_chan_state(1, [1,2,3,4])    
     
     for i in range(1, num_patterns):
         awg.set_seq_element_goto_state(i, 0)
         awg.set_seq_element_loop_cnt(i, pattern_repeat)
     awg.set_seq_element_goto_state(num_patterns, 1)
+    
     #set sampling rate
     new_freq = 1/decimation
     awg.set_freq(str(new_freq)+"GHZ")
 
-    
-#This function sets the static parameters before running
 def init_params(params):
+    """
+    Initialize instrument parameters.
+
+    Parameters:
+        params (dict): A dictionary of parameter values.
+    """
     rm = visa.ResourceManager()
     q_rf = RF.RF_source(rm, "TCPIP0::172.20.1.7::5025::SOCKET")
     r_rf = RF.RF_source(rm, "TCPIP0::172.20.1.8::5025::SOCKET")
@@ -124,8 +173,10 @@ def init_params(params):
     twpa_rf.set_power(params['set_p_twpa'])
     twpa_rf.set_freq(params['set_w_twpa'])
 
-# Turns on the RF for wq and wr and wef
 def turn_on_3rf():
+    """
+    Turn on three RF sources.
+    """
     rm = visa.ResourceManager()
     q_rf = RF.RF_source(rm, "TCPIP0::172.20.1.7::5025::SOCKET")
     r_rf = RF.RF_source(rm, "TCPIP0::172.20.1.8::5025::SOCKET")
@@ -134,16 +185,20 @@ def turn_on_3rf():
     r_rf.enable_out()
     qef_rf.enable_out()
 
-# Turns on the RF for wq and wr
 def turn_on_2rf():
+    """
+    Turn on two RF sources.
+    """
     rm = visa.ResourceManager()
     q_rf = RF.RF_source(rm, "TCPIP0::172.20.1.7::5025::SOCKET")
     r_rf = RF.RF_source(rm, "TCPIP0::172.20.1.8::5025::SOCKET")
     q_rf.enable_out()
     r_rf.enable_out()
 
-# Turns off the RF
 def turn_off_inst():
+    """
+    Turn off RF sources.
+    """
     rm = visa.ResourceManager()
     q_rf = RF.RF_source(rm, "TCPIP0::172.20.1.7::5025::SOCKET")
     r_rf = RF.RF_source(rm, "TCPIP0::172.20.1.8::5025::SOCKET")
@@ -152,13 +207,19 @@ def turn_off_inst():
     r_rf.disable_out()
     qef_rf.disable_out()
     
-def run_and_acquire(awg,
-                board,
-                params,
-                num_patterns,
-                path) -> Data_Arrs:
+def run_and_acquire(awg, board, params, num_patterns, path) -> Data_Arrs:
     """
-    runs sequence on AWG once. params should be dictionary of YAML file.
+    Run a sequence on the AWG and acquire data.
+
+    Parameters:
+        awg (object): The AWG object.
+        board (object): The board object.
+        params (dict): A dictionary of parameter values.
+        num_patterns (int): Number of patterns.
+        path (str): The path to save data.
+
+    Returns:
+        Data_Arrs: An instance of Data_Arrs containing acquired data.
     """
     save_raw = False
     live_plot = False
@@ -187,10 +248,19 @@ def run_and_acquire(awg,
 #w is for frequency, p for power
 #q for qubit, r for readout
 #other instrument(s) will not be changed
-
-
-
+    
 def get_func_call(rm, sweep_param, awg):
+    """
+    Get a function call for a specific instrument parameter.
+
+    Parameters:
+        rm (object): The visa.ResourceManager object.
+        sweep_param (str): The parameter to sweep.
+        awg (object): The AWG object.
+
+    Returns:
+        function: The function to call to set the parameter.
+    """
     qubit_addr = "TCPIP0::172.20.1.7::5025::SOCKET"
     readout_addr = "TCPIP0::172.20.1.8::5025::SOCKET"
     q_atten_addr = "TCPIP0::172.20.1.6::5025::SOCKET"
@@ -253,6 +323,129 @@ def single_sweep(name,
                  params,
                  extra_column = None,
                  live_plot = False):
+    #1.8 rf is for qubit
+    #1.7 rf is for readout
+    
+    sweep_param = params['p1']
+    start = params['p1start']
+    stop = params['p1stop']
+    step = params['p1step']
+    
+    rm = visa.ResourceManager()
+    func_call = get_func_call(rm, sweep_param, awg)
+
+    avgsA_sub = np.zeros((num_patterns, len(np.arange(start,stop,step))))
+    avgsB_sub = np.zeros((num_patterns, len(np.arange(start,stop,step))))
+
+    avgsA_nosub = np.zeros((num_patterns, len(np.arange(start,stop,step))))
+    avgsB_nosub = np.zeros((num_patterns, len(np.arange(start,stop,step))))
+
+    mags_sub = np.zeros((num_patterns, len(np.arange(start,stop,step))))
+    mags_nosub = np.zeros((num_patterns, len(np.arange(start,stop,step))))
+    #print(np.shape(mags_nosub))
+
+    if live_plot:
+        plt.ion()
+        
+        fig, ax1 = plt.subplots()
+        #ax = fig.add_subplot(111)
+        #plt.pcolormesh(mags_nosub)
+        #fig.canvas.draw()
+        axim1 = ax1.imshow(mags_nosub, vmin=280, vmax=320)
+        
+        #myobj = plt.imshow(mags_nosub, vmin = 100, vmax = 400)
+
+    sweep_num = 0
+    sweeps = np.arange(start, stop, step)
+    for param in sweeps:
+        #this is the func call that sets the new sweep parameter built from previous commands
+        func_call(param)
+        #print(func_call)
+        time.sleep(.05)
+        
+        data = run_and_acquire(awg,
+                                board,
+                                params,
+                                num_patterns,
+                                path = name)
+        #(pattern_avgs_cA, pattern_avgs_cB, mags, pattern_avgs_cA_sub, pattern_avgs_cB_sub, mags_sub)
+        #avgsA should be array of shape(num_patterns, sweep_num, x)
+        #(pattern_avgs_cA, pattern_avgs_cA_sub, pattern_avgs_cB, pattern_avgs_cB_sub, mags, mags_sub)
+        (t_an, t_as, t_bn, t_bs, m_ns, m_s) = data.get_avgs()
+
+
+
+        
+        avgsA_sub[:, sweep_num] = t_as
+        avgsB_sub[:, sweep_num] = t_bs
+        avgsA_nosub[:, sweep_num] = t_an
+        avgsB_nosub[:, sweep_num] = t_bn
+        mags_sub[:, sweep_num] = m_s
+        mags_nosub[:, sweep_num] = m_ns
+        #Here avgs[:][0:sweep_num] should be correct. the rest of avgs[:][sweep_num:] should be 0
+        
+        if live_plot and sweep_num > 0:
+            axim1.set_data(mags_nosub)
+            fig.canvas.flush_events()
+            plt.pause(.01)
+            
+        
+        sweep_num += 1
+            
+        #can probably do csv saving here
+        #maybe make csv files again, with columns being [channel A, channel B, pattern#, sweep_param_val]
+        #assume name is the path without file name
+        #name of file will be sweepparam_sweepval_pattern#.csv
+        #pattern num = i
+        #sweep param val = param
+        #channel A = avgsA[i][sweep_num]
+
+    #f_name = f"{sweep_param}_{date}.csv"
+    f_name = f"{sweep_param}.csv"
+    with open(f"{name}_{f_name}", 'w', newline='') as output:
+    #with open(name + '_' + f_name, 'w', newline='') as output:
+        wr = csv.writer(output, delimiter=',', quoting=csv.QUOTE_NONE)
+        if extra_column != None:
+            header = header=['chA_sub','chB_sub','mag_sub', 'chA_nosub', 'chB_nosub', 'mag_nosub', 'pattern_num', str(sweep_param), extra_column[0]]
+        else:
+            header=['chA_sub','chB_sub','mag_sub', 'chA_nosub', 'chB_nosub', 'mag_nosub', 'pattern_num', str(sweep_param)]
+        wr.writerow(header)
+        
+        for pattern in range(len(avgsA_sub)):
+            for j in range(len(avgsA_nosub[pattern])):
+                #for each sweep, write the row into the file
+                t_row = [avgsA_sub[pattern][j],
+                         avgsB_sub[pattern][j],
+                         mags_sub[pattern][j],
+                         avgsA_nosub[pattern][j],
+                         avgsB_nosub[pattern][j],
+                         mags_nosub[pattern][j],
+                         pattern,
+                         sweeps[j]
+                         ]
+                if extra_column != None:
+                    t_row.append(extra_column[1])
+                
+                wr.writerow(t_row)
+                
+    return (avgsA_sub, avgsB_sub, avgsA_nosub, avgsB_nosub, mags_sub, mags_nosub)
+    
+def single_sweep(name, awg, board, num_patterns, params, extra_column=None, live_plot=False):
+    """
+    Perform a single parameter sweep.
+
+    Parameters:
+        name (str): The name of the data file.
+        awg (object): The AWG object.
+        board (object): The board object.
+        num_patterns (int): Number of patterns.
+        params (dict): A dictionary of parameter values.
+        extra_column (list, optional): Extra column information (default is None).
+        live_plot (bool, optional): Enable live plotting (default is False).
+
+    Returns:
+        tuple: A tuple containing arrays (avgsA_sub, avgsB_sub, avgsA_nosub, avgsB_nosub, mags_sub, mags_nosub).
+    """
     #1.8 rf is for qubit
     #1.7 rf is for readout
     
@@ -360,19 +553,23 @@ def single_sweep(name,
                 wr.writerow(t_row)
                 
     return (avgsA_sub, avgsB_sub, avgsA_nosub, avgsB_nosub, mags_sub, mags_nosub)
-    
-    
-    
 
-    
-    
-def double_sweep(name,
-                 awg,
-                 board,
-                 params,
-                 num_patterns,
-                 live_plot = False):
 
+def double_sweep(name, awg, board, params, num_patterns, live_plot=False):
+    """
+    Perform a double parameter sweep.
+
+    Parameters:
+        name (str): The name of the data file.
+        awg (object): The AWG object.
+        board (object): The board object.
+        params (dict): A dictionary of parameter values.
+        num_patterns (int): Number of patterns.
+        live_plot (bool, optional): Enable live plotting (default is False).
+
+    Returns:
+        tuple: A tuple containing arrays (f_A_nosub, f_B_nosub, f_A_sub, f_B_sub, f_M_sub, f_M_nosub).
+    """
     rm = visa.ResourceManager()
     
     p1start = params['p1start']
@@ -435,5 +632,5 @@ def double_sweep(name,
 
     
     return f_A_nosub, f_B_nosub, f_A_sub, f_B_sub, f_M_sub, f_M_nosub
-    
-    
+
+
