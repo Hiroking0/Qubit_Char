@@ -12,6 +12,18 @@ from .run_funcs import Data_Arrs  # Import a custom module named 'run_funcs' tha
 
 # Define a function to calculate population vs. pattern
 def get_population_v_pattern(arr, thresh, GE=0, flipped=False):
+    """
+    Calculate the population vs. pattern for a given threshold.
+
+    Parameters:
+        arr (numpy.ndarray): The input array containing patterns.
+        thresh (float): The threshold value for population calculation.
+        GE (int, optional): A parameter (default is 0).
+        flipped (bool, optional): A flag to specify if the threshold is flipped (default is False).
+
+    Returns:
+        numpy.ndarray: An array of population values for each pattern.
+    """
     # Initialize an array to store population values
     plt_arr = np.zeros(len(arr))
 
@@ -32,6 +44,18 @@ def get_population_v_pattern(arr, thresh, GE=0, flipped=False):
 
 # Define a function to calculate effective temperature
 def eff_temp(arr, thresh, wq, flipped=False):
+    """
+    Calculate effective temperature.
+
+    Parameters:
+        arr (numpy.ndarray): The input array containing patterns.
+        thresh (float): The threshold value for population calculation.
+        wq (float): A parameter.
+        flipped (bool, optional): A flag to specify if the threshold is flipped (default is False).
+
+    Prints:
+        float: Effective temperature with and without a pulse in milliKelvin (mK).
+    """
     kb = 1.380649e-23  # Boltzmann constant
     h = 6.62607015e-34  # Planck's constant
     del_E = (-h * wq)  # Energy difference
@@ -74,6 +98,18 @@ def eff_temp(arr, thresh, wq, flipped=False):
 
 # Define a function to read data from a binary file
 def frombin(tot_samples, numAcquisitions, channels=2, name='data.bin'):
+    """
+    Read data from a binary file and separate it into channels.
+
+    Parameters:
+        tot_samples (int): Total number of samples.
+        numAcquisitions (int): Number of acquisitions.
+        channels (int, optional): Number of channels (default is 2).
+        name (str, optional): The name of the binary file (default is 'data.bin').
+
+    Returns:
+        numpy.ndarray or tuple: Array(s) containing data from the file, separated by channel(s).
+    """
     # Assume 1 record per buffer
     # Read data from the binary file into an array
     arr = np.fromfile(name, np.ubyte)
@@ -97,6 +133,9 @@ def frombin(tot_samples, numAcquisitions, channels=2, name='data.bin'):
 
 # Define a function to read data from NumPy binary files
 def fromnump():
+    """
+    Load data from NumPy binary files 'datacA.npy' and 'datacB.npy' and visualize it.
+    """
     # Load data from 'datacA.npy' and 'datacB.npy' files
     with open('datacA.npy', 'rb') as f:
         chA = np.load(f)
@@ -113,6 +152,15 @@ def fromnump():
 
 # Define a function to average values in parallel for each index
 def average_all_iterations(arr):
+    """
+    Calculate the average of values in parallel for each index.
+
+    Parameters:
+        arr (numpy.ndarray): Input array containing values for each index.
+
+    Returns:
+        numpy.ndarray: Array of average values.
+    """
     l_iter = len(arr[0])
     final_arr = np.zeros(l_iter)
     num_pat = len(arr)
@@ -123,6 +171,18 @@ def average_all_iterations(arr):
 
 # Define a function to calculate averages for each pattern
 def get_avgs(arr, avg_start, avg_length, subtract=True):
+    """
+    Calculate averages for each pattern.
+
+    Parameters:
+        arr (numpy.ndarray): Input array containing patterns.
+        avg_start (int): Start index for averaging.
+        avg_length (int): Length of the averaging window.
+        subtract (bool, optional): A flag to specify if subtraction should be applied (default is True).
+
+    Returns:
+        numpy.ndarray: Array of averaged values for each pattern.
+    """
     final_arr = np.array([])
     for subA in arr:
         tavg = np.average(subA[avg_start:avg_start + avg_length])
@@ -134,6 +194,18 @@ def get_avgs(arr, avg_start, avg_length, subtract=True):
 
 # Define a function to organize patterns and repetitions
 def get_p1_p2(arr, num_patterns, pattern_reps, seq_reps):
+    """
+    Organize patterns and repetitions.
+
+    Parameters:
+        arr (numpy.ndarray): Input array containing patterns.
+        num_patterns (int): Number of patterns.
+        pattern_reps (int): Number of pattern repetitions.
+        seq_reps (int): Number of sequence repetitions.
+
+    Returns:
+        numpy.ndarray: Organized array of patterns and repetitions.
+    """
     rec_len = len(arr[0])
     arr = np.reshape(arr, (num_patterns * seq_reps, pattern_reps, -1))
     final_arr = np.zeros((num_patterns, pattern_reps * seq_reps, rec_len))
@@ -147,12 +219,22 @@ def get_p1_p2(arr, num_patterns, pattern_reps, seq_reps):
 
 # Define a function to rotate data
 def rotation(data, angle):
+    """
+    Rotate data by a given angle.
+
+    Parameters:
+        data: Data to be rotated.
+        angle: Angle in radians for rotation.
+
+    Returns:
+        Data: Rotated data.
+    """
     # Extract data arrays
     (a_nosub, a_sub, b_nosub, b_sub, mags_nosub, mags_sub, readout_A, readout_B) = data.get_data_arrs()
 
     complex_arr = np.zeros((len(a_nosub), len(a_nosub[0])), dtype=np.complex_)
     complex_arr_sub = np.zeros((len(a_nosub), len(a_nosub[0])), dtype=np.complex_)
-    
+
     # Calculate the rotation angle in radians
     angle_arr = np.angle(complex_arr_sub.flatten())
     theta = np.average(angle_arr)
@@ -187,6 +269,19 @@ def rotation(data, angle):
 
 # Define a function to parse data from a NumPy binary file
 def parse_np_file(arr, num_patterns, pattern_reps, seq_reps, measurement=None):
+    """
+    Parse data from a NumPy binary file.
+
+    Parameters:
+        arr (numpy.ndarray): Input array containing data.
+        num_patterns (int): Number of patterns.
+        pattern_reps (int): Number of pattern repetitions.
+        seq_reps (int): Number of sequence repetitions.
+        measurement (str, optional): A measurement parameter (default is None).
+
+    Returns:
+        numpy.ndarray: Parsed and organized array of data.
+    """
     arr = np.reshape(arr, (num_patterns * seq_reps, pattern_reps))
     final_arr = np.zeros((num_patterns, pattern_reps * seq_reps))
     for i in range(num_patterns):
@@ -197,13 +292,30 @@ def parse_np_file(arr, num_patterns, pattern_reps, seq_reps, measurement=None):
 
 # Define a function to plot histograms
 def plot_hist(ax, dat, num_bins, title):
+    """
+    Plot histograms.
+
+    Parameters:
+        ax: Axis for plotting.
+        dat: Data to plot histograms for.
+        num_bins (int): Number of bins for the histogram.
+        title (str): Title for the histogram plot.
+    """
     for pattern in dat:
         ax.hist(pattern, bins=num_bins, histtype='step', alpha=0.8)
     ax.set_title(title)
-    
 
 # Define a function to plot I vs. Q
 def plot_iq(ax, I, Q, title):
+    """
+    Plot I vs. Q data.
+
+    Parameters:
+        ax: Axis for plotting.
+        I: In-phase data.
+        Q: Quadrature data.
+        title (str): Title for the plot.
+    """
     bins = 100
     H, xedges, yedges = np.histogram2d(I.flatten(), Q.flatten(), bins=(bins, bins))
     H = H.T
@@ -218,12 +330,30 @@ def plot_iq(ax, I, Q, title):
     
 # Define a function to plot subplots
 def plot_subaxis(ax, y, title):
+    """
+    Plot subplots.
+
+    Parameters:
+        ax: Axis for plotting.
+        y: Data to plot in subplots.
+        title (str): Title for the subplots.
+    """
     for i in range(len(y)):
         ax.plot(y[i], alpha=0.8)
     ax.set_title(title)
 
 # Define a function to plot patterns vs. voltage
 def plot_pattern_vs_volt(ax, x, y, title, font_size):
+    """
+    Plot patterns vs. voltage.
+
+    Parameters:
+        ax: Axis for plotting.
+        x: x-axis data.
+        y: y-axis data.
+        title (str): Title for the plot.
+        font_size (int): Font size for labels.
+    """
     ax.plot(x, y)
     ax.set_title(title)
     ax.set_xlabel('time (ns)', fontsize=font_size)
@@ -231,6 +361,14 @@ def plot_pattern_vs_volt(ax, x, y, title, font_size):
 
 # Define a function to plot data from NumPy binary files
 def plot_np_file(data: Data_Arrs, time_step, path=None):
+    """
+    Plot data from NumPy binary files.
+
+    Parameters:
+        data: Data to be plotted.
+        time_step (float): Time step for data.
+        path (str, optional): Path to save the plot (default is None).
+    """
     # Extract data arrays
     (chA_nosub, chA_sub, chB_nosub, chB_sub, mags_nosub, mags_sub, readout_a, readout_b) = data.get_data_arrs()
     num_patterns = 1 if np.ndim(chA_nosub) == 1 else len(chA_nosub)
@@ -276,6 +414,19 @@ def plot_np_file(data: Data_Arrs, time_step, path=None):
 
 # Define a function to plot various data representations
 def plot_all(chA, chB, num_patterns, pattern_reps, seq_reps, avg_start, avg_length, large_data_plot=False):
+    """
+    Plot various data representations.
+
+    Parameters:
+        chA: Data for channel A.
+        chB: Data for channel B.
+        num_patterns (int): Number of patterns.
+        pattern_reps (int): Number of pattern repetitions.
+        seq_reps (int): Number of sequence repetitions.
+        avg_start (int): Start index for averaging.
+        avg_length (int): Length for averaging.
+        large_data_plot (bool, optional): A flag to specify if large data should be plotted (default is False).
+    """
     bins = 150
     cAp = get_p1_p2(chA, num_patterns, pattern_reps, seq_reps)
     cBp = get_p1_p2(chB, num_patterns, pattern_reps, seq_reps)
@@ -343,8 +494,9 @@ def plot_all(chA, chB, num_patterns, pattern_reps, seq_reps, avg_start, avg_leng
         cBpn_av = get_avgs(cBp[i], avg_start, avg_length, subtract=True)
         mags = np.zeros(len(cApn_av))
         for j in range(len(cApn_av)):
-            t_mag = np.sqrt(cApn_av[j] ** 2 + cBpn_av[j] ** 2)
-            mags[j] = t_mag
+            t1 = cApn_av[j]
+            t2 = cBpn_av[j]
+            mags[j] = np.sqrt(t1 ** 2 + t2 ** 2)
         plt.hist(mags, bins=bins, histtype='step')
         plt.title("Magnitude with subtraction")
 
