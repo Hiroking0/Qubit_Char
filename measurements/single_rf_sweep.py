@@ -73,6 +73,13 @@ if __name__ == "__main__":
     
     p1 = params['p1']
 
+    if params['measurement']=='effect_temp':
+        run_funcs.turn_on_3rf()
+    elif params['measurement']=='readout':
+        run_funcs.turn_on_rf()
+    else:
+        run_funcs.turn_on_2rf()
+
     board = ats.Board(systemId = 1, boardId = 1)
     npt.ConfigureBoard(board)
 
@@ -87,7 +94,7 @@ if __name__ == "__main__":
                                                                                             params,
                                                                                             live_plot = False)
 
-    
+    run_funcs.turn_off_inst()
 
     if params['measurement'] != 'readout' and params['p1'] == 'wq':
         ssb = params[params['measurement']]['ssb_freq']

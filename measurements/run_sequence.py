@@ -65,10 +65,12 @@ if __name__ == "__main__":
     wait_time += .3
     print(f'estimated wait time is =~{wait_time} seconds')
 
-    '''if params['measurement']=='effect_temp':
+    if params['measurement']=='effect_temp':
         run_funcs.turn_on_3rf()
+    elif params['measurement']=='readout':
+        run_funcs.turn_on_rf()
     else:
-        run_funcs.turn_on_2rf()'''
+        run_funcs.turn_on_2rf()
     
     board = ats.Board(systemId = 1, boardId = 1)
     npt.ConfigureBoard(board)
@@ -87,7 +89,7 @@ if __name__ == "__main__":
                                     num_patterns,
                                     path)
 
-    #run_funcs.turn_off_inst()
+    run_funcs.turn_off_inst()
     
     j_file = open(path+"_json.json", 'w')
     json.dump(params, j_file, indent = 4)

@@ -142,6 +142,12 @@ def turn_on_2rf():
     q_rf.enable_out()
     r_rf.enable_out()
 
+# Turns on the RF for wr
+def turn_on_rf():
+    rm = visa.ResourceManager()
+    r_rf = RF.RF_source(rm, "TCPIP0::172.20.1.8::5025::SOCKET")
+    r_rf.enable_out()
+
 # Turns off the RF
 def turn_off_inst():
     rm = visa.ResourceManager()
