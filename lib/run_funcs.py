@@ -67,65 +67,65 @@ class Data_Arrs:
         """
         return (self.a_nosub, self.a_sub, self.b_nosub, self.b_sub, self.mags_nosub, self.mags_sub, self.readout_A, self.readout_B)
 
-def get_avgs(self, theta=0):
-    """
-    Calculate average values.
+    def get_avgs(self, theta=0):
+        """
+        Calculate average values.
 
-    Parameters:
-        theta (float, optional): Rotation angle (default is 0).
+        Parameters:
+            theta (float, optional): Rotation angle (default is 0).
 
-    Returns:
-        tuple: A tuple containing arrays (new_pattern_avgs_cA, new_pattern_avgs_cA_sub, new_pattern_avgs_cB, new_pattern_avgs_cB_sub, mags, mags_sub).
-    """
-    length = len(self.a_nosub)
-    
-    # Initialize arrays to store average values.
-    pattern_avgs_cA = np.zeros(length)
-    pattern_avgs_cB = np.zeros(length)
-    mags = np.zeros(length)
-    
-    pattern_avgs_cA_sub = np.zeros(length)
-    pattern_avgs_cB_sub = np.zeros(length)
-    mags_sub = np.zeros(length)
-    
-    # Calculate average values for each data array.
-    for i in range(len(mags)):
-        pattern_avgs_cA[i] = np.average(self.a_nosub[i])
-        pattern_avgs_cB[i] = np.average(self.b_nosub[i])
-        mags[i] = np.average(self.mags_nosub[i])
+        Returns:
+            tuple: A tuple containing arrays (new_pattern_avgs_cA, new_pattern_avgs_cA_sub, new_pattern_avgs_cB, new_pattern_avgs_cB_sub, mags, mags_sub).
+        """
+        length = len(self.a_nosub)
         
-        pattern_avgs_cA_sub[i] = np.average(self.a_sub[i])
-        pattern_avgs_cB_sub[i] = np.average(self.b_sub[i])
-        mags_sub[i] = np.average(self.mags_sub[i])
+        # Initialize arrays to store average values.
+        pattern_avgs_cA = np.zeros(length)
+        pattern_avgs_cB = np.zeros(length)
+        mags = np.zeros(length)
+        
+        pattern_avgs_cA_sub = np.zeros(length)
+        pattern_avgs_cB_sub = np.zeros(length)
+        mags_sub = np.zeros(length)
+        
+        # Calculate average values for each data array.
+        for i in range(len(mags)):
+            pattern_avgs_cA[i] = np.average(self.a_nosub[i])
+            pattern_avgs_cB[i] = np.average(self.b_nosub[i])
+            mags[i] = np.average(self.mags_nosub[i])
+            
+            pattern_avgs_cA_sub[i] = np.average(self.a_sub[i])
+            pattern_avgs_cB_sub[i] = np.average(self.b_sub[i])
+            mags_sub[i] = np.average(self.mags_sub[i])
 
-    # Initialize arrays to store complex values and angles.
-    complex_arr = np.zeros(length, dtype=np.complex_)
-    complex_arr_sub = np.zeros(length, dtype=np.complex_)
-    angle_arr = np.angle(complex_arr_sub.flatten())
-    
-    # Calculate rotation angle in radians.
-    theta = np.radians(theta)
-    exp = np.exp(1j*theta) # Rotation
-    
-    # Apply the rotation to all data points.
-    for j in range(length):
-        t_i = pattern_avgs_cA[j]
-        t_q = pattern_avgs_cB[j]
-        t_new = np.multiply(t_i+1j*t_q, exp)
-        complex_arr[j] = t_new
+        # Initialize arrays to store complex values and angles.
+        complex_arr = np.zeros(length, dtype=np.complex_)
+        complex_arr_sub = np.zeros(length, dtype=np.complex_)
+        angle_arr = np.angle(complex_arr_sub.flatten())
+        
+        # Calculate rotation angle in radians.
+        theta = np.radians(theta)
+        exp = np.exp(1j*theta) # Rotation
+        
+        # Apply the rotation to all data points.
+        for j in range(length):
+            t_i = pattern_avgs_cA[j]
+            t_q = pattern_avgs_cB[j]
+            t_new = np.multiply(t_i+1j*t_q, exp)
+            complex_arr[j] = t_new
 
-        t_i_sub = pattern_avgs_cA_sub[j]
-        t_q_sub = pattern_avgs_cB_sub[j]
-        t_new_sub = np.multiply(t_i_sub+1j*t_q_sub, exp)
-        complex_arr_sub[j] = t_new_sub
-    
-    # Extract the real and imaginary part of the complex array.
-    new_pattern_avgs_cA = np.real(complex_arr)
-    new_pattern_avgs_cB = np.imag(complex_arr)
-    new_pattern_avgs_cA_sub = np.real(complex_arr_sub)
-    new_pattern_avgs_cB_sub = np.imag(complex_arr_sub)
+            t_i_sub = pattern_avgs_cA_sub[j]
+            t_q_sub = pattern_avgs_cB_sub[j]
+            t_new_sub = np.multiply(t_i_sub+1j*t_q_sub, exp)
+            complex_arr_sub[j] = t_new_sub
+        
+        # Extract the real and imaginary part of the complex array.
+        new_pattern_avgs_cA = np.real(complex_arr)
+        new_pattern_avgs_cB = np.imag(complex_arr)
+        new_pattern_avgs_cA_sub = np.real(complex_arr_sub)
+        new_pattern_avgs_cB_sub = np.imag(complex_arr_sub)
 
-    return (new_pattern_avgs_cA, new_pattern_avgs_cA_sub, new_pattern_avgs_cB, new_pattern_avgs_cB_sub, mags, mags_sub)
+        return (new_pattern_avgs_cA, new_pattern_avgs_cA_sub, new_pattern_avgs_cB, new_pattern_avgs_cB_sub, mags, mags_sub)
 
 def initialize_awg(awg, num_patterns, pattern_repeat, decimation):
     """
