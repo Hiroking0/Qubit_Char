@@ -7,6 +7,7 @@ Class for the Keysight E5080A ENA Network Analyzer
 # Importing the necessary base class for the instrument
 from .LAN_instrument_base import Instrument
 
+print("123")
 class ENA(Instrument):
 
     def set_power(self, power: float):
