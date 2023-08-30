@@ -23,8 +23,8 @@ from qcodes.dataset import (
 import matplotlib.pyplot as plt
 import numpy as np
 from qcodes.parameters import Parameter
-
-
+import tkinter.filedialog as filedialog
+name = 'wq_pq_sweep.db'
 rf = N5183A('qubit_rf', "TCPIP0::172.20.1.7::5025::SOCKET")
 rf.set('power', -22)
 rf.set('frequency', 2.9396)
@@ -41,8 +41,8 @@ VNA = PNABase(name = 'test',
 VNA.set('power', -55)
 VNA.set('points',51)
 VNA.set('timeout',None)
-VNA.set('if_bandwidth',200)
-VNA.set('cw', 7.22244e9)
+VNA.set('if_bandwidth',100)
+VNA.set('cw', 7.14837e9)
 VNA.set('trace','S21')
 VNA.set('sweep_type', 'CW')
 VNA.set('averages_enabled', False)
@@ -50,15 +50,16 @@ VNA.set('averages_enabled', False)
 station = qc.Station()
 station.add_component(rf)
 station.add_component(VNA)
-pow_start = -30
+pow_start = -50
 pow_stop = 0
-pow_step = 5
+pow_step = 1
 
-freq_start = 3.5
-freq_stop = 3.625
-freq_step = .0015
+freq_start = 3.15
+freq_stop = 3.325
+freq_step = .0035
 
-initialise_or_create_database_at("./databases/wq_pq_sweep.db")
+path = filedialog.askdirectory() + "/" + name + "_"
+initialise_or_create_database_at(path)
 
 tutorial_exp = load_or_create_experiment(
     experiment_name="tutorial_exp",
