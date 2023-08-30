@@ -7,7 +7,16 @@ Created on Fri May 19 10:16:39 2023
 from qcodes.instrument_drivers.Keysight.N52xx import PNABase
 #import numpy as np
 import qcodes as qc
+import pyvisa as visa
 from matplotlib import pyplot as plt
+import time
+import csv
+import tkinter as tk
+from datetime import datetime
+from tkinter.filedialog import askdirectory
+import tkinter.filedialog as filedialog
+
+
 from qcodes.dataset import (
     Measurement,
     initialise_or_create_database_at,
@@ -35,6 +44,18 @@ def fit_lor(x, y, init_a, init_b, init_c, init_f, init_g):
     return new_data, a, b, c, f, g
 
 
+
+
+
+
+
+'''now = datetime.now()
+Date = now.strftime("%Y%m%d_%H%M%S")'''
+
+
+
+
+
 VNA = PNABase(name = 'test',
               address = 'TCPIP0::K-E5080B-00202.local::hislip0::INSTR',
               min_freq = 9e6,
@@ -43,17 +64,22 @@ VNA = PNABase(name = 'test',
               max_power = 20,
               nports = 2
               )
-#print(VNA.get_options())
-probe_start  = 7.2014e9
-probe_stop   = 7.2036e9
 
-probe_pwr = -65 # in dBm
-num_points=1001
+
+#print(VNA.get_options())
+probe_start  = 7.221e9
+probe_stop   = 7.222e9
+
+probe_pwr = -3 # in dBm
+num_points=2001
 if_bandwidth=500
 #timeout=100000
-avgs = 5
+avgs = 1
 
-initialise_or_create_database_at("./databases/read_save.db")
+name = 'read_save.db'
+path = filedialog.askdirectory() + "/" + name + "_"
+print(path)
+initialise_or_create_database_at(path)
 
 VNA.set('power',probe_pwr)
 VNA.set('start',probe_start)
@@ -70,24 +96,137 @@ station = qc.Station()
 station.add_component(VNA)
 
 
-tutorial_exp = load_or_create_experiment(
-    experiment_name="save_ena"
-)
+tutorial_exp = load_or_create_experiment(experiment_name="save_ena")
 
 context_meas = Measurement(exp=tutorial_exp, station=station, name='res_spec')
-param = VNA.magnitude
-context_meas.register_parameter(param)
+
+#param = VNA.phase, VNA.magnitude
+
+context_meas.register_parameter(VNA.phase)
+context_meas.register_parameter(VNA.magnitude)
+context_meas.register_parameter(VNA.real)
+context_meas.register_parameter(VNA.imaginary)
 
 
 with context_meas.run() as datasaver:
-    values = VNA.magnitude()
-    datasaver.add_result((VNA.magnitude, values))
+    phase = VNA.phase()
+    mag = VNA.magnitude()
+    real = VNA.real()
+    imag = VNA.imaginary()
+    datasaver.add_result((VNA.phase, phase), (VNA.magnitude, mag), (VNA.real, real), (VNA.imaginary, imag))
     dataset = datasaver.dataset
-plot_dataset(dataset)
+#plot_dataset(dataset)
+
+
+### Begin data saving procedure
+import tkinter as tk
+import os
+import glob
+from tkinter import filedialog
+from datetime import datetime
+
+file_path = filedialog.askdirectory() # Variable to prompt the user to select a file directory
+dataset.export('csv', path = file_path) # Set the file type and path as file_path... this will open the file explorer and allow the user to select their desired save location.
+
+
+### File name formating and then renaming
+fileName = 'start_' + str(probe_start/1e9) + '_stop_' + str(probe_stop/1e9) + '_pow_' + str(probe_pwr)
+
+now = datetime.now()
+Date = now.strftime("%Y%m%d_%H%M%S")
+
+file_name_format = Date + ' ' + fileName + '.txt'
+
+### Renaming procedure
+path = os.path.join(file_path)
+path_a = path + "/*"
+list_of_files = glob.glob(path_a) # * means all if need specific format then *.csv
+latest_file = max(list_of_files, key=os.path.getctime)
+
+new_file = os.path.join(path, file_name_format)
+print(latest_file) # prints a.txt which was latest file i created
+os.rename(latest_file, new_file)
+
+### Print qCoDeS export information
+print(dataset.export_info)
+
+print(new_file)
+#plt.show()
+
+with open(new_file) as f:
+    output = [float(x) for x in f.read().split()]
+#print(output)
+
+
+freq_raw = output[0::5]
+real_raw = output[4::5]
+imag_raw = output[1::5]
+
+mag_raw = []
+phase_raw = []
+for i in range(0, len(real_raw)):
+    mag_temporary = np.sqrt(real_raw[i]*real_raw[i] + imag_raw[i]*imag_raw[i])
+    mag_tempory_log = 20*np.log10(mag_temporary)
+    mag_raw.append(mag_tempory_log)
+
+    phase_temporary = np.arctan(imag_raw[i]/real_raw[i])
+    phase_raw.append(phase_temporary)
+
+#print(mag_raw)
+#print(phase_raw)
+
+
+label = ["Magnitude", "Real", "Imaginary", "Phase"]
+ylabel = ["Magnitude (dBm)", "Real (dBm)", "Imaginary (dBm)", "Phase (Degrees)"]
+data = [mag_raw, real_raw, imag_raw, phase_raw]
+
+plt.figure(figsize=(10,10))
+
+for i in range(4):
+    plt.subplot(2,2,i+1)
+    plt.plot(freq_raw, data[i], label=label[i], color = 'black')
+    plt.xlabel('frequency (GHz)')
+    plt.ylabel(ylabel[i])
+plt.show()
+
+plt.plot(real_raw, imag_raw, color = 'black')
+plt.xlabel('Real (GHz)')
+plt.ylabel('Imaginary (GHz)')
 plt.show()
 
 
-x = np.linspace(probe_start, probe_stop, num = num_points)/1e9
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+'''x = np.linspace(probe_start, probe_stop, num = num_points)/1e9
 #peaks, _= find_peaks(values*-1, height = 75)
 peaks, _= find_peaks(values, prominence = 10)
 
@@ -114,9 +253,43 @@ plt.plot(x, fit_data, 'r', linewidth=3.5)
 plt.xlabel("Frequency (GHz)")
 plt.ylabel("Magnitude")
 plt.show()
+'''
 
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+'''now = datetime.now()
+Date = now.strftime("%Y%m%d_%H%M%S")
+root = tk.Tk()
+pathName = askdirectory(title='Select Folder')
+root.withdraw()
+
+file = "".join((pathName, '\\', Date, ' ', fileName, '.txt'))
+with open(file, 'w', newline='') as output:
+
+    wr = csv.writer(output, delimiter='\t', quoting=csv.QUOTE_NONE)
+    header=['Frequency (GHz)', 'Real', 'Imag']
+    wr.writerow(header)
+    for i in range(0,len(mag_raw)):
+
+        wr.writerow([freqs[i], '{:3.5e}'.format(real_raw[i]), '{:3,5e}'.format(imag_raw[i])])
+    output.write('\n')
+
+print('Done')'''
 
