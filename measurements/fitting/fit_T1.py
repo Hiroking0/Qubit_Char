@@ -239,7 +239,7 @@ def new_fit():
             new_avgs.append(avgs[i][cut_index:])
         
         lineE0.set_ydata(new_avgs[0])
-        ax_array[0,0].set_ylim([min(new_avgs[0]),max(anew_avgsgs[0])])
+        ax_array[0,0].set_ylim([min(new_avgs[0]),max(new_avgs[0])])
 
         lineE1.set_ydata(new_avgs[1])
         ax_array[1,0].set_ylim([min(new_avgs[1]),max(new_avgs[1])])
