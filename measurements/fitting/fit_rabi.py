@@ -168,8 +168,6 @@ def new_fit():
         abs(max(avgs[3])-min(avgs[3])),abs(max(avgs[4])-min(avgs[4])),abs(max(avgs[5])-min(avgs[5]))] #amp
     c = 1/650  #freq
     d = np.pi/2 #phase
-    print(params['measurement'])
-    print(type(params['measurement']))
     if params['measurement'] == 'rabi':
         print('rabi')
         title = "Rabi"

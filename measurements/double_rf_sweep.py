@@ -66,6 +66,13 @@ if __name__ == "__main__":
     
     run_funcs.initialize_awg(awg, num_patterns, pattern_repeat, decimation)
     run_funcs.init_params(params)
+    
+    if params['measurement']=='effect_temp':
+        run_funcs.turn_on_3rf()
+    elif params['measurement']=='readout':
+        run_funcs.turn_on_rf()
+    else:
+        run_funcs.turn_on_2rf()
 
     board = ats.Board(systemId = 1, boardId = 1)
     npt.ConfigureBoard(board)
@@ -77,7 +84,8 @@ if __name__ == "__main__":
                                                                                           board,
                                                                                           params,
                                                                                           num_patterns)
-    
+
+    run_funcs.turn_off_inst()
     #np.save(name + "chA_sub", f_A_sub)
     #np.save(name + "chB_sub", f_B_sub)
     #np.save(name + "chA_nosub", f_A_nosub)

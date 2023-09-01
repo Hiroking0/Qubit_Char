@@ -15,6 +15,7 @@ sys.path.append("../../")
 import os
 import json
 import pickle as pkl
+from matplotlib.widgets import Slider,Button,TextBox
 
 def objective_T1(x, a, b, c):
 
@@ -84,14 +85,17 @@ def fit_subax(ax, x, exp, fit_data, title):
     #for axis in ['top', 'bottom', 'left', 'right']:
     #    ax.spines[axis].set_linewidth(2.5)
     
-    ax.plot(x, exp, 'ko', markersize=10)
-    ax.plot(x, fit_data[0], 'r', linewidth=3.5)
+    line, = ax.plot(x, exp, 'ko', markersize=10)
+    line2, = ax.plot(x, fit_data[0], 'r', linewidth=3.5)
     ax.set_xlabel("$t_{T1}$ (ns)")
     ax.set_ylabel("V")
     ax.set_title(title)
-    text = "offset: " + str(round(fit_data[1], 3)) + "\n amp: " + str(round(fit_data[2], 3)) + "\ntau: " + str(round(fit_data[3]/1000, 3)) + " us"
-    ax.text(.98, .98, text, fontsize = 10, horizontalalignment='right',
+    text = "offset: " + str(round(fit_data[1], 3)) + \
+    "\n amp: " + str(round(fit_data[2], 3)) + \
+    "\ntau: " + str(round(fit_data[3]/1000, 3)) + " us"
+    textA = ax.text(.98, .98, text, fontsize = 10, horizontalalignment='right',
         verticalalignment='top', color='green',transform=ax.transAxes)
+    return line,line2,textA
     
     
 def new_fit():
@@ -111,6 +115,13 @@ def new_fit():
 
     #arrs = data.get_data_arrs()
     avgs = data.get_avgs()
+    #-----------------------------------------------cutting index------------------------------
+    cut_index = 1
+    new_avgs = []
+    for i in range(len(avgs)):
+        new_avgs.append(avgs[i][cut_index:])
+
+    print(np.shape(new_avgs))
     #pop = dp.get_population_v_pattern(arr, params['v_threshold'], flipped = True)
     #pop = [np.average(i) for i in arr]
 
@@ -119,37 +130,139 @@ def new_fit():
     #for i in range(len(arr)):
     #    avgs[i] = np.average(arr[i])
         
-    a = 207.5
-    b = .1
+    a = [np.average(new_avgs[0]),np.average(new_avgs[1]),np.average(new_avgs[2]),
+        np.average(new_avgs[3]),np.average(new_avgs[4]),np.average(new_avgs[5])] #offset
+    index = 0
+    b = [new_avgs[0][index]-a[0],new_avgs[1][index]-a[1],new_avgs[2][index]-a[2],
+         new_avgs[3][index]-a[3],new_avgs[4][index]-a[4],new_avgs[5][index]-a[5]]
     c = 5679
     params = params['T1']
     longest_T1 = params['T1_final_gap']
     shortest_T1 = params['T1_init_gap']
-    num_patterns = len(avgs[0])
+    num_patterns = len(new_avgs[0])
     
     x = np.linspace(shortest_T1,longest_T1, num_patterns)
     
     fig, ax_array = plt.subplots(2,3)
-    
-
+    #widgets
+    ax_slide = plt.axes([0.1,0.01,0.35,0.03])
+    ax_box = plt.axes([0.55, 0.01, 0.15, 0.03])
+    theta = Slider(ax_slide,"Theta [Deg]",valmin= 0, valmax = 360, valinit= 0, valstep= 0.1)
+    textbox = TextBox(ax_box,'T1', initial='5679')
     #(pattern_avgs_cA, pattern_avgs_cA_sub, pattern_avgs_cB, pattern_avgs_cB_sub, mags, mags_sub)
-    data_ans = fit_T1(avgs[0], a, b, c, x)
-    data_as = fit_T1(avgs[1], a, b, c, x)
-    data_bns = fit_T1(avgs[2], a, b, c, x)
-    data_bs = fit_T1(avgs[3], a, b, c, x)
-    data_mns = fit_T1(avgs[4], a, b, c, x)
-    data_ms = fit_T1(avgs[5], a, b, c, x)
+    data_ans = fit_T1(new_avgs[0], a[0], b[0], c, x)
+    data_as = fit_T1(new_avgs[1], a[1], b[1], c, x)
+    data_bns = fit_T1(new_avgs[2], a[2], b[2], c, x)
+    data_bs = fit_T1(new_avgs[3], a[3], b[3], c, x)
+    data_mns = fit_T1(new_avgs[4], a[4], b[4], c, x)
+    data_ms = fit_T1(new_avgs[5], a[5], b[5], c, x)
     
     #ms, ms_a, ms_b, ms_c
     plt.rcParams.update({'font.size': 22})
-    fit_subax(ax_array.flatten()[0], x, avgs[0], data_ans, "chA nosub")
-    fit_subax(ax_array.flatten()[1], x, avgs[1], data_as, "chB nosub")
-    fit_subax(ax_array.flatten()[2], x, avgs[2], data_bns, "Mags nosub")
-    fit_subax(ax_array.flatten()[3], x, avgs[3], data_bs, "chA sub")
-    fit_subax(ax_array.flatten()[4], x, avgs[4], data_mns, "chB sub")
-    fit_subax(ax_array.flatten()[5], x, avgs[5], data_ms, "mags sub")
+    lineE0,lineF0,text0 = fit_subax(ax_array[0,0], x, new_avgs[0], data_ans, "chA nosub")
+    lineE1,lineF1,text1 = fit_subax(ax_array[1,0], x, new_avgs[1], data_as, "chB nosub")
+    lineE2,lineF2,text2 = fit_subax(ax_array[0,1], x, new_avgs[2], data_bns, "Mags nosub")
+    lineE3,lineF3,text3 = fit_subax(ax_array[1,1], x, new_avgs[3], data_bs, "chA sub")
+    lineE4,lineF4,text4 = fit_subax(ax_array[0,2], x, new_avgs[4], data_mns, "chB sub")
+    lineE5,lineF5,text5 = fit_subax(ax_array[1,2], x, new_avgs[5], data_ms, "mags sub")
 
     plt.suptitle('T1 measurement')
+    #textbox function
+    def update_freq_guess(text: str):
+        update_fit(text,eval(text))
+        return text
+
+    #button function
+    def update_fit(event,text=1/650):
+        current_val = theta.val
+        avgs = data.get_avgs(current_val)
+        new_avgs = []
+        for i in range(len(avgs)):
+            new_avgs.append(avgs[i][cut_index:])
+        #new fit 
+        a = [np.average(new_avgs[0]),np.average(new_avgs[1]),np.average(new_avgs[2]),
+            np.average(new_avgs[3]),np.average(new_avgs[4]),np.average(new_avgs[5])] #offset
+        b = 3*[abs(max(new_avgs[0])-min(new_avgs[0])),abs(max(new_avgs[1])-min(new_avgs[1])),abs(max(new_avgs[2])-min(new_avgs[2])),
+            abs(max(new_avgs[3])-min(new_avgs[3])),abs(max(new_avgs[4])-min(new_avgs[4])),abs(max(new_avgs[5])-min(new_avgs[5]))] #amp
+        #guess for the update plot
+        c = float(eval(textbox.text))  #freq
+        af = np.zeros(len(a))
+        bf = np.zeros(len(a))
+        cf = np.zeros(len(a))
+        df = np.zeros(len(a))
+        data_ans, af[0], bf[0], cf[0] = fit_T1(new_avgs[0], a[0], b[0], c, x)
+        data_as, af[1], bf[1], cf[1]= fit_T1(new_avgs[1], a[1], b[1], c, x)
+        data_bns, af[2], bf[2], cf[2] = fit_T1(new_avgs[2], a[2], b[2], c, x)
+        data_bs, af[3], bf[3], cf[3] = fit_T1(new_avgs[3], a[3], b[3], c, x)
+        data_mns, af[4], bf[4], cf[4] = fit_T1(new_avgs[4], a[4], b[4], c, x)
+        data_ms, af[5], bf[5], cf[5] = fit_T1(new_avgs[5], a[5], b[5], c, x)
+
+        text=[]
+        for i in range(len(a)):
+            context = "offset: " + str(round(af[i], 3)) + \
+                      "\n amp: " + str(round(bf[i], 3)) + \
+                      "\ntau: " + str(round(cf[i]/1000, 3)) + " us"
+            text.append(context)
+
+
+        lineF0.set_ydata(data_ans)
+        text0.set_text(text[0])
+        ax_array[0,0].set_ylim([min(new_avgs[0]),max(new_avgs[0])])
+
+        lineF1.set_ydata(data_as)
+        text1.set_text(text[1])
+        ax_array[1,0].set_ylim([min(new_avgs[1]),max(new_avgs[1])])
+
+        lineF2.set_ydata(data_bns)
+        text2.set_text(text[2])
+        ax_array[0,1].set_ylim([min(new_avgs[2]),max(new_avgs[2])])
+
+        lineF3.set_ydata(data_bs)
+        text3.set_text(text[3])
+        ax_array[1,1].set_ylim([min(new_avgs[3]),max(new_avgs[3])])
+
+        lineF4.set_ydata(data_mns)
+        text4.set_text(text[4])
+        ax_array[0,2].set_ylim([min(new_avgs[4]),max(new_avgs[4])])
+
+        lineF5.set_ydata(data_ms)
+        text5.set_text(text[5])
+        ax_array[1,2].set_ylim([min(new_avgs[5]),max(new_avgs[5])])
+        
+        fig.canvas.draw_idle()
+    #slider function
+    def update_plot(val):
+        current_val = theta.val
+        avgs = data.get_avgs(current_val)
+        new_avgs = []
+        for i in range(len(avgs)):
+            new_avgs.append(avgs[i][cut_index:])
+        
+        lineE0.set_ydata(new_avgs[0])
+        ax_array[0,0].set_ylim([min(new_avgs[0]),max(anew_avgsgs[0])])
+
+        lineE1.set_ydata(new_avgs[1])
+        ax_array[1,0].set_ylim([min(new_avgs[1]),max(new_avgs[1])])
+
+        lineE2.set_ydata(new_avgs[2])
+        ax_array[0,1].set_ylim([min(new_avgs[2]),max(new_avgs[2])])
+
+        lineE3.set_ydata(new_avgs[3])
+        ax_array[1,1].set_ylim([min(new_avgs[3]),max(new_avgs[3])])
+
+        #lineE4.set_ydata(avgs[4])
+        #ax_array[0,2].set_ylim([min(avgs[4]),max(avgs[4])])
+
+        #lineE5.set_ydata(avgs[5])
+        #ax_array[1,2].set_ylim([min(avgs[5]),max(avgs[5])])
+
+        update_fit(val,textbox.text)
+        fig.canvas.draw_idle()
+
+    #assign the functions when acting on it
+    theta.on_changed(update_plot)
+    textbox.on_submit(update_freq_guess)
+
     plt.show()
 
 
