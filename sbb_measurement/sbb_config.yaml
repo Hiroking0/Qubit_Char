@@ -40,7 +40,7 @@ sbb_freq_sweep:
     gap: 20 #samples between end of qubit pulse and beginning of readout
     duration: 10000
     readout_duration: 20000
-    ssb_freq_start: 0.01
+    ssb_freq_start: 0.001
     ssb_freq_end: 0.02
     ssb_freq_step: 0.001
     ssb_phase: -90
@@ -53,7 +53,7 @@ sbb_phase_sweep:
     ssb_freq: 0.001
     ssb_phase_start: 0
     ssb_phase_end: 90
-    ssb_phase_step: 30
+    ssb_phase_step: 3
     shape: 'Pulse'
 
 #################################################################################################################################################

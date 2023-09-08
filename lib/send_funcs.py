@@ -40,7 +40,8 @@ def get_phase_pulse_group(
                             phase = 0,
                             channel = 1,
                             sweep_stop = ssb_phase_end,
-                            sweep_step = ssb_phase_step)
+                            sweep_step = ssb_phase_step,
+                            phase_adjust=False)
     p2 = pulse_class(start_time,
                             q_duration,
                             amplitude = 1,
@@ -815,9 +816,9 @@ def get_pg(params):
         case 'sbb_phase_sweep':
             gap = int_eval(params['gap'])
             q_duration = int_eval(params['duration'])
-            ssb_phase_start = params['ssb_phase_start']
-            ssb_phase_end = params['ssb_phase_end']
-            ssb_phase_step = params['ssb_phase_step']
+            ssb_phase_start = np.radians(params['ssb_phase_start'])
+            ssb_phase_end = np.radians(params['ssb_phase_end'])
+            ssb_phase_step = np.radians(params['ssb_phase_step'])
             readout_start = gap + q_duration + readout_buffer
             readout_start = decimation * math.ceil(readout_start/decimation)
             

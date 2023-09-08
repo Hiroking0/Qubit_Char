@@ -192,16 +192,20 @@ class Freq_Sweep_Pulse(Sweep_Pulse):
         return wave_set.get_return_vals()
 
 class Phase_Sweep_Pulse(Sweep_Pulse):
-    def __init__(self, start, duration, amplitude, frequency, phase, channel, sweep_stop, sweep_step):
+    def __init__(self, start, duration, amplitude, frequency, phase, channel, sweep_stop, sweep_step,phase_adjust=True):
         super().__init__(start, duration, amplitude, frequency, phase, channel, sweep_stop, sweep_step)
+        self.phase_adjust = phase_adjust
     
     def make(self, length = 0):
-        sweeps = np.arange(self.phase, self.sweep_stop, self.sweep_step)
+        sweeps = np.arange(self.phase, self.sweep_stop+self.sweep_step, self.sweep_step)
+        if self.phase_adjust == False:
+            sweeps = np.zeros((len(sweeps)))
         num_sweeps = len(sweeps)
         longest_length = max(length, self.start + self.duration)
         shape = (num_sweeps, longest_length)
         final_arr_1 = np.zeros(shape, dtype = np.float32)
         for ind, phase in enumerate(sweeps):
+            print(np.degrees(phase))
             cos_arr1 = [self.amplitude*np.cos((self.frequency)*np.pi*2*i + phase) for i in range(self.duration)]
             final_arr_1[ind][self.start : self.start + self.duration] = cos_arr1
             
