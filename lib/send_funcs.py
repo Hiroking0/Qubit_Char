@@ -9,8 +9,132 @@ import yaml
 from lib import run_funcs
 import math
 import numpy as np
+
 def int_eval(data):
     return eval(str(data))
+def get_phase_pulse_group(
+                            start_time,
+                            q_duration,
+                            readout_start,
+                            readout,
+                            frequency,
+                            ssb_phase_start,
+                            ssb_phase_end,
+                            ssb_phase_step,
+                            #ro_freq,
+                            decimation,
+                            shape):
+
+    start_time = int(start_time/decimation)
+    q_duration = int(q_duration/decimation)
+    readout_start = int(readout_start/decimation)
+    readout = int(readout/decimation)
+    frequency *= decimation
+    
+    pulse_class = getattr(be, f'Phase_Sweep_{shape}')
+    
+    p1 = pulse_class(start_time,
+                            q_duration,
+                            amplitude = 1,
+                            frequency = frequency,
+                            phase = 0,
+                            channel = 1,
+                            sweep_stop = ssb_phase_end,
+                            sweep_step = ssb_phase_step)
+    p2 = pulse_class(start_time,
+                            q_duration,
+                            amplitude = 1,
+                            frequency = frequency,
+                            phase = np.radians(ssb_phase_start),
+                            channel = 2,
+                            sweep_stop = ssb_phase_end,
+                            sweep_step = ssb_phase_step)
+    ro = be.Readout_Pulse(readout_start, readout, amplitude = 1)
+    pg = be.PulseGroup([p1, p2, ro])
+    return pg
+
+def get_sbb_freq_group( 
+                        start_time,
+                        q_duration,
+                        readout_start,
+                        readout,
+                        ssb_freq_start,
+                        ssb_freq_end,
+                        ssb_freq_step,
+                        phase,
+                        #ro_freq,
+                        decimation,
+                        shape):
+    
+    start_time = int(start_time/decimation)
+    q_duration = int(q_duration/decimation)
+    readout_start = int(readout_start/decimation)
+    readout = int(readout/decimation)
+    ssb_freq_start *= decimation
+    ssb_freq_end *= decimation
+    ssb_freq_step *= decimation
+    
+    pulse_class = getattr(be, f'Freq_Sweep_{shape}')
+    
+    p1 = pulse_class(start_time,
+                            q_duration,
+                            amplitude = 1,
+                            frequency = ssb_freq_start,
+                            phase = 0,
+                            channel = 1,
+                            sweep_stop = ssb_freq_end,
+                            sweep_step = ssb_freq_step)
+    p2 = pulse_class(start_time,
+                            q_duration,
+                            amplitude = 1,
+                            frequency = ssb_freq_start,
+                            phase = np.radians(phase),
+                            channel = 2,
+                            sweep_stop = ssb_freq_end,
+                            sweep_step = ssb_freq_step)
+    ro = be.Readout_Pulse(readout_start, readout, amplitude = 1)
+    pg = be.PulseGroup([p1, p2, ro])
+    return pg
+
+def get_single_pulse_group(
+                start_time, #pulse start time
+                q_duration, #pulse duration
+                readout_start, #readout
+                readout, #readout duration
+                frequency,
+                phase,
+                #ro_freq,
+                decimation,
+                shape):
+    
+    start_time = int(start_time/decimation)
+    q_duration = int(q_duration/decimation)
+    readout_start = int(readout_start/decimation)
+    readout = int(readout/decimation)
+    frequency *= decimation
+    
+    pulse_class = getattr(be, f'Amp_Sweep_{shape}')
+    
+    p1 = pulse_class(start_time,
+                            q_duration,
+                            amplitude = 1,
+                            frequency = frequency,
+                            phase = 0,
+                            channel = 1,
+                            sweep_stop = 2,
+                            sweep_step = 1)
+    p2 = pulse_class(start_time,
+                            q_duration,
+                            amplitude = 1,
+                            frequency = frequency,
+                            phase = np.radians(phase),
+                            channel = 2,
+                            sweep_stop = 2,
+                            sweep_step = 1)
+    ro = be.Readout_Pulse(readout_start, readout, amplitude = 1)
+    pg = be.PulseGroup([p1, p2, ro])
+    return pg
+
 def get_nopi_pi_group(
                 start_time, #pulse start time
                 q_duration, #pulse duration
@@ -38,9 +162,6 @@ def get_nopi_pi_group(
                             channel = 1,
                             sweep_stop = 2,
                             sweep_step = 1)
-    
-
-    
     p2 = pulse_class(start_time,
                             q_duration,
                             amplitude = 0,
@@ -49,14 +170,9 @@ def get_nopi_pi_group(
                             channel = 2,
                             sweep_stop = 2,
                             sweep_step = 1)
-    
-
-    
     ro = be.Readout_Pulse(readout_start, readout, amplitude = 1)
     pg = be.PulseGroup([p1, p2, ro])
     return pg
-
-
 
 def get_readout_group(
                 readout_start, #readout
@@ -487,8 +603,11 @@ def get_pg(params):
     shape = params['shape']
     readout = int_eval(params['readout_duration'])
     if measurement != 'readout' and measurement != 'effect_temp':
-        wq_offset = int_eval(params['ssb_freq'])
-        phase = int_eval(params['ssb_phase'])
+        if measurement != 'sbb_freq_sweep':
+            wq_offset = int_eval(params['ssb_freq'])
+        if measurement != 'sbb_phase_sweep':
+            phase = int_eval(params['ssb_phase'])
+        
 
     match measurement:
         case 'T1':
@@ -652,6 +771,69 @@ def get_pg(params):
                                         phase_ef,
                                         decimation,
                                         shape)
+        case 'single_pulse':
+            gap = int_eval(params['gap'])
+            q_duration = int_eval(params['duration'])
+           
+            readout_start = gap + q_duration + readout_buffer
+            readout_start = decimation * math.ceil(readout_start/decimation)
+            
+            q_start = readout_start - gap - q_duration
+            num_patterns = 1
+            pg = get_single_pulse_group(start_time = q_start,
+                                    q_duration = q_duration,
+                                    readout_start = readout_start,
+                                    readout = readout,
+                                    frequency = wq_offset,
+                                    phase = phase,
+                                    #ro_freq = wr_offset,
+                                    decimation = decimation,
+                                    shape = shape)
+        case 'sbb_freq_sweep':
+            gap = params['gap']
+            q_duration = params['duration']
+            ssb_freq_start = params['ssb_freq_start']
+            ssb_freq_end = params['ssb_freq_end']
+            ssb_freq_step = params['ssb_freq_step']
+            readout_start = gap + q_duration + readout_buffer
+            readout_start = decimation * math.ceil(readout_start/decimation)
+            
+            q_start = readout_start - gap - q_duration
+            num_patterns = int((ssb_freq_end-ssb_freq_start)/ssb_freq_step)
+            pg = get_sbb_freq_group(start_time = q_start,
+                                    q_duration = q_duration,
+                                    readout_start = readout_start,
+                                    readout = readout,
+                                    ssb_freq_start = ssb_freq_start,
+                                    ssb_freq_end = ssb_freq_end,
+                                    ssb_freq_step = ssb_freq_step,
+                                    phase = phase,
+                                    #ro_freq = wr_offset,
+                                    decimation = decimation,
+                                    shape = shape)
+
+        case 'sbb_phase_sweep':
+            gap = int_eval(params['gap'])
+            q_duration = int_eval(params['duration'])
+            ssb_phase_start = params['ssb_phase_start']
+            ssb_phase_end = params['ssb_phase_end']
+            ssb_phase_step = params['ssb_phase_step']
+            readout_start = gap + q_duration + readout_buffer
+            readout_start = decimation * math.ceil(readout_start/decimation)
+            
+            q_start = readout_start - gap - q_duration
+            num_patterns = int((ssb_phase_end-ssb_phase_start)/ssb_phase_step)
+            pg = get_phase_pulse_group(start_time = q_start,
+                                    q_duration = q_duration,
+                                    readout_start = readout_start,
+                                    readout = readout,
+                                    frequency = wq_offset,
+                                    ssb_phase_start = ssb_phase_start,
+                                    ssb_phase_end = ssb_phase_end,
+                                    ssb_phase_step = ssb_phase_step,
+                                    #ro_freq = wr_offset,
+                                    decimation = decimation,
+                                    shape = shape)
     print(num_patterns)
     return pg
 

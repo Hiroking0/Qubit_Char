@@ -1,6 +1,6 @@
-name:
+name: 'name'
 
-measurement:
+measurement: 'sbb_phase_sweep'
 
 decimation: 1 #This parameter divides the sampling rate (AWG) by this number.
 #Then divides all the other parameters by this number as well.
@@ -17,19 +17,44 @@ readout_trigger_offset: 800 #number of samples before readout starts that the al
 
 
 ############################################### Measurement Type ##########################################
-Single_pulse:
+single_pulse:
     gap: 20 #samples between end of qubit pulse and beginning of readout
     duration: 10000
     readout_duration: 20000
-    ssb_freq: 0
+    ssb_freq: 0.01
     ssb_phase: -90
     shape: 'Pulse'
 
-Amplitude:
+amplitude:
+    amp_start: .75
+    amp_stop: 1.75
+    amp_q_dur: 175
+    amp_q_gap: 20
+    step: .02
+    readout_duration: 20000
+    ssb_freq: 0
+    ssb_phase: 90
+    shape: 'Pulse'
 
-freq:
-
-sbb_phase:
+sbb_freq_sweep:
+    gap: 20 #samples between end of qubit pulse and beginning of readout
+    duration: 10000
+    readout_duration: 20000
+    ssb_freq_start: 0.01
+    ssb_freq_end: 0.02
+    ssb_freq_step: 0.001
+    ssb_phase: -90
+    shape: 'Pulse'
+  
+sbb_phase_sweep:
+    gap: 20 #samples between end of qubit pulse and beginning of readout
+    duration: 10000
+    readout_duration: 20000
+    ssb_freq: 0.001
+    ssb_phase_start: 0
+    ssb_phase_end: 90
+    ssb_phase_step: 30
+    shape: 'Pulse'
 
 #################################################################################################################################################
 #####################################################      MEASUREMENT (Run Sequence)       #####################################################

@@ -173,7 +173,42 @@ class Sweep_Pulse(Pulse):
         raise NotImplementedError("Make function not implemented")
         
         
-        
+class Freq_Sweep_Pulse(Sweep_Pulse):
+    def __init__(self, start, duration, amplitude, frequency, phase, channel, sweep_stop, sweep_step):
+        super().__init__(start, duration, amplitude, frequency, phase, channel, sweep_stop, sweep_step)
+    
+    def make(self, length = 0):
+        sweeps = np.arange(self.frequency, self.sweep_stop, self.sweep_step)
+        num_sweeps = len(sweeps)
+        longest_length = max(length, self.start + self.duration)
+        shape = (num_sweeps, longest_length)
+        final_arr_1 = np.zeros(shape, dtype = np.float32)
+        for ind, freq in enumerate(sweeps):
+            cos_arr1 = [self.amplitude*np.cos((freq)*np.pi*2*i + self.phase) for i in range(self.duration)]
+            final_arr_1[ind][self.start : self.start + self.duration] = cos_arr1
+            
+        wave_set = Wave_Arrs(shape)
+        setattr(wave_set, 'c'+str(self.channel), final_arr_1)
+        return wave_set.get_return_vals()
+
+class Phase_Sweep_Pulse(Sweep_Pulse):
+    def __init__(self, start, duration, amplitude, frequency, phase, channel, sweep_stop, sweep_step):
+        super().__init__(start, duration, amplitude, frequency, phase, channel, sweep_stop, sweep_step)
+    
+    def make(self, length = 0):
+        sweeps = np.arange(self.phase, self.sweep_stop, self.sweep_step)
+        num_sweeps = len(sweeps)
+        longest_length = max(length, self.start + self.duration)
+        shape = (num_sweeps, longest_length)
+        final_arr_1 = np.zeros(shape, dtype = np.float32)
+        for ind, phase in enumerate(sweeps):
+            cos_arr1 = [self.amplitude*np.cos((self.frequency)*np.pi*2*i + phase) for i in range(self.duration)]
+            final_arr_1[ind][self.start : self.start + self.duration] = cos_arr1
+            
+        wave_set = Wave_Arrs(shape)
+        setattr(wave_set, 'c'+str(self.channel), final_arr_1)
+        return wave_set.get_return_vals()
+
 class Amp_Sweep_Gaussian(Sweep_Pulse):
     def __init__(self, start, duration, amplitude, frequency, phase, channel, sweep_stop, sweep_step, total_sigma = 6):
         super().__init__(start, duration, amplitude, frequency, phase, channel, sweep_stop, sweep_step)
