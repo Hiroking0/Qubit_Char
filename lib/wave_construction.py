@@ -205,7 +205,6 @@ class Phase_Sweep_Pulse(Sweep_Pulse):
         shape = (num_sweeps, longest_length)
         final_arr_1 = np.zeros(shape, dtype = np.float32)
         for ind, phase in enumerate(sweeps):
-            print(np.degrees(phase))
             cos_arr1 = [self.amplitude*np.cos((self.frequency)*np.pi*2*i + phase) for i in range(self.duration)]
             final_arr_1[ind][self.start : self.start + self.duration] = cos_arr1
             
