@@ -9,7 +9,7 @@ measurement: 'T1'
 #####################################################      writing and sending sequences to AWG      ############################################
 #################################################################################################################################################
 
-decimation: 4 #This parameter divides the sampling rate (AWG) by this number.
+decimation: 1 #This parameter divides the sampling rate (AWG) by this number.
 #Then divides all the other parameters by this number as well.
 #assuming decimation = 1 is with 1GS/s. each time unit is 1ns.
 #for example, decimation = 2 will divide all the parameters by 2, set the sampling rate to 500MS/s.
