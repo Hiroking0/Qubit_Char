@@ -15,7 +15,7 @@ if __name__ == "__main__":
 
     pg = sf.get_pg(params)
 
-    no_subplot_measurements = ["echo", "echo_1ax","sbb_phase_sweep"]
+    no_subplot_measurements = ["echo", "echo_1ax","sbb_phase_sweep",'single_pulse']
     subplots = not params['measurement'] in no_subplot_measurements
 
     #subplots = True

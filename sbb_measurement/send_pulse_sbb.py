@@ -7,11 +7,13 @@ from lib import wave_construction as be
 from lib import send_funcs as sf
 import yaml
 from lib import run_funcs
+from measurements.run_sequence import eval_yaml
 def int_eval(data):
     return eval(str(data))
 if __name__ == "__main__":
     f = open('./sbb_config.yaml','r')
     params = yaml.safe_load(f)
+    params = eval_yaml(params)
     f.close()
     name = params['name']
     decimation = int_eval(params['decimation'])
