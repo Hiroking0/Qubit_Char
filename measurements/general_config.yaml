@@ -40,7 +40,7 @@ readout:
 npp:
     #amplitude: 1
     nop_p_q_gap: 0 #samples between end of qubit pulse and beginning of readout
-    nop_p_q_dur: 1000
+    nop_p_q_dur: 10000
     readout_duration: 20000
     ssb_freq: 0
     ssb_phase: -90
