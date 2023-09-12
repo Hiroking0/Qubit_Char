@@ -15,11 +15,12 @@ if __name__ == "__main__":
 
     pg = sf.get_pg(params)
 
-    no_subplot_measurements = ["echo", "echo_1ax","sbb_phase_sweep",'single_pulse']
+    no_subplot_measurements = ["echo", "echo_1ax"]
     subplots = not params['measurement'] in no_subplot_measurements
 
     #subplots = True
     #if params['measurement'] == "echo" or params['measurement'] == "echo_1ax":
     #    subplots = False
-
+    if params['Pulse_without_ssb_phase']==params['Pulse_with_ssb_phase']:
+        raise Exception("Logic error in channel selection")
     pg.show(decimation, subplots)

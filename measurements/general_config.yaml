@@ -20,8 +20,10 @@ decimation: 1 #This parameter divides the sampling rate (AWG) by this number.
 zero_length: 1000 #length of single wait time segment in ns. Minimum length of <~1000
 zero_multiple: 2000 #how many times you want to repeat the zero segment
 
-readout_trigger_offset: 0 #number of samples before readout starts that the alazar trigger should be placed
+readout_trigger_offset: 800 #number of samples before readout starts that the alazar trigger should be placed
+Pulse_without_ssb_phase: 4
 
+Pulse_with_ssb_phase: 2
 
 #For most measurements, to get exactly the number of patterns you want,
 #(final_sweep_param - initial_sweep_param)/step_size should be an integer.
@@ -39,8 +41,8 @@ npp:
     #amplitude: 1
     nop_p_q_gap: 0 #samples between end of qubit pulse and beginning of readout
     nop_p_q_dur: 1000
-    readout_duration: 0
-    ssb_freq: 0.01
+    readout_duration: 20000
+    ssb_freq: 0
     ssb_phase: -90
     shape: 'Pulse'
     

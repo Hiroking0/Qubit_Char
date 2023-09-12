@@ -1,6 +1,6 @@
 name: 'auto'
 
-measurement: 'single_pulse'
+measurement: 'sbb_phase_sweep'
 #single_pulse, amplitude, sbb_freq_sweep, sbb_freq_sweep, sbb_phase_sweep
 
 decimation: 1 #This parameter divides the sampling rate (AWG) by this number.
@@ -17,13 +17,22 @@ zero_multiple: 0 #how many times you want to repeat the zero segment
 readout_trigger_offset: 0 #number of samples before readout starts that the alazar trigger should be placed
 
 
+############################################### Channels ##################################################
+#user can select which channel to send the waves from the AWG.
+#Ex. Pulse_without_ssb_phase:ch1 will send the pulse witout the phase offset from channel 1. 
+#although Pulse_without_ssb_phase is recomended to be 1 when sbb_freq is 0 Ghz
+Pulse_without_ssb_phase: 1
+
+Pulse_with_ssb_phase: 4
+
+
 ############################################### Measurement Type ##########################################
 single_pulse:
     gap: 0 #samples between end of qubit pulse and beginning of readout
-    duration: 1000
+    duration: 10000
     readout_duration: 0
-    ssb_freq: 0.01
-    ssb_phase: -130
+    ssb_freq: 0
+    ssb_phase: -90
     shape: 'Pulse'
 
 amplitude:
@@ -32,7 +41,7 @@ amplitude:
     amp_q_dur: 175
     amp_q_gap: 20
     step: .02
-    readout_duration: 20000
+    readout_duration: 0
     ssb_freq: 0
     ssb_phase: 90
     shape: 'Pulse'

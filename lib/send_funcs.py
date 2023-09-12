@@ -23,8 +23,9 @@ def get_phase_pulse_group(
                             ssb_phase_step,
                             #ro_freq,
                             decimation,
-                            shape):
-
+                            shape,
+                            channels):
+    no_phase_ch, phase_ch = channels
     start_time = int(start_time/decimation)
     q_duration = int(q_duration/decimation)
     readout_start = int(readout_start/decimation)
@@ -38,7 +39,7 @@ def get_phase_pulse_group(
                             amplitude = 1,
                             frequency = frequency,
                             phase = 0,
-                            channel = 1,
+                            channel = no_phase_ch,
                             sweep_stop = ssb_phase_end,
                             sweep_step = ssb_phase_step,
                             phase_adjust=False)
@@ -47,7 +48,7 @@ def get_phase_pulse_group(
                             amplitude = 1,
                             frequency = frequency,
                             phase = np.radians(ssb_phase_start),
-                            channel = 2,
+                            channel = phase_ch,
                             sweep_stop = ssb_phase_end,
                             sweep_step = ssb_phase_step)
     ro = be.Readout_Pulse(readout_start, readout, amplitude = 1)
@@ -65,8 +66,9 @@ def get_sbb_freq_group(
                         phase,
                         #ro_freq,
                         decimation,
-                        shape):
-    
+                        shape,
+                        channels):
+    no_phase_ch, phase_ch = channels
     start_time = int(start_time/decimation)
     q_duration = int(q_duration/decimation)
     readout_start = int(readout_start/decimation)
@@ -82,7 +84,7 @@ def get_sbb_freq_group(
                             amplitude = 1,
                             frequency = ssb_freq_start,
                             phase = 0,
-                            channel = 1,
+                            channel = no_phase_ch,
                             sweep_stop = ssb_freq_end,
                             sweep_step = ssb_freq_step)
     p2 = pulse_class(start_time,
@@ -90,7 +92,7 @@ def get_sbb_freq_group(
                             amplitude = 1,
                             frequency = ssb_freq_start,
                             phase = np.radians(phase),
-                            channel = 2,
+                            channel = phase_ch,
                             sweep_stop = ssb_freq_end,
                             sweep_step = ssb_freq_step)
     ro = be.Readout_Pulse(readout_start, readout, amplitude = 1)
@@ -106,22 +108,22 @@ def get_single_pulse_group(
                 phase,
                 #ro_freq,
                 decimation,
-                shape):
+                shape,
+                channels):
     
     start_time = int(start_time/decimation)
     q_duration = int(q_duration/decimation)
     readout_start = int(readout_start/decimation)
     readout = int(readout/decimation)
     frequency *= decimation
-    
+    no_phase_ch, phase_ch = channels
     pulse_class = getattr(be, f'Amp_Sweep_{shape}')
-    
     p1 = pulse_class(start_time,
                             q_duration,
                             amplitude = 1,
                             frequency = frequency,
                             phase = 0,
-                            channel = 1,
+                            channel = no_phase_ch,
                             sweep_stop = 2,
                             sweep_step = 1)
     p2 = pulse_class(start_time,
@@ -129,7 +131,7 @@ def get_single_pulse_group(
                             amplitude = 1,
                             frequency = frequency,
                             phase = np.radians(phase),
-                            channel = 2,
+                            channel = phase_ch,
                             sweep_stop = 2,
                             sweep_step = 1)
     ro = be.Readout_Pulse(readout_start, readout, amplitude = 1)
@@ -477,9 +479,10 @@ def get_amp_pg(q_duration,
                frequency,
                phase,
                decimation,
-               shape):
+               shape,
+               channels):
     
-    
+    no_phase_ch, phase_ch = channels
     sweep_class = getattr(be, f'Amp_Sweep_{shape}')
     
     #get_amp_pg(q_duration, q_gap, a_start, a_stop, step, readout_start, readout, wq_offset, phase, readout)
@@ -493,9 +496,8 @@ def get_amp_pg(q_duration,
     
     
     #self, start, duration, amplitude, frequency, phase, channel, sweep_stop, sweep_step
-    p1 = sweep_class(q_start, q_duration, amp_start, frequency, phase = 0, channel = 1, sweep_stop = amp_stop, sweep_step = amp_step)
-    p2 = sweep_class(q_start, q_duration, amp_start, frequency, phase = np.radians(phase), channel = 2, sweep_stop = amp_stop, sweep_step = amp_step)
-    
+    p1 = sweep_class(q_start, q_duration, amp_start, frequency, phase = 0, channel = no_phase_ch, sweep_stop = amp_stop, sweep_step = amp_step)
+    p2 = sweep_class(q_start, q_duration, amp_start, frequency, phase = np.radians(phase), channel = phase_ch, sweep_stop = amp_stop, sweep_step = amp_step)
     
     
     ro = be.Readout_Pulse(readout_start, readout, 1)
@@ -599,7 +601,8 @@ def get_pg(params):
     #readout_start = params['readout_start']
     
     readout_trigger_offset = int_eval(params['readout_trigger_offset'])
-    
+    channels = [params['Pulse_without_ssb_phase'],params['Pulse_with_ssb_phase']]
+
     params = params[measurement] if (measurement != 'echo_1ax') else params['echo']
     shape = params['shape']
     readout = int_eval(params['readout_duration'])
@@ -732,7 +735,7 @@ def get_pg(params):
             
         
             
-            pg = get_amp_pg(q_duration, q_gap, a_start, a_stop, step, readout_start, readout, wq_offset, phase, decimation, shape)
+            pg = get_amp_pg(q_duration, q_gap, a_start, a_stop, step, readout_start, readout, wq_offset, phase, decimation, shape,channels)
 
             
         case 'effect_temp':
@@ -789,7 +792,8 @@ def get_pg(params):
                                     phase = phase,
                                     #ro_freq = wr_offset,
                                     decimation = decimation,
-                                    shape = shape)
+                                    shape = shape,
+                                    channels=channels)
         case 'sbb_freq_sweep':
             gap = params['gap']
             q_duration = params['duration']
@@ -811,7 +815,8 @@ def get_pg(params):
                                     phase = phase,
                                     #ro_freq = wr_offset,
                                     decimation = decimation,
-                                    shape = shape)
+                                    shape = shape,
+                                    channels=channels)
 
         case 'sbb_phase_sweep':
             gap = int_eval(params['gap'])
@@ -834,7 +839,8 @@ def get_pg(params):
                                     ssb_phase_step = ssb_phase_step,
                                     #ro_freq = wr_offset,
                                     decimation = decimation,
-                                    shape = shape)
+                                    shape = shape,
+                                    channels=channels)
     print(num_patterns)
     return pg
 
