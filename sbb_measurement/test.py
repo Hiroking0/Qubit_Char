@@ -9,7 +9,7 @@ import numpy as np
 import os
 
 # Create an instance of the Tektronix_AWG5014 class
-awg1 = TektronixAWG5014('AWG1', 'TCPIP0::172.20.1.5::5000::SOCKET', timeout=10000)
+awg1 = TektronixAWG5014('AWG1', 'TCPIP0::172.20.1.5::5000::SOCKET', timeout=40)
 
 noofseqelems = 6
 noofpoints = 1200
