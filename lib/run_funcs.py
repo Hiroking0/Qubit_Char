@@ -323,7 +323,7 @@ def get_func_call(rm, sweep_param, awg):
 
 #extra_column used by double sweep function to store second parameter.
 #It should be python list of ["parameter name", value]
-def single_sweep(name,
+def single_sweep2(name,
                  awg,
                  board,
                  num_patterns,
@@ -333,10 +333,10 @@ def single_sweep(name,
     #1.8 rf is for qubit
     #1.7 rf is for readout
     
-    sweep_param = params['p1']
-    start = params['p1start']
-    stop = params['p1stop']
-    step = params['p1step']
+    sweep_param = params['p2']
+    start = params['p2start']
+    stop = params['p2stop']
+    step = params['p2step']
     
     rm = visa.ResourceManager()
     func_call = get_func_call(rm, sweep_param, awg)
@@ -413,9 +413,9 @@ def single_sweep(name,
     #with open(name + '_' + f_name, 'w', newline='') as output:
         wr = csv.writer(output, delimiter=',', quoting=csv.QUOTE_NONE)
         if extra_column != None:
-            header = header=['chA_sub','chB_sub','mag_sub', 'chA_nosub', 'chB_nosub', 'mag_nosub', 'pattern_num', str(sweep_param), extra_column[0]]
+            header = header=['chA_sub2','chB_sub2','mag_sub2', 'chA_nosub2', 'chB_nosub2', 'mag_nosub2', 'pattern_num2', str(sweep_param), extra_column[0]]
         else:
-            header=['chA_sub','chB_sub','mag_sub', 'chA_nosub', 'chB_nosub', 'mag_nosub', 'pattern_num', str(sweep_param)]
+            header=['chA_sub2','chB_sub2','mag_sub2', 'chA_nosub2', 'chB_nosub2', 'mag_nosub2', 'pattern_num2', str(sweep_param)]
         wr.writerow(header)
         
         for pattern in range(len(avgsA_sub)):
