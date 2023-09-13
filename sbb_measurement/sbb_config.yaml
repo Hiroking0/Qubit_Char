@@ -1,6 +1,6 @@
 name: 'auto'
 
-measurement: 'sbb_phase_sweep'
+measurement: 'single_pulse'
 #single_pulse, amplitude, sbb_freq_sweep, sbb_freq_sweep, sbb_phase_sweep
 
 decimation: 1 #This parameter divides the sampling rate (AWG) by this number.
@@ -31,7 +31,7 @@ single_pulse:
     gap: 0 #samples between end of qubit pulse and beginning of readout
     duration: 10000
     readout_duration: 20000
-    ssb_freq: 0
+    ssb_freq: .001
     ssb_phase: -90
     shape: 'Pulse'
 

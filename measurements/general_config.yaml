@@ -21,7 +21,7 @@ zero_length: 1000 #length of single wait time segment in ns. Minimum length of <
 zero_multiple: 2000 #how many times you want to repeat the zero segment
 
 readout_trigger_offset: 800 #number of samples before readout starts that the alazar trigger should be placed
-Pulse_without_ssb_phase: 4
+Pulse_without_ssb_phase: 1
 
 Pulse_with_ssb_phase: 2
 
