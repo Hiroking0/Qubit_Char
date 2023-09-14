@@ -1,16 +1,24 @@
+import logging
+import os
+import sys
+import matplotlib.pyplot as plt
+import numpy as np
+
+logger = logging.getLogger()
+logger.setLevel(logging.WARNING)
 from qcodes.instrument_drivers.tektronix import (
-    TektronixAWG5014,  # <--- The instrument driver
+    TektronixAWG5014  # <--- The instrument driver
 )
 from qcodes.instrument_drivers.tektronix.AWGFileParser import (
     parse_awg_file,  # <--- A helper function
 )
-from qcodes import VisaInstrument
-import numpy as np
-import os
+sys.path.append("../")
 
-# Create an instance of the Tektronix_AWG5014 class
+from instruments.TekAwg import tek_awg as tawg
+#awg = tawg.TekAwg.connect_raw_visa_socket('172.20.1.5', 5000)
 awg1 = TektronixAWG5014('AWG1', 'TCPIP0::172.20.1.5::5000::SOCKET', timeout=40)
 
+'''
 noofseqelems = 6
 noofpoints = 1200
 waveforms = [[], []]  # one list for each channel
@@ -49,4 +57,4 @@ jump_tos = [2]*noofseqelems
 
 filepath = os.path.join(os.getcwd(), 'test_awg_file.awg')
 awgfile = awg1.make_and_save_awg_file(waveforms, m1s, m2s, nreps, trig_waits, goto_states,
-                                      jump_tos, channels=[1, 3], filename=filepath)
+                                      jump_tos, channels=[1, 3], filename=filepath)'''

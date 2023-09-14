@@ -1,0 +1,24 @@
+
+import sys
+sys.path.append("../")
+from lib import wave_construction as be
+from instruments.TekAwg import tek_awg as tawg
+# Connect to the instrument
+import pyvisa
+rm = pyvisa.ResourceManager()
+inst = rm.open_resource('TCPIP0::K-N5222B-11304.lps.umd.edu::5025::SOCKET')
+inst.query('*IDN?')
+
+
+inst.read_termination = '\n'
+inst.query_delay = 1e-3
+inst.timeout = 10000
+
+inst.write(':FREQ:STAR: 200 MHz')
+inst.write(':FREQ:STOP: 800 MHz') 
+
+
+'''awg = be.get_awg()
+awg.set_offset(0.2,1)
+
+awg.set_offset(0.2,2)'''
