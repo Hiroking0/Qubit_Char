@@ -53,6 +53,7 @@ def update_phase(val):
     zero_multiple = params['zero_multiple']
     readout_trigger_offset = params['readout_trigger_offset']
     #num_channels = 2
+    print("--------sending--------")
     num_patterns = awg.get_seq_length()
     if params['name'] == 'auto':
         name = params['measurement'] + "_" + str(num_patterns)
@@ -67,7 +68,6 @@ def update_phase(val):
 
     pg = sf.get_pg(params)
 
-    print("--------sending--------")
     pg.send_waves_awg(awg, name, pattern_repeat, zero_length, zero_multiple, readout_trigger_offset, decimation)
     
     num_patterns = awg.get_seq_length()
@@ -83,6 +83,7 @@ def update_freq(val):
     zero_multiple = params['zero_multiple']
     readout_trigger_offset = params['readout_trigger_offset']
     #num_channels = 2
+    print("--------sending--------")
     num_patterns = awg.get_seq_length()
     if params['name'] == 'auto':
         name = params['measurement'] + "_" + str(num_patterns)
@@ -98,7 +99,6 @@ def update_freq(val):
 
     pg = sf.get_pg(params)
 
-    print("--------sending--------")
     pg.send_waves_awg(awg, name, pattern_repeat, zero_length, zero_multiple, readout_trigger_offset, decimation)
     
     num_patterns = awg.get_seq_length()
