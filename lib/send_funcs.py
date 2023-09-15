@@ -110,7 +110,6 @@ def get_single_pulse_group(
                 decimation,
                 shape,
                 channels):
-    
     start_time = int(start_time/decimation)
     q_duration = int(q_duration/decimation)
     readout_start = int(readout_start/decimation)

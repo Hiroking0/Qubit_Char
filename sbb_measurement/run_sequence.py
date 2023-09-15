@@ -35,7 +35,7 @@ def eval_yaml(yaml):
 
 if __name__ == "__main__":
     
-    f = open('./general_config.yaml','r')
+    f = open('./sbb_config.yaml','r')
     params = yaml.safe_load(f)
     f.close()
     params = eval_yaml(params)

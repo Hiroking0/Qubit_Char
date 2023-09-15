@@ -31,7 +31,7 @@ def plot_subax(ax, x, y, title):
 
 if __name__ == "__main__":
     
-    f = open('sbb_config.yaml','r')
+    f = open('general_config.yaml','r')
     params = yaml.safe_load(f)
     f.close()
     yaml = eval_yaml(params)
@@ -60,11 +60,6 @@ if __name__ == "__main__":
     json.dump(params, j_file, indent = 4)
     j_file.close()
 
-
-
-
-
-
     zero_length = int_eval(params['zero_length'])
     zero_multiple = int_eval(params['zero_multiple'])
     wait_time = zero_length * zero_multiple
@@ -77,12 +72,6 @@ if __name__ == "__main__":
     p1step = int_eval(params['p1step'])
     
     p1 = params['p1']
-
-
-    p2start = int_eval(params['p2start'])
-    p2stop = int_eval(params['p2stop'])
-    p2step = int_eval(params['p2step'])
-    p2 = params['p2']
 
     if params['measurement']=='effect_temp':
         run_funcs.turn_on_3rf()
@@ -123,36 +112,6 @@ if __name__ == "__main__":
     plot_subax(ax_array[1,1], x, cBp_nosub, 'channel b nosub')
     plot_subax(ax_array[1,2], x, mags_nosub, 'mags nosub')
     plt.savefig(name + "pic", dpi= 300, pad_inches = 0, bbox_inches = 'tight')
-
-
-
-
-    cAp_sub2, cBp_sub2, cAp_nosub2, cBp_nosub2, mags_sub2, mags_nosub2 = run_funcs.single_sweep2(name,
-                                                                                            awg,
-                                                                                            board,
-                                                                                            num_patterns,
-                                                                                            params,
-                                                                                            live_plot = False)
-
-    
-    if params['measurement'] != 'readout' and params['p2'] == 'wq':
-        ssb = params[params['measurement']]['ssb_freq']
-        y = np.arange(p2start + ssb, p2stop + ssb, p2step)
-    else:
-        y = np.arange(p2start, p2stop, p2step)
-    
-    #plt.figure()
-
-    fig, ax_array = plt.subplots(2,3)
-    plot_subax(ax_array[0,0], y, cAp_sub2, 'channel a sub')
-    plot_subax(ax_array[0,1], y, cBp_sub2, 'channel b sub')
-    plot_subax(ax_array[0,2], y, mags_sub2, 'mags sub')
-    plot_subax(ax_array[1,0], y, cAp_nosub2, 'channel a nosub')
-    plot_subax(ax_array[1,1], y, cBp_nosub2, 'channel b nosub')
-    plot_subax(ax_array[1,2], y, mags_nosub2, 'mags nosub')
-    plt.savefig(name + "pic", dpi= 300, pad_inches = 0, bbox_inches = 'tight')
-
-
     #plt.figure()
     #diff = cBp_nosub[0] - cBp_nosub[1]
     #plt.plot(x, diff)
