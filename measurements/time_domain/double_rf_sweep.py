@@ -5,7 +5,7 @@ Created on Tue Oct 18 13:38:30 2022
 @author: lqc
 """
 import sys
-sys.path.append("../")
+sys.path.append("../../")
 import numpy as np
 import matplotlib.pyplot as plt
 from lib import wave_construction as be

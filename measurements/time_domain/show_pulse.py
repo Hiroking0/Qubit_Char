@@ -1,6 +1,6 @@
 
 import sys
-sys.path.append("../")
+sys.path.append("../../")
 from lib import send_funcs as sf
 #import npp_funcs as nppf
 import yaml

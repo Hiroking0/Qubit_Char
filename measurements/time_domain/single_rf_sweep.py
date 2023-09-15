@@ -6,7 +6,7 @@ Created on Tue Oct 18 13:38:30 2022
 """
 
 import sys
-sys.path.append("../")
+sys.path.append("../../")
 from lib import run_funcs
 import numpy as np
 import matplotlib.pyplot as plt
