@@ -31,8 +31,8 @@ VNA = PNABase(name = 'test',
               nports = 2
               )
 
-VNA.set('start',7.1465e9)
-VNA.set('stop',7.1495e9)
+VNA.set('start',7.10732e9)
+VNA.set('stop',7.10882e9)
 VNA.set('points',1001)
 VNA.set('timeout',None)
 VNA.set('if_bandwidth',100)

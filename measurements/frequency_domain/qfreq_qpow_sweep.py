@@ -41,8 +41,8 @@ VNA = PNABase(name = 'test',
 VNA.set('power', -55)
 VNA.set('points',51)
 VNA.set('timeout',None)
-VNA.set('if_bandwidth',100)
-VNA.set('cw', 7.14837e9)
+VNA.set('if_bandwidth',200)
+VNA.set('cw', 7.1085e9)
 VNA.set('trace','S21')
 VNA.set('sweep_type', 'CW')
 VNA.set('averages_enabled', False)
@@ -54,9 +54,9 @@ pow_start = -50
 pow_stop = 0
 pow_step = 1
 
-freq_start = 3.15
-freq_stop = 3.325
-freq_step = .0035
+freq_start = 3.05
+freq_stop = 3.225
+freq_step = .003
 
 path = filedialog.askdirectory() + "/" + name + "_"
 initialise_or_create_database_at(path)
