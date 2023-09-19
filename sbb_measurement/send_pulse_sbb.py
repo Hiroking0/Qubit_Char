@@ -7,7 +7,7 @@ from lib import wave_construction as be
 from lib import send_funcs as sf
 import yaml
 from lib import run_funcs
-from measurements.run_sequence import eval_yaml
+from measurements.time_domain.run_sequence import eval_yaml
 def int_eval(data):
     return eval(str(data))
 if __name__ == "__main__":

@@ -3,7 +3,7 @@ import sys
 import yaml
 sys.path.append("../")
 from lib import wave_construction as be
-from measurements.run_sequence import eval_yaml
+from measurements.time_domain.run_sequence import eval_yaml
 from instruments.TekAwg import tek_awg as tawg
 from lib import wave_construction as be
 from lib import send_funcs as sf
