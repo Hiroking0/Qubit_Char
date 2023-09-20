@@ -1,11 +1,11 @@
-from qcodes.instrument_drivers.tektronix.AWG5014 import Tektronix_AWG5014
-from qcodes import VisaInstrument
 import numpy as np
 import sys
 sys.path.append("../")
 from lib import send_funcs as sf
 from measurements.time_domain.run_sequence import eval_yaml
 from lib import wave_construction as be
+from qcodes.instrument_drivers.tektronix.AWG5014 import Tektronix_AWG5014
+from qcodes import VisaInstrument
 #import npp_funcs as nppf
 import yaml
 def int_eval(data):

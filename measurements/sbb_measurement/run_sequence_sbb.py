@@ -6,7 +6,7 @@ Created on Tue Oct 18 13:38:30 2022
 """
 
 import sys
-sys.path.append("../")
+sys.path.append("../../")
 from lib import run_funcs
 from lib import data_process as dp
 from lib import wave_construction as be

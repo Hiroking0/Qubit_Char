@@ -1,5 +1,5 @@
 import sys
-sys.path.append("../")
+sys.path.append("../../")
 from lib import send_funcs as sf
 from measurements.time_domain.run_sequence import eval_yaml
 #import npp_funcs as nppf

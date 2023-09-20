@@ -1,7 +1,7 @@
 import pyvisa
 import sys
 import yaml
-sys.path.append("../")
+sys.path.append("../../")
 from lib import wave_construction as be
 from measurements.time_domain.run_sequence import eval_yaml
 from instruments.TekAwg import tek_awg as tawg

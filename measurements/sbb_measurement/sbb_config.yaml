@@ -31,7 +31,7 @@ single_pulse:
     gap: 0 #samples between end of qubit pulse and beginning of readout
     duration: 10000
     readout_duration: 0
-    ssb_freq: .0088
+    ssb_freq: -.001
     ssb_phase: -90
     shape: 'Pulse'
 
@@ -84,7 +84,7 @@ v_threshold: 223.85 #threshold value for distinguishing ground and excited state
 #static parameters, these are set before each running of the sequence
 
 set_wr: 7.148291
-set_wq: 3.3144648742 #3.1685813
+set_wq: 3.18176 #3.1685813
 set_wef: 3.0962426
 
 set_pr: 15

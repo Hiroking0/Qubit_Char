@@ -1,6 +1,6 @@
 
 import sys
-sys.path.append("../")
+sys.path.append("../../")
 
 #import npp_funcs as nppf
 from lib import wave_construction as be

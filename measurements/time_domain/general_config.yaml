@@ -39,10 +39,10 @@ readout:
     
 npp:
     #amplitude: 1
-    nop_p_q_gap: 0 #samples between end of qubit pulse and beginning of readout
+    nop_p_q_gap: 20 #samples between end of qubit pulse and beginning of readout
     nop_p_q_dur: 10000
     readout_duration: 20000
-    ssb_freq: 0
+    ssb_freq: -0.01
     ssb_phase: -90
     shape: 'Pulse'
     
@@ -146,8 +146,8 @@ v_threshold: 223.85 #threshold value for distinguishing ground and excited state
 
 #static parameters, these are set before each running of the sequence
 
-set_wr: 7.148291
-set_wq: 3.3144648742 #3.1685813
+set_wr: 7.108515
+set_wq:  3.18176-0.01 #3.1685813
 set_wef: 3.0962426
 
 set_pr: 15
@@ -174,10 +174,10 @@ set_w_twpa: 8.4055 #8.5035
 #If doing a single sweep, will look at p1, double will look at both
 
 #Y axis
-p1: 'q_att'
-p1start: 0
-p1stop: 30
-p1step: 1
+p1: 'wq'
+p1start: 3.18176-0.01 - 0.01
+p1stop: 3.18176-0.01 + 0.01
+p1step: 0.02/50
 #x axis
 p2: 'q_att'
 p2start: 5
