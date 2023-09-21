@@ -201,6 +201,11 @@ def turn_on_rf():
     r_rf = RF.RF_source(rm, "TCPIP0::172.20.1.8::5025::SOCKET")
     r_rf.enable_out()
 
+def turn_on_rf_wq():
+    rm = visa.ResourceManager()
+    q_rf = RF.RF_source(rm, "TCPIP0::172.20.1.7::5025::SOCKET")
+    q_rf.enable_out()
+
 # Turns off the RF
 def turn_off_inst():
     """

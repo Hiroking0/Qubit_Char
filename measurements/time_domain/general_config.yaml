@@ -134,7 +134,7 @@ effect_temp:
 
 #running Sequence
 pattern_repeat: 1
-seq_repeat: 1000
+seq_repeat: 2000
 
 #averaging
 avg_start: 1000  #The start avraging doesn't need to be changed.
@@ -155,7 +155,7 @@ set_pq: 15
 set_pwef: 15
 
 set_r_att: 30 #40 for low power for q4 and 21 for high power 
-set_q_att: 6
+set_q_att: 3
 set_p_twpa: -19.7 #-18.9
 set_w_twpa: 8.4055 #8.5035
 
@@ -175,14 +175,14 @@ set_w_twpa: 8.4055 #8.5035
 
 #Y axis
 p1: 'wq'
-p1start: 3.18176-0.01 - 0.01
-p1stop: 3.18176-0.01 + 0.01
-p1step: 0.02/50
+p1start: 3.18176-0.01-0.005
+p1stop: 3.18176-0.01+0.005
+p1step: 0.01/25
 #x axis
 p2: 'q_att'
 p2start: 5
-p2stop: 15
-p2step: 5
+p2stop: 17
+p2step: 1
 
 
 

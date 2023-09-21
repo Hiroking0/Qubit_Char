@@ -34,7 +34,7 @@ if __name__ == "__main__":
     f = open('general_config.yaml','r')
     params = yaml.safe_load(f)
     f.close()
-    yaml = eval_yaml(params)
+    params = eval_yaml(params)
     directory = tkf.askdirectory()
 
     awg = be.get_awg()
@@ -61,8 +61,13 @@ if __name__ == "__main__":
 
     #sweep power J7201B
     decimation = int_eval(params['decimation'])
-    
-    
+    p1start = params['p1start']
+    p1stop = params['p1stop']
+    p1step = params['p1step']
+
+    p2start = params['p2start']
+    p2stop = params['p2stop']
+    p2step = params['p2step']
     
     run_funcs.initialize_awg(awg, num_patterns, pattern_repeat, decimation)
     run_funcs.init_params(params)
@@ -94,9 +99,17 @@ if __name__ == "__main__":
     #np.save(name + "mags_sub", f_M_nosub)
     
     plt.figure()
+    if params['measurement'] != 'readout' and params['p1'] == 'wq':
+        ssb = params[params['measurement']]['ssb_freq']
+        y = np.arange(p1start + ssb, p1stop + ssb, p1step)
+    else:
+        y = np.arange(p1start, p1stop, p1step)
     
-    y = np.arange(int_eval(params['p1start']), int_eval(params['p1stop']), int_eval(params['p1step']))
-    x = np.arange(int_eval(params['p2start']), int_eval(params['p2stop']), int_eval(params['p2step']))
+    if params['measurement'] != 'readout' and params['p2'] == 'wq':
+        ssb = params[params['measurement']]['ssb_freq']
+        x = np.arange(p2start + ssb, p2stop + ssb, p2step)
+    else:
+        x = np.arange(p2start, p2stop, p2step)
     
 
     fig, ax_array = plt.subplots(2,3)

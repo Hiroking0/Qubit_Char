@@ -37,5 +37,6 @@ if __name__ == "__main__":
     
     num_patterns = awg.get_seq_length()
     run_funcs.initialize_awg(awg, num_patterns, pattern_repeat, decimation)
-
+    awg.run()
+    run_funcs.turn_on_rf_wq()
     awg.close()
