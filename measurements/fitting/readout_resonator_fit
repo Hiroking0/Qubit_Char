@@ -48,12 +48,14 @@ noise_scale = 0.02
 np.random.seed(123)
 measured_s21 = true_s21 + noise_scale*(np.random.randn(100) + 1j*np.random.randn(100))
 
-center = 7.0859166e9
-span = 1e6
+###############################################################params
+center = 7.0859166e9 #in Hz
+span = 1e6 #in Hz
+points=2001
+pow = -10 #in dbm
 start = center - span/2
 stop=center + span/2
-points=2001
-pow = -10
+f = np.linspace(start, stop, points)
 measured_s21 = read.getdata(start,stop,points,pow)
 
 plt.plot(f, 20*np.log10(np.abs(measured_s21)))

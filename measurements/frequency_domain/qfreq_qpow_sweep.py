@@ -53,7 +53,7 @@ def getdata(start,stop,points,pow):
     label=["magnitude","real","imaginary"]
     data=[mag,real,Im]
 
-    plt.figure(figsize=(9,10))
+    '''plt.figure(figsize=(9,10))
 
     for i in range(3):
         plt.subplot(3,1,i+1)
@@ -62,7 +62,7 @@ def getdata(start,stop,points,pow):
         plt.xlabel('freq[GHz]')
         plt.ylabel("dB?")
         plt.legend()
-    plt.show()
+    #plt.show()'''
     measured_s21 = real +1j*Im
     return measured_s21
     
