@@ -31,7 +31,7 @@ single_pulse:
     gap: 0 #samples between end of qubit pulse and beginning of readout
     duration: 10000
     readout_duration: 0
-    ssb_freq: -.01
+    ssb_freq: 0
     ssb_phase: -90
     shape: 'Pulse'
 

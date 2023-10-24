@@ -12,7 +12,7 @@ from qcodes.instrument_drivers.tektronix import (
 from qcodes.instrument_drivers.tektronix.AWGFileParser import (
     parse_awg_file,  # <--- A helper function
 )
-sys.path.append("../")
+sys.path.append("../../")
 
 from instruments.TekAwg import tek_awg as tawg
 #awg = tawg.TekAwg.connect_raw_visa_socket('172.20.1.5', 5000)
