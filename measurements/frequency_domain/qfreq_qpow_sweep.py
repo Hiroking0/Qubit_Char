@@ -50,19 +50,7 @@ def getdata(start,stop,points,pow):
 
     #Plotting
     x=np.linspace(startfreq,stopfreq,len(mag))
-    label=["magnitude","real","imaginary"]
-    data=[mag,real,Im]
 
-    '''plt.figure(figsize=(9,10))
-
-    for i in range(3):
-        plt.subplot(3,1,i+1)
-        plt.plot(x/(1e9),data[i],label=label[i])
-        plt.yscale('log')
-        plt.xlabel('freq[GHz]')
-        plt.ylabel("dB?")
-        plt.legend()
-    #plt.show()'''
     measured_s21 = real +1j*Im
     return measured_s21
     
