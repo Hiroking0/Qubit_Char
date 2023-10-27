@@ -127,9 +127,8 @@ def fit_subax(ax, x, exp, fit_data, title):
     ax.set_ylabel("V")
     ax.set_title(title)
     text = "offset: " + str(round(fit_data[1], 3)) + \
-            "\n amp: " + str(round(fit_data[2], 8)) + \
+            "\n amp: " + str(round(fit_data[2], 3)) + \
             "\nfreq: " + str(round(fit_data[3], 10)) + " GHz" + \
-            '\n pi: ' + str(round(1/(fit_data[3]*2), 2)) + " ns" + \
             "\nphase: "+ str(round(fit_data[4], 3))
 
     textA = ax.text(.98, .98, text, fontsize = 10,color='green', horizontalalignment='right',
@@ -169,20 +168,11 @@ def new_fit():
         abs(max(avgs[3])-min(avgs[3])),abs(max(avgs[4])-min(avgs[4])),abs(max(avgs[5])-min(avgs[5]))] #amp
     c = 1/650  #freq
     d = np.pi/2 #phase
-    if params['measurement'] == 'rabi':
-        print('rabi')
-        title = "Rabi"
-        params = params['rabi']
-        shortest_T1 = params['rabi_pulse_initial_duration']
-        longest_T1 = params['rabi_pulse_end_duration']
-    elif params['measurement'] == 'effect_temp':
-        print('effect_temp')
-        title = "Effective Temperature"
-        params = params['effect_temp']
-        shortest_T1 = params['rabi_start']
-        longest_T1 = params['rabi_stop']
+    params = params['rabi']
+    shortest_T1 = params['rabi_pulse_initial_duration']
+    longest_T1 = params['rabi_pulse_end_duration']
     num_patterns = len(avgs[0])
-
+    
     x = np.linspace(shortest_T1,longest_T1, num_patterns)
 
     
@@ -191,8 +181,12 @@ def new_fit():
     #widgets
     ax_slide = plt.axes([0.1,0.01,0.35,0.03])
     ax_box = plt.axes([0.55, 0.01, 0.15, 0.03])
+    ax_button_update = plt.axes([0.75, 0.01, 0.04, 0.03])
+    ax_button_hide = plt.axes([0.79, 0.01, 0.04, 0.03])
     theta = Slider(ax_slide,"Theta [Deg]",valmin= 0, valmax = 360, valinit= 0, valstep= 0.1)
     textbox = TextBox(ax_box,'Freq(GHz)', initial='1/650')
+    update = Button(ax_button_update,"Update",hovercolor = 'green')
+    hide = Button(ax_button_hide,"Hide",hovercolor = 'red')
 
     #(pattern_avgs_cA, pattern_avgs_cA_sub, pattern_avgs_cB, pattern_avgs_cB_sub, mags, mags_sub)
     data_ans = fit_rabi(avgs[0], a[0], b[0], c, d, x)
@@ -212,16 +206,17 @@ def new_fit():
     lineE5,lineF5,text5 = fit_subax(ax_array[1,2], x, avgs[5], data_ms, "mags sub")
     
 
-    plt.suptitle('{} Measurement'.format(str(title)))
+    plt.suptitle('Rabi measurement with and shift {} deg'.format(0))
     
 
     #textbox function
     def update_freq_guess(text: str):
-        update_fit(text,eval(text))
+        update_fit(text)
         return text
 
     #button function
-    def update_fit(event,text=1/650):
+    def update_fit(event):
+        text=textbox.text
         current_val = theta.val
         avgs = data.get_avgs(current_val)
         #new fit 
@@ -246,34 +241,33 @@ def new_fit():
         text=[]
         for i in range(len(a)):
             context = "offset: " + str(round(af[i], 3)) + \
-                "\n amp: " + str(round(bf[i], 8)) + \
+                "\n amp: " + str(round(bf[i], 3)) + \
                 "\nfreq: " + str(round(cf[i], 10)) + " GHz" + \
-                '\n pi: ' +str(round(1/(cf[i]*2), 2)) + " ns" + \
                 "\nphase: "+ str(round(df[i], 3))
             text.append(context)
 
 
-        lineF0.set_ydata(data_ans)
+        lineF0.set_data(x,data_ans)
         text0.set_text(text[0])
         ax_array[0,0].set_ylim([min(avgs[0]),max(avgs[0])])
 
-        lineF1.set_ydata(data_as)
+        lineF1.set_data(x,data_as)
         text1.set_text(text[1])
         ax_array[1,0].set_ylim([min(avgs[1]),max(avgs[1])])
 
-        lineF2.set_ydata(data_bns)
+        lineF2.set_data(x,data_bns)
         text2.set_text(text[2])
         ax_array[0,1].set_ylim([min(avgs[2]),max(avgs[2])])
 
-        lineF3.set_ydata(data_bs)
+        lineF3.set_data(x,data_bs)
         text3.set_text(text[3])
         ax_array[1,1].set_ylim([min(avgs[3]),max(avgs[3])])
 
-        lineF4.set_ydata(data_mns)
+        lineF4.set_data(x,data_mns)
         text4.set_text(text[4])
         ax_array[0,2].set_ylim([min(avgs[4]),max(avgs[4])])
 
-        lineF5.set_ydata(data_ms)
+        lineF5.set_data(x,data_ms)
         text5.set_text(text[5])
         ax_array[1,2].set_ylim([min(avgs[5]),max(avgs[5])])
         fig.canvas.draw_idle()
@@ -283,6 +277,7 @@ def new_fit():
         avgs = data.get_avgs(current_val)
         
         lineE0.set_ydata(avgs[0])
+        lineE0.set_xdata(x)
         ax_array[0,0].set_ylim([min(avgs[0]),max(avgs[0])])
 
         lineE1.set_ydata(avgs[1])
@@ -300,13 +295,22 @@ def new_fit():
         #lineE5.set_ydata(avgs[5])
         #ax_array[1,2].set_ylim([min(avgs[5]),max(avgs[5])])
 
-        update_fit(val,textbox.text)
+        #update_fit(val)
+        fig.canvas.draw_idle()
+    def clear_plot(val):
+        lineF0.set_data([],[])
+        lineF1.set_data([],[])
+        lineF2.set_data([],[])
+        lineF3.set_data([],[])
+        lineF4.set_data([],[])
+        lineF5.set_data([],[])
         fig.canvas.draw_idle()
 
     #assign the functions when acting on it
     theta.on_changed(update_plot)
     textbox.on_submit(update_freq_guess)
-
+    update.on_clicked(update_fit)
+    hide.on_clicked(clear_plot)
     plt.show()
 
 

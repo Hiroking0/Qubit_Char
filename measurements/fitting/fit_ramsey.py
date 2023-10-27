@@ -91,8 +91,8 @@ def legacy_fit():
 
 
 def fit_subax(ax, x, exp, fit_data, title):
-    line, = ax.plot(x, exp, 'ko', markersize=5)
-    line2, = ax.plot(x, fit_data[0], 'r', linewidth=3)
+    line, = ax.plot(x, exp, 'ko', markersize=10)
+    line2, = ax.plot(x, fit_data[0], 'r', linewidth=3.5)
     ax.set_xlabel("$t_{Ramsey}$ (ns)")
     ax.set_ylabel("V")
     ax.set_title(title)
@@ -150,8 +150,12 @@ def new_fit():
     #widgets
     ax_slide = plt.axes([0.1,0.01,0.35,0.03])
     ax_box = plt.axes([0.55, 0.01, 0.15, 0.03])
+    ax_button_update = plt.axes([0.75, 0.01, 0.04, 0.03])
+    ax_button_hide = plt.axes([0.79, 0.01, 0.04, 0.03])
     theta = Slider(ax_slide,"Theta [Deg]",valmin= 0, valmax = 360, valinit= 0, valstep= 0.1)
     textbox = TextBox(ax_box,'Freq(GHz)', initial='1/3800')
+    update = Button(ax_button_update,"Update",hovercolor = 'green')
+    hide = Button(ax_button_hide,"Hide",hovercolor = 'red')
 
     #(pattern_avgs_cA, pattern_avgs_cA_sub, pattern_avgs_cB, pattern_avgs_cB_sub, mags, mags_sub)
     fig.set_tight_layout(True)
@@ -215,27 +219,27 @@ def new_fit():
             text.append(context)
 
 
-        lineF0.set_ydata(data_ans)
+        lineF0.set_data(x,data_ans)
         text0.set_text(text[0])
         ax_array[0,0].set_ylim([min(avgs[0]),max(avgs[0])])
 
-        lineF1.set_ydata(data_as)
+        lineF1.set_data(x,data_as)
         text1.set_text(text[1])
         ax_array[1,0].set_ylim([min(avgs[1]),max(avgs[1])])
 
-        lineF2.set_ydata(data_bns)
+        lineF2.set_data(x,data_bns)
         text2.set_text(text[2])
         ax_array[0,1].set_ylim([min(avgs[2]),max(avgs[2])])
 
-        lineF3.set_ydata(data_bs)
+        lineF3.set_data(x,data_bs)
         text3.set_text(text[3])
         ax_array[1,1].set_ylim([min(avgs[3]),max(avgs[3])])
 
-        lineF4.set_ydata(data_mns)
+        lineF4.set_data(x,data_mns)
         text4.set_text(text[4])
         ax_array[0,2].set_ylim([min(avgs[4]),max(avgs[4])])
 
-        lineF5.set_ydata(data_ms)
+        lineF5.set_data(x,data_ms)
         text5.set_text(text[5])
         ax_array[1,2].set_ylim([min(avgs[5]),max(avgs[5])])
         fig.canvas.draw_idle()
@@ -262,13 +266,22 @@ def new_fit():
         #lineE5.set_ydata(avgs[5])
         #ax_array[1,2].set_ylim([min(avgs[5]),max(avgs[5])])
 
-        update_fit(val,textbox.text)
+        #update_fit(val,textbox.text)
         fig.canvas.draw_idle()
-
+    def clear_plot(val):
+        lineF0.set_data([],[])
+        lineF1.set_data([],[])
+        lineF2.set_data([],[])
+        lineF3.set_data([],[])
+        lineF4.set_data([],[])
+        lineF5.set_data([],[])
+        fig.canvas.draw_idle()
+    
     #assign the functions when acting on it
     theta.on_changed(update_plot)
     textbox.on_submit(update_freq_guess)
-
+    update.on_clicked(update_fit)
+    hide.on_clicked(clear_plot)
 
 
     plt.show()
