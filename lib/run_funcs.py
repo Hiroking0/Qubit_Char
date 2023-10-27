@@ -274,7 +274,7 @@ def get_func_call(rm, sweep_param, awg):
         function: The function to call to set the parameter.
     """
     qubit_addr = "TCPIP0::172.20.1.7::5025::SOCKET"
-    readout_addr = "TCPIP0::172.20.1.17::5025::SOCKET"#"TCPIP0::172.20.1.8::5025::SOCKET"
+    readout_addr = "TCPIP0::172.20.1.17::5025::SOCKET"
     q_atten_addr = "TCPIP0::172.20.1.6::5025::SOCKET"
     r_atten_addr = "TCPIP0::172.20.1.9::5025::SOCKET"
     twpa_addr = "TCPIP0::172.20.1.11::5025::SOCKET"
