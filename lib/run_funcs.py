@@ -274,10 +274,11 @@ def get_func_call(rm, sweep_param, awg):
         function: The function to call to set the parameter.
     """
     qubit_addr = "TCPIP0::172.20.1.7::5025::SOCKET"
-    readout_addr = "TCPIP0::172.20.1.8::5025::SOCKET"
+    readout_addr = "TCPIP0::172.20.1.17::5025::SOCKET"#"TCPIP0::172.20.1.8::5025::SOCKET"
     q_atten_addr = "TCPIP0::172.20.1.6::5025::SOCKET"
     r_atten_addr = "TCPIP0::172.20.1.9::5025::SOCKET"
     twpa_addr = "TCPIP0::172.20.1.11::5025::SOCKET"
+    ef_qubit_addr = 'TCPIP0::172.20.1.17::5025::SOCKET'
     #amp_addr = "TCPIP::129.2.108.72::hislip0,4880::INSTR"
     
     addr_table = {
@@ -289,6 +290,8 @@ def get_func_call(rm, sweep_param, awg):
         'q_att': q_atten_addr,
         'p_twpa': twpa_addr,
         'w_twpa': twpa_addr,
+        'wef': ef_qubit_addr,
+        'pef':ef_qubit_addr
         #'amp':amp_addr
     }
     
@@ -297,6 +300,8 @@ def get_func_call(rm, sweep_param, awg):
         'wq': RF.RF_source,
         'pq': RF.RF_source,
         'pr': RF.RF_source,
+        'wef': RF.RF_source,
+        'pef': RF.RF_source,
         'r_att': ATT.Atten,
         'q_att': ATT.Atten,
         'p_twpa': RF.RF_source,
@@ -319,6 +324,8 @@ def get_func_call(rm, sweep_param, awg):
         'q_att': 'set_attenuation',
         'p_twpa': 'set_power',
         'w_twpa': 'set_freq',
+        'wef': 'set_freq',
+        'pef': 'set_power',
         'amp' : "set_amplitude"
         }
     

@@ -39,3 +39,4 @@ class N5183A(VisaInstrument):
             get_parser=float,
             val_mapping={True: 'ON', False: 'OFF'},
         )
+    
