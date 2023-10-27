@@ -17,7 +17,7 @@ import yaml
 import time
 import tkinter.filedialog as tkf
 import json
-from run_sequence import eval_yaml
+from time_domain.run_sequence import eval_yaml
 from datetime import datetime
 
 def int_eval(data):
