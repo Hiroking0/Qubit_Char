@@ -19,7 +19,15 @@ import tkinter.filedialog as tkf
 import json
 from run_sequence import eval_yaml
 from datetime import datetime
-
+import matplotlib.pylab as pylab
+from IPython.display import display, clear_output
+params = {'legend.fontsize': 'x-small',
+          'figure.figsize': (15, 7),
+         'axes.labelsize': 'x-small',
+         'axes.titlesize':'x-small',
+         'xtick.labelsize':'x-small',
+         'ytick.labelsize':'x-small'}
+pylab.rcParams.update(params)
 def int_eval(data):
     return eval(str(data))
 
@@ -96,15 +104,29 @@ if __name__ == "__main__":
 
     #run_funcs.turn_off_inst()
 
+    fig, ax_array = plt.subplots(2,3)
+    plt.subplots_adjust(hspace=0.3)
+
     if params['measurement'] != 'readout' and params['p1'] == 'wq':
         ssb = params[params['measurement']]['ssb_freq']
         x = np.arange(p1start + ssb, p1stop + ssb, p1step)
+        fig.text(0.5, 0.04, 'Frequency [GHz]', ha='center', va='center')
     else:
         x = np.arange(p1start, p1stop, p1step)
+        if params['p1'] == 'wq' or params['p1'] == 'wr' or params['p1'] == 'wef' or params['p1'] == 'w_twpa':
+            label = 'Frequency [GHz]'
+        
+        elif  params['p1'] == 'q_att' or  params['p1'] == 'r_att':
+            label = 'Attenuation [dB]'
+
+        elif  params['p1'] == 'pq' or  params['p1'] == 'pr' or params['p1'] == 'pef' or params['p1'] == 'p_twpa':
+            label = 'Power [dBm]'
+        fig.text(0.5, 0.04, label, ha='center', va='center')
+
     
     #plt.figure()
 
-    fig, ax_array = plt.subplots(2,3)
+    fig.text(0.06, 0.5, 'Voltage [V]', ha='center', va='center', rotation='vertical')
     plot_subax(ax_array[0,0], x, cAp_sub, 'channel a sub')
     plot_subax(ax_array[0,1], x, cBp_sub, 'channel b sub')
     plot_subax(ax_array[0,2], x, mags_sub, 'mags sub')

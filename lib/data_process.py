@@ -9,7 +9,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 from .run_funcs import Data_Arrs  # Import a custom module named 'run_funcs' that contains a class 'Data_Arrs'
-
+import matplotlib.pylab as pylab
+from IPython.display import display, clear_output
+params = {'legend.fontsize': 'x-small',
+          'figure.figsize': (15, 8),
+         'axes.labelsize': 'x-small',
+         'axes.titlesize':'x-small',
+         'xtick.labelsize':'x-small',
+         'ytick.labelsize':'x-small'}
+pylab.rcParams.update(params)
 # Define a function to calculate population vs. pattern
 def get_population_v_pattern(arr, thresh, GE=0, flipped=False):
     """
@@ -303,6 +311,7 @@ def plot_hist(ax, dat, num_bins, title):
     """
     for pattern in dat:
         ax.hist(pattern, bins=num_bins, histtype='step', alpha=0.8)
+        ax.set_ylabel('# count')
     ax.set_title(title)
 
 # Define a function to plot I vs. Q
@@ -321,6 +330,8 @@ def plot_iq(ax, I, Q, title):
     H = H.T
     ax.imshow(H, interpolation='nearest', extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]])
     ax.set_title(title)
+    ax.set_ylabel('Q Port [mV]')
+    ax.set_xlabel('I Port [mV]')
     '''
     #add check for multiple dimensions
     for i in range(len(I)):
@@ -376,7 +387,7 @@ def plot_np_file(data: Data_Arrs, time_step, path=None):
 
     # Create subplots for various data representations
     fig, ax_array = plt.subplots(3, 4)
-
+    plt.subplots_adjust(hspace=0.4)
     # Plot subaxis data
     plot_subaxis(ax_array[0, 0], readout_a, "ChA readout")
     plot_subaxis(ax_array[0, 1], readout_b, "ChB readout")
@@ -393,13 +404,14 @@ def plot_np_file(data: Data_Arrs, time_step, path=None):
 
     if path:
         plt.savefig(path + "_pic", dpi=300, pad_inches=0, bbox_inches='tight')
-    plt.show()
+    
 
     # Plot pattern vs. voltage data
     (pattern_avgs_cA, pattern_avgs_cA_sub, pattern_avgs_cB, pattern_avgs_cB_sub, mags, mags_sub) = data.get_avgs()
     x = [i * time_step for i in range(num_patterns)]
     fig2, ax_array = plt.subplots(2, 3)
-    font_size = 5
+    plt.subplots_adjust(hspace=0.3)
+    font_size = 12
 
     plot_pattern_vs_volt(ax_array[0, 0], x, pattern_avgs_cA, "ChA nosub", font_size)
     plot_pattern_vs_volt(ax_array[0, 1], x, pattern_avgs_cB, "ChB nosub", font_size)
