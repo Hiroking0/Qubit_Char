@@ -44,18 +44,18 @@ resonator = ResonatorModel()
 true_params = resonator.make_params(f_0=100, Q=10000, Q_e_real=9000, Q_e_imag=-9000)
 
 ###############################################################params
-center = 7.0859166e9 #in Hz
-span = 1e6 #in Hz
+center = 7.087455e9 #in Hz
+span = 500e3 #in Hz
 points=2001
 pow = -10 #in dbm
 start = center - span/2
 stop=center + span/2
-f = np.linspace(start, stop, points)
+f = np.linspace(start*1e-9, stop*1e-9, points)
 measured_s21 = read.getdata(start,stop,points,pow)
 fig,ax = plt.subplots(1,1,figsize=(12,8))
 line, = ax.plot(f, 20*np.log10(np.abs(measured_s21)),label = 'meas data')
 ax.set_ylabel('|S21| (dB)')
-ax.set_xlabel('MHz')
+ax.set_xlabel('GHz')
 ax.set_title('simulated measurement')
 '''plt.figure()
 plt.scatter(np.real(measured_s21),np.imag(measured_s21))'''
@@ -64,7 +64,8 @@ ax_span = plt.axes([0.33, 0.01, 0.1, 0.03])
 axpoints = plt.axes([0.48, 0.01, 0.1, 0.03])
 ax_pow = plt.axes([0.66, 0.01, 0.1, 0.03])
 ax_update = plt.axes([0.8, 0.01, 0.05, 0.03])
-
+text_center = str(center*1e-9)
+text_span = str(span*1e-3)
 center = TextBox(ax_center,'Center(GHz)', initial='7.0859166')
 span = TextBox(ax_span,'Span(MHz)', initial='1')
 point = TextBox(axpoints,'Points', initial='2001')
@@ -93,7 +94,7 @@ def update_fit(event):
 update.on_clicked(update_fit)
 plt.show()
 #__________________________________________________________
-
+print(measured_s21.dtype)
 guess = resonator.guess(measured_s21, f=f*1e-6, verbose=True)
 print("_________________")
 print(guess)
@@ -131,9 +132,9 @@ kappa/2Pi = F0/Q
 
 """
 
-'''file_path = 'data.txt'
+file_path = 'true_high_pow_read_at_-10dbm.txt'
 
 # Save the data to a text file
 data = [f,measured_s21]
 header = 'Column1,Column2'
-np.savetxt(file_path, data, delimiter=',', header=header)'''
+np.savetxt(file_path, data, delimiter=',', header=header)
