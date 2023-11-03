@@ -75,7 +75,7 @@ with context_meas.run() as datasaver:
         datasaver.add_result((VNA.magnitude, mag), (param, set_param))
         dataid = datasaver.run_id
         dataset = datasaver.dataset
-    
+dataset.export("csv", path=path) 
 plot_dataset(dataset)
 
 plt.show()

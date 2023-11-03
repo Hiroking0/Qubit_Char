@@ -89,7 +89,7 @@ with context_meas.run() as datasaver:
             datasaver.add_result((param1, pow_set), (param2, freq_set), (z, mag))
             dataid = datasaver.run_id
             dataset = datasaver.dataset
-    
+dataset.export("csv", path=path) 
 rf.set('enable', False)
 plot_dataset(dataset)
 
