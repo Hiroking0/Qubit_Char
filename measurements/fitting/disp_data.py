@@ -18,6 +18,14 @@ import pickle as pkl
 from fit_rabi import  fit_rabi
 from scipy.optimize import curve_fit
 from multiprocessing import Process, Manager
+from qcodes.dataset import (
+    Measurement,
+    initialise_or_create_database_at,
+    load_by_run_spec,
+    load_from_netcdf,
+    load_or_create_experiment,
+    plot_dataset,)
+
 def disp_sequence():
     fn = askopenfilename(filetypes=[("Pickles", "*.pkl")])
     nf = '\\'.join(fn.split('/')[0:-1]) + "/" #Gets the path of the file and adds a /
@@ -612,15 +620,21 @@ def two_rpm():
     plt.suptitle('RPM measurement')
     plt.legend(['pi preperation data', 'pi prep fit', '20% pi prep data', '20% pi prep fit'])
     plt.show()
+def continousmeas():
+    file_path = askopenfilename()
+    data = load_from_netcdf(file_path)
+    type(data)
+    plot_dataset(data)
+    plt.show()
 
 
 if __name__ == "__main__":
     #get_temp_thresh()
     #disp_double_sweep()
     #disp_sequence()
-    show_sweep_output() #each pattern will be overlayed on each other
+    #show_sweep_output() #each pattern will be overlayed on each other
     #disp_single_sweep() #3d plot pattern # is x axis
     #disp_3_chevrons()
     #two_rpm()
-    
+    continousmeas()
     
