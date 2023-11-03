@@ -24,7 +24,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 from qcodes.parameters import Parameter
 import tkinter.filedialog as filedialog
-name = 'wq_pq_sweep.db'
+from datetime import datetime
+
+now = datetime.now()
+
+formatted_date = now.strftime("%Y_%m_%d_%H_%M_%S")
+
+name = 'qubit_spec_'+formatted_date
 rf = N5183A('qubit_rf', "TCPIP0::172.20.1.7::5025::SOCKET")
 rf.set('power', -22)
 rf.set('frequency', 2.9396)
@@ -51,12 +57,12 @@ station = qc.Station()
 station.add_component(rf)
 station.add_component(VNA)
 pow_start = -50
-pow_stop = 0
+pow_stop = -45
 pow_step = 1
 
 freq_start = 3.05
 freq_stop = 3.225
-freq_step = .003
+freq_step = .03
 
 path = filedialog.askdirectory() + "/" + name + "_"
 initialise_or_create_database_at(path)
@@ -87,9 +93,9 @@ with context_meas.run() as datasaver:
             param2.set(freq_set)
             mag = np.average(VNA.magnitude())
             datasaver.add_result((param1, pow_set), (param2, freq_set), (z, mag))
-            dataid = datasaver.run_id
-            dataset = datasaver.dataset
-dataset.export("csv", path=path) 
+dataid = datasaver.run_id
+dataset = datasaver.dataset
+dataset.export("netcdf", path=path+'actualdata') 
 rf.set('enable', False)
 plot_dataset(dataset)
 

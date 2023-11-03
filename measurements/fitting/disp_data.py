@@ -14,7 +14,13 @@ import os
 import json
 import pandas
 import fit_rabi
-
+from qcodes.dataset import (
+    Measurement,
+    initialise_or_create_database_at,
+    load_by_run_spec,
+    load_from_netcdf,
+    load_or_create_experiment,
+    plot_dataset,)
 def disp_sequence():
     fn = askopenfilename()
     nf = '\\'.join(fn.split('/')[0:-1]) + "/"
@@ -285,12 +291,18 @@ def show_sweep_output():
     plt.title('Magnitude nosub')
     
     plt.show()
-
+def continousmeas():
+    file_path = askopenfilename()
+    data = load_from_netcdf(file_path)
+    type(data)
+    plot_dataset(data)
+    plt.show()
 if __name__ == "__main__":
-    disp_sequence()
+    #disp_sequence()
     #show_sweep_output()
     #disp_single_sweep()
     #disp_3_chevrons()
+    continousmeas()
     
     
     

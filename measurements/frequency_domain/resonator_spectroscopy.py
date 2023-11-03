@@ -19,8 +19,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tkinter.filedialog as filedialog
 
+from datetime import datetime
 
-name = 'resonator_spectro.db'
+now = datetime.now()
+
+formatted_date = now.strftime("%Y_%m_%d_%H_%M_%S")
+
+name = 'resonator_spec_'+formatted_date
 rf = N5183A('qubit_rf', "TCPIP0::172.20.1.7::5025::SOCKET")
 VNA = PNABase(name = 'test',
               address = 'TCPIP0::K-E5080B-00202.local::hislip0::INSTR',
@@ -47,7 +52,7 @@ station.add_component(rf)
 station.add_component(VNA)
 
 sweep_start = -70
-sweep_stop = -0
+sweep_stop = -68
 sweep_step = 1
 path = filedialog.askdirectory() + "/" + name + "_"
 initialise_or_create_database_at(path)
@@ -73,9 +78,9 @@ with context_meas.run() as datasaver:
         #rf.frequency.set(set_freq)
         mag = VNA.magnitude()
         datasaver.add_result((VNA.magnitude, mag), (param, set_param))
-        dataid = datasaver.run_id
-        dataset = datasaver.dataset
-dataset.export("csv", path=path) 
+dataid = datasaver.run_id
+dataset = datasaver.dataset
+dataset.export("netcdf", path=path+'actualdata') 
 plot_dataset(dataset)
 
 plt.show()
