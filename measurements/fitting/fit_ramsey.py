@@ -91,8 +91,8 @@ def legacy_fit():
 
 
 def fit_subax(ax, x, exp, fit_data, title):
-    line, = ax.plot(x, exp, 'ko', markersize=10)
-    line2, = ax.plot(x, fit_data[0], 'r', linewidth=3.5)
+    line, = ax.plot(x, exp, 'ko', markersize=5)
+    line2, = ax.plot(x, fit_data[0], 'r', linewidth=2.5)
     ax.set_xlabel("$t_{Ramsey}$ (ns)")
     ax.set_ylabel("V")
     ax.set_title(title)
@@ -279,6 +279,7 @@ def new_fit():
     
     #assign the functions when acting on it
     theta.on_changed(update_plot)
+    theta.on_changed(update_fit)
     textbox.on_submit(update_freq_guess)
     update.on_clicked(update_fit)
     hide.on_clicked(clear_plot)
