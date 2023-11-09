@@ -16,6 +16,7 @@ import yaml
 import tkinter.filedialog as filedialog
 import json
 from datetime import datetime
+import time
 
 def int_eval(data):
     return eval(str(data))
@@ -40,7 +41,7 @@ if __name__ == "__main__":
     f.close()
     params = eval_yaml(params)
     #name = params['name']
-
+    night_run = params['night run']
 
     
     decimation = params['decimation']
@@ -78,16 +79,39 @@ if __name__ == "__main__":
     run_funcs.initialize_awg(awg, num_patterns, pattern_repeat, decimation)
     run_funcs.init_params(params)
     raw_path = filedialog.askdirectory()
-    now = datetime.now()
-    date = now.strftime("%m%d_%H%M%S")
-    path = raw_path + "/" + name + "_" + date
+    if night_run == True:
+        while True:
+            time.sleep(30)
+            now = datetime.now()
+            date = now.strftime("%m%d_%H%M%S")
+            path = raw_path + "/" + name + "_" + date
 
 
-    data = run_funcs.run_and_acquire(awg,
-                                    board,
-                                    params,
-                                    num_patterns,
-                                    path)
+            data = run_funcs.run_and_acquire(awg,
+                                            board,
+                                            params,
+                                            num_patterns,
+                                            path)
+
+            #run_funcs.turn_off_inst()
+            
+            j_file = open(path+"_json.json", 'w')
+            json.dump(params, j_file, indent = 4)
+            j_file.close()
+            data.save(path)
+
+
+    else:
+        now = datetime.now()
+        date = now.strftime("%m%d_%H%M%S")
+        path = raw_path + "/" + name + "_" + date
+
+
+        data = run_funcs.run_and_acquire(awg,
+                                        board,
+                                        params,
+                                        num_patterns,
+                                        path)
 
     #run_funcs.turn_off_inst()
     

@@ -158,7 +158,6 @@ def new_fit():
     hide = Button(ax_button_hide,"Hide",hovercolor = 'red')
 
     #(pattern_avgs_cA, pattern_avgs_cA_sub, pattern_avgs_cB, pattern_avgs_cB_sub, mags, mags_sub)
-    fig.set_tight_layout(True)
     data_ans = fit_ramsey(avgs[0], a[0], b[0], t2 , f, phi, x)
     data_as = fit_ramsey(avgs[1], a[1], b[1], t2 , f, phi, x)
     data_bns = fit_ramsey(avgs[2], a[2], b[2], t2 , f, phi, x)
@@ -221,27 +220,33 @@ def new_fit():
 
         lineF0.set_data(x,data_ans)
         text0.set_text(text[0])
-        ax_array[0,0].set_ylim([min(avgs[0]),max(avgs[0])])
+        delta = abs( min(avgs[0]) - max(avgs[0]))*0.05
+        ax_array[0,0].set_ylim([min(avgs[0]) - delta, max(avgs[0]) +delta])
 
         lineF1.set_data(x,data_as)
         text1.set_text(text[1])
-        ax_array[1,0].set_ylim([min(avgs[1]),max(avgs[1])])
+        delta = abs( min(avgs[1]) - max(avgs[1]))*0.05
+        ax_array[1,0].set_ylim([min(avgs[1])- delta,max(avgs[1])+ delta])
 
         lineF2.set_data(x,data_bns)
         text2.set_text(text[2])
-        ax_array[0,1].set_ylim([min(avgs[2]),max(avgs[2])])
+        delta = abs( min(avgs[2]) - max(avgs[2]))*0.05
+        ax_array[0,1].set_ylim([min(avgs[2]) - delta ,max(avgs[2]) + delta])
 
         lineF3.set_data(x,data_bs)
         text3.set_text(text[3])
-        ax_array[1,1].set_ylim([min(avgs[3]),max(avgs[3])])
+        delta = abs( min(avgs[3]) - max(avgs[3]))*0.05
+        ax_array[1,1].set_ylim([min(avgs[3])- delta,max(avgs[3]) + delta])
 
         lineF4.set_data(x,data_mns)
         text4.set_text(text[4])
-        ax_array[0,2].set_ylim([min(avgs[4]),max(avgs[4])])
+        delta = abs( min(avgs[4]) - max(avgs[4]))*0.05
+        ax_array[0,2].set_ylim([min(avgs[4]) - delta ,max(avgs[4]) + delta])
 
         lineF5.set_data(x,data_ms)
         text5.set_text(text[5])
-        ax_array[1,2].set_ylim([min(avgs[5]),max(avgs[5])])
+        delta = abs( min(avgs[5]) - max(avgs[5]))*0.05
+        ax_array[1,2].set_ylim([min(avgs[5])- delta,max(avgs[5]) + delta])
         fig.canvas.draw_idle()
     #slider function
     def update_plot(val):
@@ -249,16 +254,20 @@ def new_fit():
         avgs = data.get_avgs(current_val)
         
         lineE0.set_ydata(avgs[0])
-        ax_array[0,0].set_ylim([min(avgs[0]),max(avgs[0])])
+        delta = abs( min(avgs[0]) - max(avgs[0]))*0.05
+        ax_array[0,0].set_ylim([min(avgs[0]) - delta, max(avgs[0]) +delta])
 
         lineE1.set_ydata(avgs[1])
-        ax_array[1,0].set_ylim([min(avgs[1]),max(avgs[1])])
+        delta = abs( min(avgs[1]) - max(avgs[1]))*0.05
+        ax_array[1,0].set_ylim([min(avgs[1])- delta,max(avgs[1])+ delta])
 
         lineE2.set_ydata(avgs[2])
-        ax_array[0,1].set_ylim([min(avgs[2]),max(avgs[2])])
+        delta = abs( min(avgs[2]) - max(avgs[2]))*0.05
+        ax_array[0,1].set_ylim([min(avgs[2]) - delta ,max(avgs[2]) + delta])
 
         lineE3.set_ydata(avgs[3])
-        ax_array[1,1].set_ylim([min(avgs[3]),max(avgs[3])])
+        delta = abs( min(avgs[3]) - max(avgs[3]))*0.05
+        ax_array[1,1].set_ylim([min(avgs[3])- delta,max(avgs[3]) + delta])
 
         #lineE4.set_ydata(avgs[4])
         #ax_array[0,2].set_ylim([min(avgs[4]),max(avgs[4])])
