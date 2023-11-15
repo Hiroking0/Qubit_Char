@@ -4,7 +4,9 @@ Created on Tue Apr 11 11:44:38 2023
 
 @author: lqc
 """
-from tkinter.filedialog import askopenfilename, askopenfilenames
+
+import tkinter as tk
+from tkinter.filedialog import askopenfilename, askopenfilenames, askdirectory
 import numpy as np
 import sys
 sys.path.append("../../")
@@ -123,6 +125,7 @@ def disp_sequence():
     T = -del_E/denom
     print("Effective tempurature (mK):", T*(10**3))
     '''
+
 
 def plot_mesh_subax(ax, x, y, data, title, xlabel, ylabel):
     ax.pcolormesh(x, y, data, shading = 'auto')
@@ -627,14 +630,68 @@ def continousmeas():
     plot_dataset(data)
     plt.show()
 
+def night_run():
+    datas=[]
+    def plot_data(fn):
+        nf = '\\'.join(fn.split('/')[0:-1]) + "/" #Gets the path of the file and adds a /
+        no_ext_file = ''.join(fn.split('/')[-1])[:-4]
+
+
+        plt.rcParams.update({'font.size': 18})
+
+        with open(fn, 'rb') as pickled_file:
+            #print(pickled_file)
+            data = pkl.load(pickled_file)
+            #data is a Data_arrs type
+        return data
+
+
+    # Create a Tkinter root window (it will not be shown)
+    root = tk.Tk()
+    root.withdraw()  # Hide the main window
+
+    # Ask the user to select a folder
+    folder_path = askdirectory(title="Select Folder")
+    print(folder_path)
+
+    # List all files in the folder
+    files = [f for f in os.listdir(folder_path) if  f.endswith(".pkl") and os.path.isfile(os.path.join(folder_path, f))]
+    timestamp=[]
+    # Iterate through the files and plot each one
+    for file_name in files:
+        file_path = os.path.join(folder_path, file_name)
+        timestamp.append(file_name[-10:-4])
+        fn=file_name
+        print(file_name)
+        nf = folder_path + "/" #Gets the path of the file and adds a /
+        no_ext_file = ''.join(fn.split('/')[-1])[:-4]
+
+
+        plt.rcParams.update({'font.size': 18})
+
+        for (root, dirs, files) in os.walk(nf):
+            for f in files:
+                if ".json" in f and no_ext_file in f:
+                    with open(nf + f) as file:
+                        params = json.load(file)
+        data = plot_data(file_path)
+        datas.append(data)
+    dp.plot_nightrun(datas,params,timestamp)
+    dp.night_run_color(datas,params,timestamp)
+    plt.show()
+    # Show the plot
+
+
 
 if __name__ == "__main__":
     #get_temp_thresh()
     #disp_double_sweep()
     #disp_sequence()
+    #disp_nightrun()
     #show_sweep_output() #each pattern will be overlayed on each other
     #disp_single_sweep() #3d plot pattern # is x axis
     #disp_3_chevrons()
     #two_rpm()
-    continousmeas()
+    #continousmeas()
+    night_run()
     

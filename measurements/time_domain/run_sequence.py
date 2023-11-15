@@ -120,10 +120,6 @@ if __name__ == "__main__":
     j_file.close()
     data.save(path)
     
-    if params['measurement'] == 'readout' or params['measurement'] == 'npp':
-        time_step = 1
-    else:
-        time_step = params[params['measurement']]['step']
 
     
-    dp.plot_np_file(data, time_step, path)
+    dp.plot_np_file(data,path)

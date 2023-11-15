@@ -7,10 +7,13 @@ Created on Thu Oct 13 14:37:25 2022
 # Import necessary libraries
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.colors import LogNorm
 import time
 from .run_funcs import Data_Arrs  # Import a custom module named 'run_funcs' that contains a class 'Data_Arrs'
 import matplotlib.pylab as pylab
 from IPython.display import display, clear_output
+from matplotlib import animation
+from datetime import datetime
 params = {'legend.fontsize': 'x-small',
           'figure.figsize': (15, 8),
          'axes.labelsize': 'x-small',
@@ -423,7 +426,98 @@ def plot_np_file(data: Data_Arrs, time_step, path=None):
     if path:
         plt.savefig(path + "_pic2", dpi=300, pad_inches=0, bbox_inches='tight')
     plt.show()
+def night_run_color(datas: Data_Arrs, params,timestamp):
+    
+    allpattern_avgs_cA=[]
+    for data in datas:
+        #params = params
+        if params['measurement'] == 'readout' or params['measurement'] == 'npp':
+            time_step = 1
+        else:
+            time_step = params[params['measurement']]['step']
+        # Extract data arrays
+        (chA_nosub, chA_sub, chB_nosub, chB_sub, mags_nosub, mags_sub, readout_a, readout_b) = data.get_data_arrs()
+        num_patterns = 1 if np.ndim(chA_nosub) == 1 else len(chA_nosub)
+        (pattern_avgs_cA, pattern_avgs_cA_sub, pattern_avgs_cB, pattern_avgs_cB_sub, mags, mags_sub) = data.get_avgs()
+        x = [i * time_step for i in range(num_patterns)]
+        allpattern_avgs_cA.append(pattern_avgs_cB)
+    zdata=np.zeros((len(allpattern_avgs_cA),len(allpattern_avgs_cA[0])))
+    for i in range(len(allpattern_avgs_cA)):
+        ave = np.average(allpattern_avgs_cA[i])
+        for j in range(len(allpattern_avgs_cA[i])):
+            zdata[i,j]=allpattern_avgs_cA[i][j]-ave
+    
+    fig,ax1 = plt.subplots(1,1,figsize=(10,5))
+    y = np.arange(0,len(allpattern_avgs_cA),1)
 
+    # Create a color plot with a higher-contrast colormap and logarithmic normalization
+    plt.pcolormesh(x, y, zdata)
+    ax1.set_xlabel("$t_{ramsey}$ (ns)")
+    ax1.set_ylabel("Measurement Iteration")
+    
+    # Add colorbar
+    cbar = plt.colorbar()
+    cbar.set_label('V')
+    fig.savefig('colorplot.png')
+
+def plot_nightrun(datas: Data_Arrs, params,timestamp):
+    
+    allpattern_avgs_cA=[]
+    for data in datas:
+        #params = params
+        if params['measurement'] == 'readout' or params['measurement'] == 'npp':
+            time_step = 1
+        else:
+            time_step = params[params['measurement']]['step']
+        # Extract data arrays
+        (chA_nosub, chA_sub, chB_nosub, chB_sub, mags_nosub, mags_sub, readout_a, readout_b) = data.get_data_arrs()
+        num_patterns = 1 if np.ndim(chA_nosub) == 1 else len(chA_nosub)
+        (pattern_avgs_cA, pattern_avgs_cA_sub, pattern_avgs_cB, pattern_avgs_cB_sub, mags, mags_sub) = data.get_avgs()
+        x = [i * time_step for i in range(num_patterns)]
+        allpattern_avgs_cA.append(pattern_avgs_cB)
+    zdata=np.zeros((len(allpattern_avgs_cA),len(allpattern_avgs_cA[0])))
+    for i in range(len(allpattern_avgs_cA)):
+        ave = np.average(allpattern_avgs_cA[i])
+        for j in range(len(allpattern_avgs_cA[i])):
+            zdata[i,j]=allpattern_avgs_cA[i][j]-ave
+    
+    fig,ax1 = plt.subplots(1,2,figsize=(10,5))
+
+    delta = abs( np.min(allpattern_avgs_cA) - np.max(allpattern_avgs_cA))*0.05
+    ax1[0].set_ylim([np.min(allpattern_avgs_cA)- delta,np.max(allpattern_avgs_cA)+ delta])
+    ax1[0].set_xlim([min(x),max(x)])
+    line, = ax1[0].plot([],[])
+    ax1[0].set_xlabel("$t_{ramsey}$ (ns)")
+    ax1[0].set_ylabel("V")
+
+    title = fig.suptitle('')
+    line2, = ax1[1].plot([],[])
+    ax1[1].set_xlabel("$t_{ramsey}$ (ns)")
+    ax1[1].set_ylabel("V")
+    def init():
+        line.set_data(x,allpattern_avgs_cA[0])
+        line2.set_data(x,allpattern_avgs_cA[0])
+        return line,line2,
+    def animate(i):
+        line.set_data(x, allpattern_avgs_cA[i])
+        line2.set_data(x, allpattern_avgs_cA[i])
+        delta = abs( np.min(allpattern_avgs_cA[i]) - np.max(allpattern_avgs_cA[i]))*0.05
+        ax1[1].set_ylim([np.min(allpattern_avgs_cA[i])- delta,np.max(allpattern_avgs_cA[i])+ delta])
+        ax1[1].set_xlim([min(x),max(x)])
+        timestamp_str = timestamp[i]
+        timestamp_obj = datetime.strptime(timestamp_str, '%H%M%S')
+        formatted_timestamp = timestamp_obj.strftime('%H:%M')
+        title.set_text('Approximate Time of Measurement {}'.format(formatted_timestamp))
+
+        return line,line2,
+
+    anim = animation.FuncAnimation(fig, animate, init_func=init, 
+                                   frames = len(allpattern_avgs_cA),
+                                   interval = 300, blit = True)
+    plt.tight_layout()
+    anim.save('animated_plot.gif', writer='imagemagick', fps=3)
+
+    return
 # Define a function to plot various data representations
 def plot_all(chA, chB, num_patterns, pattern_reps, seq_reps, avg_start, avg_length, large_data_plot=False):
     """
