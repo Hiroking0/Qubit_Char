@@ -45,7 +45,7 @@ resonator = ResonatorModel()
 true_params = resonator.make_params(f_0=100, Q=10000, Q_e_real=9000, Q_e_imag=-9000)
 
 ###############################################################params
-center = 7.088097e9 #in Hz
+center = 7.09161e9 #in Hz
 span = 500e3 #in Hz
 points=2001
 pow = -69 #in dbm
@@ -73,15 +73,16 @@ span = TextBox(ax_span,'Span(MHz)', initial='1')
 point = TextBox(axpoints,'Points', initial='2001')
 pow = TextBox(ax_pow,'Power(dBm)', initial='-10')
 update = Button(ax_update,"Update",hovercolor = 'green')
-save = Button(ax_save,"Save",hovercolor = 'green')
+saves = Button(ax_save,"Save",hovercolor = 'green')
 
 def save(event):
     file_path = filedialog.askdirectory()
-
+    name = 'res_plot.txt'
+    ff = file_path + '/' + name
     # Save the data to a text file
     data = [f,measured_s21]
     header = 'Column1,Column2'
-    np.savetxt(file_path, data, delimiter=',', header=header)
+    np.savetxt(ff, data, delimiter=',', header=header)
 
 def update_fit(event):
     centers = eval(str(center.text))*1e9 #in Hz
@@ -102,6 +103,7 @@ def update_fit(event):
     fig.canvas.draw_idle()
     return
 update.on_clicked(update_fit)
+saves.on_clicked(save)
 plt.show()
 #__________________________________________________________
 print(measured_s21.dtype)
