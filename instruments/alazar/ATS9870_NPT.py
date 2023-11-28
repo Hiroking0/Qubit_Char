@@ -98,7 +98,11 @@ def ConfigureBoard(board):
     #                     0)
     
 
-def AcquireData(board, params, num_patterns, path, saveData=True, live_plot=False):
+def AcquireData(que,data_queue,live_data):
+    board = ats.Board(systemId = 1, boardId = 1)
+    ConfigureBoard(board)
+    (params, num_patterns, path, saveData, live_plot) = que
+
     # Define acquisition parameters from the configuration file
     readout_dur = params[params['measurement']]['readout_duration']
     readout_trigger_offset = params['readout_trigger_offset']
@@ -231,6 +235,11 @@ def AcquireData(board, params, num_patterns, path, saveData=True, live_plot=Fals
             readout_avg_array_B[pattern_number] = (chA + readout_avg_array_B[pattern_number] * buffersCompleted) / (
                     1 + buffersCompleted)
 
+            data = (chA_avgs_nosub, chA_avgs_sub, chB_avgs_nosub, chB_avgs_sub, readout_avg_array_A, readout_avg_array_B,index_number,pattern_number)
+            live_data.send(data)
+            live_data.close()
+
+
             if live_plot and pattern_number == 0:
                 for i in range(num_patterns):
                     plt_avg[i] = np.average(chB_avgs_sub[i][:index_number])
@@ -312,21 +321,16 @@ def AcquireData(board, params, num_patterns, path, saveData=True, live_plot=Fals
     #np.save(path + "chB_nosub", chB_avgs_nosub)
     #np.save(path + "mag_sub", mag_sub)
     #np.save(path + "mag_nosub", mag_nosub)
-
-    return (
-        chA_avgs_nosub,
-        chA_avgs_sub,
-        chB_avgs_nosub,
-        chB_avgs_sub,
-        mag_nosub,
-        mag_sub,
-        readout_avg_array_A,
-        readout_avg_array_B
-    )
+    return_data = (chA_avgs_nosub, chA_avgs_sub, chB_avgs_nosub, chB_avgs_sub, mag_nosub, mag_sub, readout_avg_array_A, readout_avg_array_B)
+    #data_queue.put(return_data)
+    data_queue.send(return_data)
+    data_queue.close()
+    print('here')
+    return
 
 
 
-if __name__ == "__main__":
+'''if __name__ == "__main__":
     board = ats.Board(systemId = 1, boardId = 1)
     ConfigureBoard(board)
-    AcquireData(board)
+    AcquireData(board)'''

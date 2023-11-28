@@ -13,7 +13,8 @@ from instruments import RF_interface as RF
 import time
 import numpy as np
 from threading import Thread
-from multiprocessing import Process
+from multiprocessing import Process, Manager, Queue, Pipe
+import multiprocessing as mp
 import pyvisa as visa
 import csv
 import matplotlib.pyplot as plt
@@ -235,23 +236,38 @@ def run_and_acquire(awg, board, params, num_patterns, path) -> Data_Arrs:
     """
     save_raw = False
     live_plot = False
-    que = queue.Queue()
+    #que = queue.Queue()
+    manager = Manager()
 
-    acproc = Thread(target = lambda q, board, params, num_patterns, path, raw, live:
+    parent_conn1, data_queue = Pipe()
+    parent_conn2, live_data = Pipe()
+
+
+    data_queue = Pipe()
+    live_data= Pipe()
+    setup = (params, num_patterns, path, save_raw, live_plot)
+    '''acproc = Thread(target = lambda q, board, params, num_patterns, path, raw, live:
                             q.put(npt.AcquireData(board, params, num_patterns, path, raw, live)), 
-                            args = (que, board, params, num_patterns, path, save_raw, live_plot))
+                            args = (que, board, params, num_patterns, path, save_raw, live_plot))'''
 
     #acproc = Process(target = lambda q, board, params, num_patterns, path, raw, live:
     #                    q.put(npt.AcquireData(board, params, num_patterns, path, raw, live)), 
     #                    args = (que, board, params, num_patterns, path, save_raw, live_plot))
 
+    acproc = Process(target = npt.AcquireData, args = (setup,data_queue,live_data))
+    
     acproc.start()
     time.sleep(.5)
     awg.run()
+    print('run')
     acproc.join()
+    print('joining')
     awg.stop()
-    arrs = que.get()
-    data_arrs = Data_Arrs(*arrs)
+
+    arr = parent_conn1.recv()
+
+    #arr = data_queue.get()
+    data_arrs = Data_Arrs(*arr)
     return data_arrs
     
     
