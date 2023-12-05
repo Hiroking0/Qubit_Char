@@ -98,9 +98,11 @@ def fit_subax(ax, x, exp, fit_data, title):
     ax.set_xlabel("$t_{T1}$ (ns)")
     ax.set_ylabel("V")
     ax.set_title(title)
+    
     text = "offset: " + str(round(fit_data[1], 3)) + \
     "\n amp: " + str(round(fit_data[2], 3)) + \
     "\ntau: " + str(round(fit_data[3]/1000, 3)) + " us"
+
     textA = ax.text(.98, .98, text, fontsize = 10, horizontalalignment='right',
         verticalalignment='top', color='green',transform=ax.transAxes)
     return line,line2,textA
@@ -144,9 +146,19 @@ def new_fit():
     b = [new_avgs[0][index]-a[0],new_avgs[1][index]-a[1],new_avgs[2][index]-a[2],
          new_avgs[3][index]-a[3],new_avgs[4][index]-a[4],new_avgs[5][index]-a[5]]
     c = 5679
-    params = params['T1']
-    longest_T1 = params['T1_final_gap']
-    shortest_T1 = params['T1_init_gap']
+
+    if params['measurement'] == 'T1':
+        print('T1')
+        title = "T1"
+        params = params['T1']
+        longest_T1 = params['T1_final_gap']
+        shortest_T1 = params['T1_init_gap']
+    elif params['measurement'] == 'echo':
+        print('echo')
+        title = "Echo"
+        params = params['echo']
+        shortest_T1 = params['echo_initial_t']
+        longest_T1 = params['echo_final_t']
     num_patterns = len(new_avgs[0])
     
     x = np.linspace(shortest_T1,longest_T1, num_patterns)
@@ -174,7 +186,7 @@ def new_fit():
     lineE4,lineF4,text4 = fit_subax(ax_array[0,2], x, new_avgs[4], data_mns, "Mags nosub")
     lineE5,lineF5,text5 = fit_subax(ax_array[1,2], x, new_avgs[5], data_ms, "mags sub")
 
-    plt.suptitle('T1 measurement')
+    plt.suptitle('{} Measurement'.format(str(title)))
     #textbox function
     def update_freq_guess(text: str):
         update_fit(text,eval(text))

@@ -122,7 +122,7 @@ def new_fit():
             if ".json" in f and no_ext_file in f:
                 with open(nf + f) as file:
                     params = json.load(file)
-
+    print(params[params['measurement']])
     #arrs = data.get_data_arrs()
     avgs = data.get_avgs()
     #pop = dp.get_population_v_pattern(arr, params['v_threshold'], flipped = True)
@@ -138,9 +138,20 @@ def new_fit():
     t2 = 3000
     f = 1/3800
     phi = 1.57
-    params = params['ramsey']
-    longest_T1 = params['ramsey_gap_1_final']
-    shortest_T1 = params['ramsey_gap_1_init']
+
+    if params['measurement'] == 'ramsey':
+        print('ramsey')
+        title = "Ramsey"
+        params = params['ramsey']
+        longest_T1 = params['ramsey_gap_1_final']
+        shortest_T1 = params['ramsey_gap_1_init']
+    elif params['measurement'] == 'echo':
+        print('echo')
+        title = "Echo"
+        params = params['echo']
+        shortest_T1 = params['echo_initial_t']
+        longest_T1 = params['echo_final_t']
+
     num_patterns = len(avgs[0])
     
     x = np.linspace(shortest_T1,longest_T1, num_patterns)
@@ -174,7 +185,7 @@ def new_fit():
     lineE5,lineF5,text5 = fit_subax(ax_array[1,2], x, avgs[5], data_ms, "mags sub")
     figManager = plt.get_current_fig_manager()
     figManager.window.showMaximized()
-    plt.suptitle('Ramsey measurement')
+    plt.suptitle('{} Measurement'.format(str(title)))
     
 
     #textbox function
@@ -193,7 +204,7 @@ def new_fit():
             abs(max(avgs[3])-min(avgs[3])),abs(max(avgs[4])-min(avgs[4])),abs(max(avgs[5])-min(avgs[5]))] #amp
         #guess for the update plot
         t2 = 3000.
-        f = float(eval(textbox.text))  #freq
+        f = float(eval(textbox.text)) #freq
         d = np.pi/2 #phase
 
         af = np.zeros(len(a))
