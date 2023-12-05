@@ -81,7 +81,6 @@ if __name__ == "__main__":
     raw_path = filedialog.askdirectory()
     if night_run == True:
         while True:
-            time.sleep(30)
             now = datetime.now()
             date = now.strftime("%m%d_%H%M%S")
             path = raw_path + "/" + name + "_" + date
