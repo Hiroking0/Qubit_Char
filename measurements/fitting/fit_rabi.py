@@ -241,7 +241,7 @@ def new_fit():
         text=[]
         for i in range(len(a)):
             context = "offset: " + str(round(af[i], 3)) + \
-                "\n amp: " + str(round(bf[i], 3)) + \
+                "\n amp: " + str(round(bf[i], 6)) + \
                 '\n pi: ' +str(round(1/(cf[i]*2), 2)) + " ns" + \
                 "\nphase: "+ str(round(df[i], 3))
             text.append(context)
