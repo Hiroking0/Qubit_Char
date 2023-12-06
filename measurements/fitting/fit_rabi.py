@@ -166,7 +166,7 @@ def new_fit():
         np.average(avgs[3]),np.average(avgs[4]),np.average(avgs[5])] #offset
     b = 3*[abs(max(avgs[0])-min(avgs[0])),abs(max(avgs[1])-min(avgs[1])),abs(max(avgs[2])-min(avgs[2])),
         abs(max(avgs[3])-min(avgs[3])),abs(max(avgs[4])-min(avgs[4])),abs(max(avgs[5])-min(avgs[5]))] #amp
-    c = 1/650  #freq
+    c = 1/150  #freq
     d = np.pi/2 #phase
     if params['measurement'] == 'rabi':
         print('rabi')
@@ -194,7 +194,7 @@ def new_fit():
     ax_button_update = plt.axes([0.75, 0.01, 0.04, 0.03])
     ax_button_hide = plt.axes([0.79, 0.01, 0.04, 0.03])
     theta = Slider(ax_slide,"Theta [Deg]",valmin= 0, valmax = 360, valinit= 0, valstep= 0.1)
-    textbox = TextBox(ax_box,'Freq(GHz)', initial='1/650')
+    textbox = TextBox(ax_box,'Freq(GHz)', initial='1/150')
     update = Button(ax_button_update,"Update",hovercolor = 'green')
     hide = Button(ax_button_hide,"Hide",hovercolor = 'red')
 
