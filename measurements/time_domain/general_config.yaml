@@ -3,7 +3,7 @@ name: 'auto' #name of the file, if set to 'auto', it will create a file with [me
 #The time will be based on the start time of the mesurement
 
 #ramsey, T1, rabi, npp, readout, echo, echo_1ax, amplitude, effect_temp
-measurement: 'echo'
+measurement: 'npp'
 
 #################################################################################################################################################
 #####################################################      writing and sending sequences to AWG      ############################################
@@ -62,8 +62,8 @@ amplitude:
 rabi:
     rabi_pulse_gap: 20 #samples between readout pulse and end of qubit pulse. Does NOT change between patterns
     rabi_pulse_initial_duration: 0 #first duration of qubit pulse
-    rabi_pulse_end_duration: 10000 # Rabi length, final duration of qubit pulse (should be larger than initial)
-    step: 200
+    rabi_pulse_end_duration: 1000 # Rabi length, final duration of qubit pulse (should be larger than initial)
+    step: 20
     readout_duration: 20000
     ssb_freq: 0
     ssb_phase: -90
@@ -73,7 +73,7 @@ rabi:
 T1:
     T1_init_gap: 20 #samples between beginning of readout pulse and initial T1 pulse
     T1_final_gap: 300020 #samples between beginning of readout pulse and final T1 pulse
-    T1_q_dur: 1490 #pulse width of qubit pulse. Does not change between patterns
+    T1_q_dur: 162 #pulse width of qubit pulse. Does not change between patterns
     step: 300000/50
     readout_duration: 20000
     ssb_freq: 0
@@ -84,8 +84,8 @@ ramsey:
     ramsey_gap_2: 20 #unchanging gap between end of second qubit pulse and beginning of readout
     ramsey_gap_1_init: 0 #initial gap between the two qubit pulses
     ramsey_gap_1_final: 10000 #final gap between the two readout pulses
-    ramsey_q_dur: 1490/2 #size of each individual pulse (i.e. pi/2 pulse)
-    step: 200
+    ramsey_q_dur: 162/2 #size of each individual pulse (i.e. pi/2 pulse)
+    step: 20
     readout_duration: 20000
     ssb_freq: 0
     ssb_phase: -90
@@ -95,9 +95,9 @@ echo:
     echo_gap_2: 20 #gap between last qubit pulse and readout pulse. Does not change by pattern
     #initial should be smaller than final. Gap increases
     echo_initial_t: 20 #inital t gap between first x pulse and y pulse. Or between y pulse and second x pulse
-    echo_final_t: 10200*3 #final t gap
+    echo_final_t: 10200*6 #final t gap
     echo_pi_pulse: 1490 #pi pulse used in y pulse and number/2 used in both x pulses
-    step: 200*3
+    step: 200*6
     readout_duration: 20000
     ssb_freq: 0
     ssb_phase: 90
@@ -111,12 +111,12 @@ echo:
 effect_temp:
 
     gap_1: 20
-    ge_first_duration: 0  #pi pulse in Ch1
-    ge_second_duration: 179  #pi pulse in Ch1
+    ge_first_duration: 1490  #pi pulse in Ch1
+    ge_second_duration: 1490  #pi pulse in Ch1
     gap_2: 20
     rabi_start: 0   # in Ch3
-    rabi_stop: 1500 #+ gap between both (first and second pulse) and (second and third pulse).
-    step: 30
+    rabi_stop: 1500*5 #+ gap between both (first and second pulse) and (second and third pulse).
+    step: 30*5
     readout_duration: 20000
     ssb_freq_ge: 0
     ssb_freq_ef: 0
@@ -148,9 +148,9 @@ v_threshold: 223.85 #threshold value for distinguishing ground and excited state
 
 #static parameters, these are set before each running of the sequence
 
-set_wr: 0000 #7.08345
-set_wq:   3.36433 - 0.0002341183 #+ 0.000251947 
-set_wef: 7.20983
+set_wr: 3.033084118 #7.08345
+set_wq:    3.2529 + 0.000757865 #+ 0.000251947 
+set_wef: 7.176629
 
 set_pr: 15
 set_pq: 15
@@ -177,9 +177,9 @@ set_w_twpa: 8.4055 #8.5035
 
 #Y axis
 p1: 'wq'
-p1start: 3.35
-p1stop:  3.38
-p1step: 0.03/100
+p1start:  3.2529 - 0.1
+p1stop:   3.2529 + 0.1
+p1step: 0.2/100
 #x axis
 p2: 'r_att'
 p2start: 35
