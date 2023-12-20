@@ -96,7 +96,7 @@ with context_meas.run() as datasaver:
 dataid = datasaver.run_id
 dataset = datasaver.dataset
 dataset.export("netcdf", path=path+'actualdata') 
-rf.set('enable', False)
+#rf.set('enable', False)
 plot_dataset(dataset)
 
 plt.show()
