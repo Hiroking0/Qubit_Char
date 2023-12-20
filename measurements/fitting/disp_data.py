@@ -299,10 +299,11 @@ def continousmeas():
     plt.show()
 if __name__ == "__main__":
     #disp_sequence()
-    #show_sweep_output()
-    #disp_single_sweep()
+    #disp_nightrun()
+    #show_sweep_output() #each pattern will be overlayed on each other
+    ##disp_single_sweep() #3d plot pattern # is x axis
     #disp_3_chevrons()
+    #two_rpm()
     continousmeas()
-    
-    
+    #night_run()
     

@@ -80,11 +80,10 @@ v_threshold: 191.4 #threshold value
 #If doing a single sweep, will look at p1, double will look at both
 
 #Y axis
-p1: 'q_att' #7.14864 +- 1 MHz
-p1start: 10
-p1stop: 25
-p1step: 1
-
+p1: 'wq'
+p1start:  3.06681
+p1stop:   3.26681
+p1step: 0.002
 #x axis
 p2: 'wr'
 p2start: 7.08345
