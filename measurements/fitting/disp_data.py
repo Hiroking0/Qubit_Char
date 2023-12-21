@@ -692,6 +692,6 @@ if __name__ == "__main__":
     #disp_single_sweep() #3d plot pattern # is x axis
     #disp_3_chevrons()
     #two_rpm()
-    #continousmeas()
-    night_run()
+    continousmeas()
+    #night_run()
     

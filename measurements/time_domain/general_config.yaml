@@ -3,7 +3,7 @@ name: 'auto' #name of the file, if set to 'auto', it will create a file with [me
 #The time will be based on the start time of the mesurement
 
 #ramsey, T1, rabi, npp, readout, echo, echo_1ax, amplitude, effect_temp
-measurement: 'npp'
+measurement: 'effect_temp'
 
 #################################################################################################################################################
 #####################################################      writing and sending sequences to AWG      ############################################
@@ -111,12 +111,12 @@ echo:
 effect_temp:
 
     gap_1: 20
-    ge_first_duration: 1490  #pi pulse in Ch1
-    ge_second_duration: 1490  #pi pulse in Ch1
+    ge_first_duration: 297  #pi pulse in Ch1
+    ge_second_duration: 297  #pi pulse in Ch1
     gap_2: 20
     rabi_start: 0   # in Ch3
-    rabi_stop: 1500*5 #+ gap between both (first and second pulse) and (second and third pulse).
-    step: 30*5
+    rabi_stop: 1500 #+ gap between both (first and second pulse) and (second and third pulse).
+    step: 30
     readout_duration: 20000
     ssb_freq_ge: 0
     ssb_freq_ef: 0
@@ -137,7 +137,7 @@ night run: False
 
 #running Sequence
 pattern_repeat: 1
-seq_repeat: 1000
+seq_repeat: 2000
 #averaging
 avg_start: 1000  #The start avraging doesn't need to be changed.
 avg_length: 19750
@@ -148,9 +148,9 @@ v_threshold: 223.85 #threshold value for distinguishing ground and excited state
 
 #static parameters, these are set before each running of the sequence
 
-set_wr: 3.033084118 #7.08345
-set_wq:    3.2529 + 0.000757865 #+ 0.000251947 
-set_wef: 7.176629
+set_wr: 2.794123366 #7.08345
+set_wq:  3.36433 - 0.0002341183 #+ 0.000251947 
+set_wef: 7.09161
 
 set_pr: 15
 set_pq: 15
@@ -177,9 +177,9 @@ set_w_twpa: 8.4055 #8.5035
 
 #Y axis
 p1: 'wq'
-p1start:  3.2529 - 0.1
-p1stop:   3.2529 + 0.1
-p1step: 0.2/100
+p1start:  3.1775
+p1stop:   3.1850
+p1step: (3.1850-3.1775)/50
 #x axis
 p2: 'r_att'
 p2start: 35
