@@ -3,9 +3,10 @@ import numpy as np
 import sys
 import lmfit
 import tkinter.filedialog as filedialog
-from matplotlib.widgets import Slider,Button,TextBox
-sys.path.append("../")
-from frequency_domain import qfreq_qpow_sweep as read
+from matplotlib.widgets import Slider,Button,TextBox, CheckButtons
+import time
+sys.path.append("../../")
+from instruments import qfreq_qpow_sweep as read
 def linear_resonator(f, f_0, Q, Q_e_real, Q_e_imag):
     Q_e = Q_e_real + 1j*Q_e_imag
     return 1 - (Q * Q_e**-1 / (1 + 2j * Q * (f - f_0) / f_0))
@@ -72,19 +73,10 @@ center = TextBox(ax_center,'Center(GHz)', initial='7.0859166')
 span = TextBox(ax_span,'Span(MHz)', initial='1')
 point = TextBox(axpoints,'Points', initial='2001')
 pow = TextBox(ax_pow,'Power(dBm)', initial='-10')
-update = Button(ax_update,"Update",hovercolor = 'green')
+update = CheckButtons(ax_update,['Update'])
 saves = Button(ax_save,"Save",hovercolor = 'green')
 
 def save(event):
-    file_path = filedialog.askdirectory()
-    name = 'res_plot.txt'
-    ff = file_path + '/' + name
-    # Save the data to a text file
-    data = [f,measured_s21]
-    header = 'Column1,Column2'
-    np.savetxt(ff, data, delimiter=',', header=header)
-
-def update_fit(event):
     centers = eval(str(center.text))*1e9 #in Hz
     spans = eval(str(span.text))*1e6 #in Hz
     points=eval(str(point.text))
@@ -101,9 +93,57 @@ def update_fit(event):
     diff = abs(min(yplot) - max(yplot))
     ax.set_ylim([min(yplot) - 0.05*diff ,max(yplot + 0.05*diff)])
     fig.canvas.draw_idle()
+
+    file_path = filedialog.askdirectory()
+    name = 'res_plot.txt'
+    ff = file_path + '/' + name
+    # Save the data to a text file
+    data = [f,measured_s21]
+    header = 'Column1,Column2'
+    np.savetxt(ff, data, delimiter=',', header=header)
+
+def update_fit(event):
+    print("updated")
+    centers = eval(str(center.text))*1e9 #in Hz
+    spans = eval(str(span.text))*1e6 #in Hz
+    points=eval(str(point.text))
+    pows = eval(str(pow.text))
+    
+    start = centers - spans/2
+    stop=centers + spans/2
+    
+    f = np.linspace(start, stop, points)
+    measured_s21 = read.getdata(start,stop,points,pows)
+    line.set_data(f, 20*np.log10(np.abs(measured_s21)))
+    ax.set_xlim([start-0.05*spans ,stop+ 0.05*spans])
+    yplot = 20*np.log10(np.abs(measured_s21))
+    diff = abs(min(yplot) - max(yplot))
+    ax.set_ylim([min(yplot) - 0.05*diff ,max(yplot + 0.05*diff)])
+    fig.canvas.draw_idle()
+    plt.show()
+    print('end')
     return
+
+def on_checkbox_change(label):
+    global running
+    running = not running
+    if running:
+        run_function()
+
+# Function to run the update_function at a 2-second interval
+def run_function():
+    while running:
+        update_fit()
+        time.sleep(2)
+        print(running)
+
+# Initialize the checkbox state
+running = False
+
+
 update.on_clicked(update_fit)
 saves.on_clicked(save)
+
 plt.show()
 #__________________________________________________________
 print(measured_s21.dtype)
