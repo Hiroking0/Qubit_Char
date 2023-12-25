@@ -133,14 +133,30 @@ def live_plot(params, num_patterns,que,data_queue):
     plot_decimation = params['Plot_Decimation']
     if live_plot and pattern_number == 0 and index_number > 0 and index_number % plot_decimation == 0:
         for i in range(num_patterns):
-            #averaging the data ans saving it for the live plots
-            plt_avg_sub[0,i] = np.average(chA_avgs_sub[i][:index_number])
-            plt_avg_nosub[0,i] = np.average(chA_avgs_nosub[i][:index_number])
-            plt_avg_sub[1,i] = np.average(chB_avgs_sub[i][:index_number])
-            plt_avg_nosub[1,i] = np.average(chB_avgs_nosub[i][:index_number])
+            iteration = i + 1
+            
+            # If it's the first iteration, set the initial averages
+            if iteration == 1:
+                plt_avg_sub[0, i] = np.average(chA_avgs_sub[i][:index_number])
+                plt_avg_nosub[0, i] = np.average(chA_avgs_nosub[i][:index_number])
+                plt_avg_sub[1, i] = np.average(chB_avgs_sub[i][:index_number])
+                plt_avg_nosub[1, i] = np.average(chB_avgs_nosub[i][:index_number])
+            else:
+                # Update averages for channel A with subtraction
+                plt_avg_sub[0, i] = ((iteration - 1) * plt_avg_sub[0, i] + chA_avgs_sub[i][index_number - 1]) / iteration
+                
+                # Update averages for channel A without subtraction
+                plt_avg_nosub[0, i] = ((iteration - 1) * plt_avg_nosub[0, i] + chA_avgs_nosub[i][index_number - 1]) / iteration
+                
+                # Update averages for channel B with subtraction
+                plt_avg_sub[1, i] = ((iteration - 1) * plt_avg_sub[1, i] + chB_avgs_sub[i][index_number - 1]) / iteration
+                
+                # Update averages for channel B without subtraction
+                plt_avg_nosub[1, i] = ((iteration - 1) * plt_avg_nosub[1, i] + chB_avgs_nosub[i][index_number - 1]) / iteration
 
-        scatter_nosub_x = np.append(scatter_nosub_x,chA_avgs_nosub)
-        scatter_nosub_y = np.append(scatter_nosub_y,chB_avgs_nosub)
+
+        #scatter_nosub_x = np.append(scatter_nosub_x,chA_avgs_nosub)
+        #scatter_nosub_y = np.append(scatter_nosub_y,chB_avgs_nosub)
         #scatter_sub_x = np.append(scatter_sub_x,chA_avgs_sub)
         #scatter_sub_y = np.append(scatter_sub_y,chB_avgs_sub)
 
@@ -164,7 +180,7 @@ def live_plot(params, num_patterns,que,data_queue):
         line2.set_ydata(plt_avg_sub[1])
         line3.set_ydata(plt_avg_nosub[1])
 
-        dp.plot_iq(ax_array[0,2],scatter_nosub_x,scatter_nosub_y,'nosub')
+        #dp.plot_iq(ax_array[0,2],scatter_nosub_x,scatter_nosub_y,'nosub')
         #dp.plot_iq(ax_array[1,2],scatter_sub_x,scatter_sub_y,'sub')
         #line4.set_offsets(np.column_stack((scatter_nosub_x, scatter_nosub_y)))
         #line5.set_offsets(np.column_stack((scatter_sub_x, scatter_sub_y)))
@@ -211,7 +227,7 @@ def AcquireData(que,data_queue):
     readout_avg_array_B = np.zeros((num_patterns, samp_per_acq))
     
     #setting the arrays for the plots to save and update the plots everytime it recives data
-    '''plt_avg_sub = np.zeros((2,num_patterns))
+    plt_avg_sub = np.zeros((2,num_patterns))
     plt_avg_nosub = np.zeros((2,num_patterns))
     
     if live_plot:
@@ -235,8 +251,8 @@ def AcquireData(que,data_queue):
         ax_array[1,1].set_title('chB_nosub_avg')
         ax_array[0,2].set_title('I vs Q nosub')
         ax_array[1,2].set_title('I vs Q sub')
-        scatter_nosub_x = []
-        scatter_nosub_y = []
+        #scatter_nosub_x = []
+        #scatter_nosub_y = []
         scatter_sub_x = []
         scatter_sub_y = []
         plot_decimation = params['Plot_Decimation']
@@ -362,7 +378,7 @@ def AcquireData(que,data_queue):
             data_queue.put(data)
             #-----------------------------------------------------------------------
             #other_params=[num_patterns,pattern_number,index_number]
-            """ if live_plot:
+            if live_plot:
                 if live_plot and pattern_number == 0 and index_number > 0 and index_number % plot_decimation == 0:
                     for i in range(num_patterns):
                         #averaging the data ans saving it for the live plots
@@ -371,8 +387,8 @@ def AcquireData(que,data_queue):
                         plt_avg_sub[1,i] = np.average(chB_avgs_sub[i][:index_number])
                         plt_avg_nosub[1,i] = np.average(chB_avgs_nosub[i][:index_number])
 
-                    scatter_nosub_x = np.append(scatter_nosub_x,chA_avgs_nosub)
-                    scatter_nosub_y = np.append(scatter_nosub_y,chB_avgs_nosub)
+                    #scatter_nosub_x = np.append(scatter_nosub_x,chA_avgs_nosub)
+                    #scatter_nosub_y = np.append(scatter_nosub_y,chB_avgs_nosub)
                     #scatter_sub_x = np.append(scatter_sub_x,chA_avgs_sub)
                     #scatter_sub_y = np.append(scatter_sub_y,chB_avgs_sub)
 
@@ -396,14 +412,14 @@ def AcquireData(que,data_queue):
                     line2.set_ydata(plt_avg_sub[1])
                     line3.set_ydata(plt_avg_nosub[1])
 
-                    dp.plot_iq(ax_array[0,2],scatter_nosub_x,scatter_nosub_y,'nosub')
+                    #dp.plot_iq(ax_array[0,2],scatter_nosub_x,scatter_nosub_y,'nosub')
                     #dp.plot_iq(ax_array[1,2],scatter_sub_x,scatter_sub_y,'sub')
                     #line4.set_offsets(np.column_stack((scatter_nosub_x, scatter_nosub_y)))
                     #line5.set_offsets(np.column_stack((scatter_sub_x, scatter_sub_y)))
 
                     fig.canvas.draw()
                     fig.canvas.flush_events()
-                    plt.suptitle("rep # {}  out of {}".format(str(index_number),str(seq_repeat * pattern_repeat)))"""
+                    plt.suptitle("rep # {}  out of {}".format(str(index_number),str(seq_repeat * pattern_repeat)))
                 
                 
             
