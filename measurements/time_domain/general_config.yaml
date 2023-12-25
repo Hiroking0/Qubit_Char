@@ -3,7 +3,7 @@ name: 'auto' #name of the file, if set to 'auto', it will create a file with [me
 #The time will be based on the start time of the mesurement
 
 #ramsey, T1, rabi, npp, readout, echo, echo_1ax, amplitude, effect_temp
-measurement: 'effect_temp'
+measurement: 'rabi'
 
 #################################################################################################################################################
 #####################################################      writing and sending sequences to AWG      ############################################
