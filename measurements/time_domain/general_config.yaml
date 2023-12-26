@@ -134,7 +134,7 @@ effect_temp:
 #num_patterns will be len(range(q_dur_start, end + step, step))
 
 night run: False
-
+Plot_Decimation: 1
 #running Sequence
 pattern_repeat: 1
 seq_repeat: 2000
