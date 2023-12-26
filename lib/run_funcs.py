@@ -107,8 +107,9 @@ def run_and_acquire(awg,
     """
     save_raw = False
     manager = Manager()
+    manager1 = Manager()
     que = manager.Queue()
-    data_queue = Queue()
+    data_queue = manager1.Queue()
     #acproc = Thread(target = lambda q, board, params, num_patterns, path, raw, live:
     #                        q.put(npt.AcquireData(board, params, num_patterns, path, raw, live)), 
     #                        args = (que, board, params, num_patterns, path, save_raw, live_plot))
@@ -126,6 +127,8 @@ def run_and_acquire(awg,
     #plotting_process.start()
     time.sleep(.5)
     awg.run()
+    while not data_queue.empty():
+        data_queue.get()
     acproc.join()
     #plotting_process.join()
     arrs = que.get()
