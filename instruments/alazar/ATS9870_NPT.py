@@ -317,7 +317,12 @@ def AcquireData(que,data_queue):
     board.setRecordSize(preTriggerSamples, postTriggerSamples)
 
     recordsPerAcquisition = recordsPerBuffer * buffersPerAcquisition
-
+    print("---------------------------")
+    print(ats.ADMA_EXTERNAL_STARTCAPTURE | ats.ADMA_NPT)
+    print(ats.ADMA_EXTERNAL_STARTCAPTURE)
+    print(ats.ADMA_NPT)
+    print(samp_per_acq)
+    #print(channels)
     # Configure the board to make an NPT AutoDMA acquisition
     board.beforeAsyncRead(channels,
                           -preTriggerSamples,
