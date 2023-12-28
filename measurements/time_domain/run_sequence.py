@@ -22,7 +22,7 @@ def int_eval(data):
     return eval(str(data))
 
 def eval_yaml(yaml):
-    string_params = ['name','measurement','shape','p1','p2']
+    string_params = ['name','measurement','shape','p1','p2','Live_plot','Plot_Decimation']
 
     for key,val in yaml.items():
         if isinstance(val,dict) == False and key not in string_params :
@@ -45,7 +45,16 @@ if __name__ == "__main__":
 
     
     decimation = params['decimation']
-    
+    live_plot = params['Live_plot']
+    print("_____________")
+    print(live_plot)
+    print("!!!!!!!!!!!!!!")
+    if live_plot == 'on' or live_plot == 'ON' or live_plot == 'On' or live_plot == 'True' or live_plot == 'true' or live_plot==True :
+        #if params['seq_repeat'] < 5000:
+        live_plot = 'True'
+    else:
+        live_plot = 'False'
+    print(live_plot)
     pattern_repeat = params['pattern_repeat']
     seq_repeat = params['seq_repeat']
 
@@ -90,7 +99,8 @@ if __name__ == "__main__":
                                             board,
                                             params,
                                             num_patterns,
-                                            path)
+                                            path
+                                            )
 
             #run_funcs.turn_off_inst()
             
@@ -110,7 +120,8 @@ if __name__ == "__main__":
                                         board,
                                         params,
                                         num_patterns,
-                                        path)
+                                        path,
+                                        live_plot)
 
     #run_funcs.turn_off_inst()
     

@@ -63,7 +63,7 @@ rabi:
     rabi_pulse_gap: 20 #samples between readout pulse and end of qubit pulse. Does NOT change between patterns
     rabi_pulse_initial_duration: 0 #first duration of qubit pulse
     rabi_pulse_end_duration: 1000 # Rabi length, final duration of qubit pulse (should be larger than initial)
-    step: 20
+    step: 2
     readout_duration: 20000
     ssb_freq: 0
     ssb_phase: -90
@@ -134,10 +134,11 @@ effect_temp:
 #num_patterns will be len(range(q_dur_start, end + step, step))
 
 night run: False
-Plot_Decimation: 1
+Live_plot: on
+Plot_Decimation: 3
 #running Sequence
 pattern_repeat: 1
-seq_repeat: 2000
+seq_repeat: 10000
 #averaging
 avg_start: 1000  #The start avraging doesn't need to be changed.
 avg_length: 19750

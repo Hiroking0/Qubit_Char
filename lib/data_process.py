@@ -21,6 +21,50 @@ params = {'legend.fontsize': 'x-small',
          'xtick.labelsize':'x-small',
          'ytick.labelsize':'x-small'}
 pylab.rcParams.update(params)
+
+def calculate_combined_average(current_avg, newdata, current_num_points):
+    """
+    Calculate the new average given the current average, the number of data points
+    used for the current average, a different average, and the number of data points
+    used for the different average.
+
+    Parameters:
+    - current_avg (float): The current average.
+    - current_num_points (int): The number of data points used for the current average.
+    - new data points (list)
+
+    Returns:
+    - float: The new average.
+    """
+
+    new_num_points = len(newdata)
+    new_avg = np.average(newdata)
+    total_num_points = current_num_points + new_num_points
+    
+    if total_num_points == 0:
+        # If no data points, return the current average and count
+        return current_avg, current_num_points
+    
+    combined_avg = (current_avg * current_num_points + new_avg * new_num_points) / total_num_points
+    
+    return combined_avg
+
+def calculate_new_average(current_average, new_data, total_data_points):
+    """
+    Calculate the new average given the current average, new data point,
+    and the total number of data points.
+
+    Parameters:
+    - current_average (float): The current average.
+    - new_data (float): The new data point.
+    - total_data_points (int): The total number of data points so far.
+
+    Returns:
+    - float: The new average.
+    """
+    new_average = (current_average * total_data_points + new_data) / (total_data_points + 1)
+    return new_average
+
 # Define a function to calculate population vs. pattern
 def get_population_v_pattern(arr, thresh, GE=0, flipped=False):
     """

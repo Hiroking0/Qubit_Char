@@ -10,6 +10,7 @@ from instruments.alazar import ATS9870_NPT as npt
 from instruments import Var_att_interface as ATT
 from instruments import RF_interface as RF
 #from instruments.TekAwg import tek_awg as tawg
+from multiprocessing import Process, Manager, Queue
 import time
 import numpy as np
 from threading import Thread
@@ -219,7 +220,7 @@ def turn_off_inst():
     r_rf.disable_out()
     qef_rf.disable_out()
     
-def run_and_acquire(awg, board, params, num_patterns, path) -> Data_Arrs:
+def run_and_acquire(awg, board, params, num_patterns, path,live_plot = False) -> Data_Arrs:
     """
     Run a sequence on the AWG and acquire data.
 
@@ -234,25 +235,36 @@ def run_and_acquire(awg, board, params, num_patterns, path) -> Data_Arrs:
         Data_Arrs: An instance of Data_Arrs containing acquired data.
     """
     save_raw = False
-    live_plot = False
-    que = queue.Queue()
+    manager = Manager()
+    manager1 = Manager()
+    que = manager.Queue()
+    data_queue = manager1.Queue()
+    #acproc = Thread(target = lambda q, board, params, num_patterns, path, raw, live:
+    #                        q.put(npt.AcquireData(board, params, num_patterns, path, raw, live)), 
+    #                        args = (que, board, params, num_patterns, path, save_raw, live_plot))
 
-    acproc = Thread(target = lambda q, board, params, num_patterns, path, raw, live:
-                            q.put(npt.AcquireData(board, params, num_patterns, path, raw, live)), 
-                            args = (que, board, params, num_patterns, path, save_raw, live_plot))
+    #acproc = Process(target = lambda q, params, num_patterns, path, raw, live:
+    #                        q.put(npt.AcquireData(params, num_patterns, path, raw, live)), 
+    #                        args = (que, params, num_patterns, path, save_raw, live_plot))
 
-    #acproc = Process(target = lambda q, board, params, num_patterns, path, raw, live:
-    #                    q.put(npt.AcquireData(board, params, num_patterns, path, raw, live)), 
-    #                    args = (que, board, params, num_patterns, path, save_raw, live_plot))
+    que.put((params, num_patterns, path, save_raw, live_plot))
 
+    acproc = Process(target = npt.AcquireData, args = (que,data_queue,))
+    #plotting_process = Process(target = npt.live_plot, args = (params, num_patterns,que,data_queue,))
+    
     acproc.start()
+    #plotting_process.start()
     time.sleep(.5)
     awg.run()
+    while not data_queue.empty():
+        data_queue.get()
     acproc.join()
-    awg.stop()
+    #plotting_process.join()
     arrs = que.get()
+    awg.stop()
     data_arrs = Data_Arrs(*arrs)
     return data_arrs
+
     
     
 #this function will take one of the do_all functions as a parameter
