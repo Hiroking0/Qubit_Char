@@ -193,7 +193,6 @@ def plot_np_file(data: Data_Arrs, time_step, path = None):
     
 
     (pattern_avgs_cA, pattern_avgs_cA_sub, pattern_avgs_cB, pattern_avgs_cB_sub, mags, mags_sub) = data.get_avgs()
-    print(pattern_avgs_cB)
     
     x = [i*time_step for i in range(num_patterns)]
 
