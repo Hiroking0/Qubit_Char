@@ -46,15 +46,11 @@ if __name__ == "__main__":
     
     decimation = params['decimation']
     live_plot = params['Live_plot']
-    print("_____________")
-    print(live_plot)
-    print("!!!!!!!!!!!!!!")
-    if live_plot == 'on' or live_plot == 'ON' or live_plot == 'On' or live_plot == 'True' or live_plot == 'true' or live_plot==True :
+    if live_plot==True :
         #if params['seq_repeat'] < 5000:
-        live_plot = 'True'
+        live_plot = True
     else:
-        live_plot = 'False'
-    print(live_plot)
+        live_plot = False
     pattern_repeat = params['pattern_repeat']
     seq_repeat = params['seq_repeat']
 

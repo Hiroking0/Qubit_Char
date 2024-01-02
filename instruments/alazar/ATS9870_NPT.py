@@ -103,8 +103,6 @@ def AcquireData(que,data_queue):
     board = ats.Board(systemId = 1, boardId = 1)
     ConfigureBoard(board)
     (params, num_patterns, path, saveData, live_plot) = que.get()
-    print("--------")
-    print(live_plot)
 
     readout_dur = params[params['measurement']]['readout_duration']
     readout_trigger_offset = params['readout_trigger_offset']
@@ -141,7 +139,7 @@ def AcquireData(que,data_queue):
     plt_avg_sub = np.zeros((2,num_patterns))
     plt_avg_nosub = np.zeros((2,num_patterns))
     
-    if live_plot:
+    if live_plot==True:
         if params['measurement'] == 'readout' or params['measurement'] == 'npp':
             time_step = 1
         else:
@@ -285,8 +283,8 @@ def AcquireData(que,data_queue):
             #-----------------------------------------------------------------------
             #other_params=[num_patterns,pattern_number,index_number]
             #print(index_number,pattern_number)
-            if live_plot:
-                if live_plot and pattern_number == 0 and index_number > 0 and index_number % plot_decimation == 0:
+            if live_plot==True:
+                if pattern_number == 0 and index_number > 0 and index_number % plot_decimation == 0:
                     for i in range(num_patterns):
                         if index_number/plot_decimation == 1:
                             # If it's the first iteration, calculate the average without using the running average formula
@@ -417,7 +415,7 @@ def AcquireData(que,data_queue):
     #np.save(path + "mag_sub", mag_sub)
     #np.save(path + "mag_nosub", mag_nosub)
     
-    if live_plot:
+    if live_plot == True:
         print('closed')
         #fig.canvas.close()
 
