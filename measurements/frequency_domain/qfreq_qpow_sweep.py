@@ -44,11 +44,11 @@ VNA = PNABase(name = 'test',
               max_power = 20,
               nports = 2
               )
-VNA.set('power', -55)
+VNA.set('power', -50)
 VNA.set('points',51)
 VNA.set('timeout',None)
 VNA.set('if_bandwidth',100)
-VNA.set('cw', 7.176629e9)
+VNA.set('cw', 7.15579e9)
 VNA.set('trace','S21')
 VNA.set('sweep_type', 'CW')
 VNA.set('averages_enabled', False)
@@ -56,13 +56,13 @@ VNA.set('averages_enabled', False)
 station = qc.Station()
 station.add_component(rf)
 station.add_component(VNA)
-pow_start = -5
+pow_start = -30
 pow_stop = -0
 pow_step = 1
 
-freq_start = 3.05
-freq_stop = 3.3
-freq_step = (0.25)/250
+freq_start = 3.15
+freq_stop = 3.35
+freq_step = (0.2)/100
 
 path = filedialog.askdirectory() + "/" + name + "_"
 initialise_or_create_database_at(path)

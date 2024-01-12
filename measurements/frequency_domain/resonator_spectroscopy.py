@@ -36,11 +36,11 @@ VNA = PNABase(name = 'test',
               nports = 2
               )
 
-VNA.set('start',7.0879e9)
-VNA.set('stop',7.0883e9)
-VNA.set('points',1001)
+VNA.set('start',7.15442e9)
+VNA.set('stop',7.15642e9)
+VNA.set('points',2001)
 VNA.set('timeout',None)
-VNA.set('if_bandwidth',50)
+VNA.set('if_bandwidth',200)
 VNA.set('averages_enabled', False)
 VNA.set('averages', 1) #Only works for sweep mode averaging
 VNA.set('trace','S21')
@@ -52,14 +52,14 @@ station.add_component(rf)
 station.add_component(VNA)
 
 sweep_start = -70
-sweep_stop = -40
+sweep_stop = -0
 sweep_step = 1
 path = filedialog.askdirectory() + "/" + name + "_"
 initialise_or_create_database_at(path)
 
 tutorial_exp = load_or_create_experiment(
     experiment_name="Resonator Spectroscopy",
-    sample_name="qubit 4"
+    sample_name="Qubit Sample"
 )
 
 context_meas = Measurement(exp=tutorial_exp, station=station, name='context_example')
