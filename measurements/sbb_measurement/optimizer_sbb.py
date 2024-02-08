@@ -2,7 +2,9 @@ import pyvisa
 import sys
 import yaml
 sys.path.append("../../")
+from instruments import EXA as exa
 from lib import wave_construction as be
+
 from measurements.time_domain.run_sequence import eval_yaml
 from instruments.TekAwg import tek_awg as tawg
 from lib import wave_construction as be
@@ -10,20 +12,12 @@ from lib import send_funcs as sf
 from lib import run_funcs
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider,Button,TextBox
+from multiprocessing import Process, Manager
+print("++++++++++++++++++++++++")
+
+sa,awg = exa.get_inst()
+
 # Connect to the instrument
-
-'''import pyvisa
-rm = pyvisa.ResourceManager()
-inst = rm.open_resource('TCPIP0::::5025::SOCKET')
-inst.query('*IDN?')
-
-
-inst.read_termination = '\n'
-inst.query_delay = 1e-3
-inst.timeout = 10000
-
-inst.write(':FREQ:STAR: 200 MHz')
-inst.write(':FREQ:STOP: 800 MHz') '''
 awg = be.get_awg()
 f = open('./sbb_config.yaml','r')
 params = yaml.safe_load(f)
@@ -35,15 +29,40 @@ ax_slide_ch1 = plt.axes([0.2,0.1,0.5,0.03])
 ax_slide_ch2 = plt.axes([0.2,0.05,0.5,0.03])
 ax_slide_phase = plt.axes([0.2,0.15,0.1,0.04])
 ax_slide_sbb_freq = plt.axes([0.2,0.2,0.1,0.04])
+ax_current_plot = plt.axes([0.2,0.28,0.7,0.7])
+ax_sweep_options = plt.axes([0.75,0.1,0.1,0.03])
+
 offset_ch1 = Slider(ax_slide_ch1,"offset_ch1 [V]",valmin= -2, valmax = 2.2, valinit= awg.get_offset(1), valstep= 0.001)
 offset_ch2 = Slider(ax_slide_ch2,"offset_ch2 [V]",valmin= -2, valmax = 2.2, valinit= awg.get_offset(2), valstep= 0.001)
 phase = TextBox(ax_slide_phase,"Phase_Shift [Deg]", initial= str(init_phase))
 freq = TextBox(ax_slide_sbb_freq,"sbb_freq [GHz]", initial= str(init_freq))
+sweep_options = Button(ax_sweep_options,"Sweep Options", hovercolor = 'green')
+
+raw_freq_data,raw_pow_data = exa.getdata(sa,awg,2.9995e9,3.0005e9,20000)
+scatter_plot = ax_current_plot.scatter(raw_freq_data, raw_pow_data)
+ax_current_plot.set_xlabel('Frequency (Hz)')
+ax_current_plot.set_ylabel('Power (dBm)')
+ax_current_plot.set_title('Power vs Frequency')
+
+def sweep_button(val):
+    sweep = Process(target = opt.start())
+
+    return
+
+
+def update_plot():
+    raw_freq_data,raw_pow_data = exa.getdata(sa,awg,2.9995e9,3.0005e9,20000)
+    ax_current_plot.clear()  # clearing the axes
+    ax_current_plot.scatter(raw_freq_data, raw_pow_data)  # creating new scatter chart with updated data
+    ax_current_plot.figure.canvas.draw_idle()
+
 def update_ch1_offset(val):
     awg.set_offset(offset_ch1.val,1)
-    
+    update_plot()
+
 def update_ch2_offset(val):
     awg.set_offset(offset_ch2.val,2)
+    update_plot()
 
 def update_phase(val):
     name = params['name']
@@ -74,6 +93,7 @@ def update_phase(val):
     run_funcs.initialize_awg(awg, num_patterns, pattern_repeat, decimation)
     print("--------complete--------")
     awg.run()
+    update_plot()
 
 def update_freq(val):
     name = params['name']
@@ -105,9 +125,11 @@ def update_freq(val):
     run_funcs.initialize_awg(awg, num_patterns, pattern_repeat, decimation)
     print("--------complete--------")
     awg.run()
+    update_plot()
 
 offset_ch1.on_changed(update_ch1_offset)
 offset_ch2.on_changed(update_ch2_offset)
 phase.on_submit(update_phase)
 freq.on_submit(update_freq)
+#sweep_options.on_clicked(sweep_button)
 plt.show()
